@@ -1,0 +1,461 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+
+
+<link rel="shortcut icon" href="/favicons/favicon.ico" >
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicons/android-36x36.png" sizes="36x36">
+<link rel="icon" type="image/png" href="/favicons/android-48x48.png" sizes="48x48">
+<link rel="icon" type="image/png" href="/favicons/android-72x72.png" sizes="72x72">
+<link rel="icon" type="image/png" href="/favicons/android-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicons/android-144x144.png" sizes="144x144">
+<link rel="icon" type="image/png" href="/favicons/android-192x192.png" sizes="192x192">
+
+<title>History of eBPF | Engineering Everything with eBPF</title>
+<meta name="description" content="Journey from classic BPF in the nineties to the modern 64-bit virtual machine.">
+<meta property="og:url" content="https://ebpf.hamza-megahed.com/docs/chapter1/2-history/">
+  <meta property="og:site_name" content="Engineering Everything with eBPF">
+  <meta property="og:title" content="History of eBPF">
+  <meta property="og:description" content="Journey from classic BPF in the nineties to the modern 64-bit virtual machine.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+  <meta itemprop="name" content="History of eBPF">
+  <meta itemprop="description" content="Journey from classic BPF in the nineties to the modern 64-bit virtual machine.">
+  <meta itemprop="wordCount" content="2212">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="History of eBPF">
+  <meta name="twitter:description" content="Journey from classic BPF in the nineties to the modern 64-bit virtual machine.">
+<link rel="preload" href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" as="style" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<link href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" rel="stylesheet" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+  crossorigin="anonymous"></script>
+<script defer
+  src="https://unpkg.com/lunr@2.3.9/lunr.min.js"
+  integrity="sha384-203J0SNzyqHby3iU6hzvzltrWi/M41wOP5Gu+BiJMz5nwKykbkUx8Kp7iti0Lpli"
+  crossorigin="anonymous"></script>
+
+  </head>
+  <body class="td-page">
+    <header>
+      <nav class="td-navbar js-navbar-scroll" data-bs-theme="dark">
+<div class="container-fluid flex-column flex-md-row">
+  <a class="navbar-brand" href="/"><span class="navbar-brand__logo navbar-logo"></span><span class="navbar-brand__name">Engineering Everything with eBPF</span></a>
+  <div class="td-navbar-nav-scroll ms-md-auto" id="main_navbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="/docs/"><span>Documentation</span></a>
+      </li>
+      </ul>
+  </div>
+  <div class="d-none d-lg-block">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+  </div>
+</div>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <aside class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            <div id="td-sidebar-menu" class="td-sidebar__inner">
+  <form class="td-sidebar__search d-flex align-items-center">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ms-3 fas fa-bars" type="button" data-bs-toggle="collapse" data-bs-target="#td-section-nav" aria-controls="td-section-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  <nav class="td-sidebar-nav collapse" id="td-section-nav">
+    <ul class="td-sidebar-nav__section pe-md-3 ul-0">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docs-li">
+  <a href="/docs/" title="Engineering Everything with eBPF" class="align-left ps-0 td-sidebar-link td-sidebar-link__section tree-root" id="m-docs"><span class="">Documentation</span></a>
+  <ul class="ul-1">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter0-li">
+  <a href="/docs/chapter0/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter0"><span class="">Before We Begin</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter01-author-li">
+  <a href="/docs/chapter0/1-author/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter01-author"><span class="">Author</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter03-copyright-li">
+  <a href="/docs/chapter0/3-copyright/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter03-copyright"><span class="">Copyright</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter04-preface-li">
+  <a href="/docs/chapter0/4-preface/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter04-preface"><span class="">Preface</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter05-contribution-li">
+  <a href="/docs/chapter0/5-contribution/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter05-contribution"><span class="">Contribution Guidelines</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter02-acknowledgements-li">
+  <a href="/docs/chapter0/2-acknowledgements/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter02-acknowledgements"><span class=""></span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docschapter1-li">
+  <a href="/docs/chapter1/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter1"><span class="">What is eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter11-intro-li">
+  <a href="/docs/chapter1/1-intro/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter11-intro"><span class="">Introduction</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docschapter12-history-li">
+  <a href="/docs/chapter1/2-history/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docschapter12-history"><span class="td-sidebar-nav-active-item">History of eBPF</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter13-real-world-li">
+  <a href="/docs/chapter1/3-real-world/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter13-real-world"><span class="">eBPF in the Real World</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter14-why-li">
+  <a href="/docs/chapter1/4-why/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter14-why"><span class="">Why eBPF?</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter15-arch-li">
+  <a href="/docs/chapter1/5-arch/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter15-arch"><span class="">eBPF Architecture</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter2-li">
+  <a href="/docs/chapter2/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter2"><span class="">eBPF Taking off</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter21-bpf_syscall-li">
+  <a href="/docs/chapter2/1-bpf_syscall/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter21-bpf_syscall"><span class="">bpf() syscall</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter22-maps-li">
+  <a href="/docs/chapter2/2-maps/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter22-maps"><span class="">eBPF Maps</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter23-map_operations-li">
+  <a href="/docs/chapter2/3-map_operations/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter23-map_operations"><span class="">eBPF Map Operations</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter24-prog_types-li">
+  <a href="/docs/chapter2/4-prog_types/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter24-prog_types"><span class="">eBPF Program Types</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter3-li">
+  <a href="/docs/chapter3/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter3"><span class="">eBPF Probes</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter31-kprobe-kretprobe-li">
+  <a href="/docs/chapter3/1-kprobe-kretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter31-kprobe-kretprobe"><span class="">Kprobe and Kretprobe</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter32-uprobe-uretprobe-li">
+  <a href="/docs/chapter3/2-uprobe-uretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter32-uprobe-uretprobe"><span class="">Uprobes and Uretprobes</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter33-tracepoints-li">
+  <a href="/docs/chapter3/3-tracepoints/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter33-tracepoints"><span class="">Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter34-raw_tracepoints-li">
+  <a href="/docs/chapter3/4-raw_tracepoints/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter34-raw_tracepoints"><span class="">Raw Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter35-fentry-fexit-li">
+  <a href="/docs/chapter3/5-fentry-fexit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter35-fentry-fexit"><span class="">Fentry and Fexit</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter4-li">
+  <a href="/docs/chapter4/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter4"><span class="">Networking with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter41-socket-li">
+  <a href="/docs/chapter4/1-socket/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter41-socket"><span class="">Socket Filter</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter42-lwt-li">
+  <a href="/docs/chapter4/2-lwt/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter42-lwt"><span class="">Lightweight Tunnels</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter43-tc-li">
+  <a href="/docs/chapter4/3-tc/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter43-tc"><span class="">Traffic Control</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter44-xdp-li">
+  <a href="/docs/chapter4/4-xdp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter44-xdp"><span class="">XDP</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter45-cgroup_sock_addr-li">
+  <a href="/docs/chapter4/5-cgroup_sock_addr/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter45-cgroup_sock_addr"><span class="">CGroup Socket Address</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter5-li">
+  <a href="/docs/chapter5/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter5"><span class="">Security with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter51-seccomp-li">
+  <a href="/docs/chapter5/1-seccomp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter51-seccomp"><span class="">Seccomp</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter52-lsm-li">
+  <a href="/docs/chapter5/2-lsm/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter52-lsm"><span class="">Linux Security Module (LSM)</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter53-landlock-li">
+  <a href="/docs/chapter5/3-landlock/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter53-landlock"><span class="">Landlock</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter54-bpf_send_signal-li">
+  <a href="/docs/chapter5/4-bpf_send_signal/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter54-bpf_send_signal"><span class="">bpf_send_signal</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter55-tetragon-li">
+  <a href="/docs/chapter5/5-tetragon/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter55-tetragon"><span class="">Tetragon</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter56-bpfilter-li">
+  <a href="/docs/chapter5/6-bpfilter/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter56-bpfilter"><span class="">Bpfilter</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter6-li">
+  <a href="/docs/chapter6/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter6"><span class="">Tools and languages</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter61-bpftrace-li">
+  <a href="/docs/chapter6/1-bpftrace/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter61-bpftrace"><span class="">bpftrace</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter62-bcc-li">
+  <a href="/docs/chapter6/2-bcc/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter62-bcc"><span class="">BCC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter63-bpftool-li">
+  <a href="/docs/chapter6/3-bpftool/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter63-bpftool"><span class="">BPFTool</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter64-tail-call-li">
+  <a href="/docs/chapter6/4-tail-call/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter64-tail-call"><span class="">Tail call</span></a>
+</li>
+  </ul>
+</li>
+  </ul>
+</li>
+    </ul>
+  </nav>
+</div>
+
+          </aside>
+          <aside class="d-none d-xl-block col-xl-2 td-sidebar-toc d-print-none">
+            <div class="td-page-meta ms-2 pb-1 pt-2 mb-0">
+<a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/tree/main/content/docs/chapter1/2-history.md" class="td-page-meta--view td-page-meta__view" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines fa-fw"></i> View page source</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/edit/main/content/docs/chapter1/2-history.md" class="td-page-meta--edit td-page-meta__edit" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Edit this page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/new/main/content/docs/chapter1?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60getting-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" class="td-page-meta--child td-page-meta__child" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Create child page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new?title=History%20of%20eBPF" class="td-page-meta--issue td-page-meta__issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create documentation issue</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new" class="td-page-meta--project td-page-meta__project-issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create project issue</a>
+  <a id="print" href="/docs/chapter1/_print/"><i class="fa-solid fa-print fa-fw"></i> Print entire section</a>
+
+</div>
+
+            <div class="td-toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#origins-of-bpf-berkeley-packet-filter">Origins of BPF (Berkeley Packet Filter)</a></li>
+        <li><a href="#classic-bpf-and-its-limitations">Classic BPF and Its Limitations</a></li>
+        <li><a href="#integration-of-bpf-into-the-linux-kernel">Integration of BPF into the Linux Kernel</a></li>
+        <li><a href="#introduction-and-evolution-of-ebpf-2014-present">Introduction and Evolution of eBPF (2014-Present)</a></li>
+        <li><a href="#naming-confusion">Naming Confusion</a></li>
+        <li><a href="#example-using-tcpdump">Example Using tcpdump</a></li>
+        <li><a href="#explanation-of-the-generated-bpf-bytecode">Explanation of the Generated BPF Bytecode</a></li>
+        <li><a href="#classic-bpf-vs-ebpf">Classic BPF vs. eBPF</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </div>
+    
+            
+	
+          </aside>
+          <main class="col-12 col-md-9 col-xl-8 ps-md-5" role="main">
+            
+  
+
+            <nav aria-label="breadcrumb" class="td-breadcrumbs">
+  <ol class="breadcrumb">
+  <li class="breadcrumb-item">
+    <a href="/docs/">Documentation</a></li>
+  <li class="breadcrumb-item">
+    <a href="/docs/chapter1/">What is eBPF</a></li>
+  <li class="breadcrumb-item active" aria-current="page">
+    History of eBPF</li>
+  </ol>
+</nav>
+            
+<div class="td-content">
+	<h1>History of eBPF</h1>
+	<div class="lead">Journey from classic BPF in the nineties to the modern 64-bit virtual machine.</div>
+	<header class="article-meta">
+		
+  </header>
+	<h3 id="origins-of-bpf-berkeley-packet-filter">Origins of BPF (Berkeley Packet Filter)<a class="td-heading-self-link" href="#origins-of-bpf-berkeley-packet-filter" aria-label="Heading self-link"></a></h3>
+<p>The origins of eBPF (extended Berkeley Packet Filter) trace back to its predecessor, the Berkeley Packet Filter (BPF). BPF was first introduced in 1992 by Steven McCanne and Van Jacobson at the Lawrence Berkeley Laboratory. It was designed to provide a high-performance, user-programmable packet filtering mechanism for network monitoring tools, particularly for capturing packets in real-time.</p>
+<p>Prior to BPF, packet capturing was inefficient due to the need for constant context switching between the kernel and user space. The kernel would pass every network packet to user space, where filtering decisions were made. This approach led to significant overhead. BPF addressed this problem by enabling the execution of filtering programs directly within the kernel, allowing only relevant packets to be passed to user space. This dramatically improved performance and efficiency.</p>
+<h3 id="classic-bpf-and-its-limitations">Classic BPF and Its Limitations<a class="td-heading-self-link" href="#classic-bpf-and-its-limitations" aria-label="Heading self-link"></a></h3>
+<p>Classic BPF, often referred to as &ldquo;cBPF,&rdquo; worked by allowing users to write simple programs to filter network traffic based on specific patterns. These programs were expressed as sequences of low-level instructions that the BPF virtual machine (VM) running in the kernel could interpret and execute. The most notable tool that leveraged cBPF was <code>tcpdump</code>, which allowed network administrators to capture and analyze network packets effectively.</p>
+<p>Despite its efficiency, cBPF had several limitations:</p>
+<ol>
+<li><strong>Limited Instruction Set</strong>: The instruction set of classic BPF was restricted to basic filtering operations, making it unsuitable for more complex use cases.</li>
+<li><strong>Single-Purpose</strong>: cBPF was designed primarily for packet filtering. It lacked the flexibility to perform tasks beyond network monitoring.</li>
+<li><strong>32-bit Architecture</strong>: Classic BPF programs operated on 32-bit registers, which limited performance and data processing capabilities.</li>
+<li><strong>Lack of Extensibility</strong>: There was no straightforward way to extend the functionality of cBPF beyond packet filtering.</li>
+</ol>
+<h3 id="integration-of-bpf-into-the-linux-kernel">Integration of BPF into the Linux Kernel<a class="td-heading-self-link" href="#integration-of-bpf-into-the-linux-kernel" aria-label="Heading self-link"></a></h3>
+<p>BPF was first integrated into the Linux kernel in 1997, starting from version 2.1. This integration allowed kernel-level packet filtering for tools like <code>tcpdump</code> and <code>iptables</code>. Over time, the BPF VM became a reliable mechanism for filtering network traffic efficiently within the kernel space.</p>
+<p>However, as system and network performance demands grew, the limitations of classic BPF became more clear. The need for a more powerful, flexible, and extensible version of BPF led to the development of eBPF.</p>
+<h3 id="introduction-and-evolution-of-ebpf-2014-present">Introduction and Evolution of eBPF (2014-Present)<a class="td-heading-self-link" href="#introduction-and-evolution-of-ebpf-2014-present" aria-label="Heading self-link"></a></h3>
+<p>In 2014, the Linux kernel version 3.18 introduced &ldquo;extended BPF&rdquo; (eBPF). eBPF was a significant enhancement over classic BPF, providing a modern, flexible, and powerful framework for executing user-defined programs within the kernel. The key improvements introduced by eBPF include:</p>
+<ol>
+<li><strong>64-bit Registers</strong>: eBPF uses a 64-bit architecture, which improves performance and data-handling capabilities.</li>
+<li><strong>General-Purpose</strong>: eBPF is no longer limited to packet filtering; it can be used for various tasks, including tracing, performance monitoring, security enforcement, and more.</li>
+<li><strong>Extensible and Safe</strong>: eBPF programs are verified by an in-kernel verifier to ensure safety, preventing programs from crashing the kernel or causing security vulnerabilities.</li>
+<li><strong>Just-In-Time (JIT) Compilation</strong>: eBPF programs can be compiled into native machine code at runtime, which significantly improves execution speed.</li>
+<li><strong>Maps and Helpers</strong>: eBPF supports maps (key-value storage) and helper functions that provide interaction between eBPF programs and the kernel.</li>
+</ol>
+<p>Since its introduction, eBPF has evolved rapidly, with continuous enhancements to its feature set and performance. Projects like <code>bcc</code> (BPF Compiler Collection), <code>bpftool</code>, and <code>libbpf</code> have made writing and deploying eBPF programs more accessible. eBPF is now used extensively for networking, observability, and security tasks in major projects like Cilium, Falco, and the Kubernetes ecosystem.</p>
+<h3 id="naming-confusion">Naming Confusion<a class="td-heading-self-link" href="#naming-confusion" aria-label="Heading self-link"></a></h3>
+<p>The terminology surrounding BPF and eBPF often leads to confusion due to the historical evolution of the technology. Originally, BPF referred exclusively to the Berkeley Packet Filter designed for packet capture. However, with the introduction of eBPF in 2014, the technology evolved far beyond its initial purpose, supporting tasks like tracing, performance monitoring, and security.</p>
+<p>Despite these advancements, many tools and kernel APIs continue to use the term &ldquo;BPF&rdquo; even when referring to eBPF functionality. For example, commands like <code>bpftool</code> and the <code>bpf()</code> system call refer to eBPF features while retaining the older name. This overlap in terminology can cause misunderstandings, especially for newcomers who may not be aware of the differences between classic BPF and modern eBPF.</p>
+<p>To avoid confusion, it&rsquo;s helpful to use &ldquo;BPF&rdquo; when referring to the original packet-filtering technology and &ldquo;eBPF&rdquo; when discussing the extended capabilities introduced in the modern framework. This distinction clarifies communication and ensures a better understanding of the technology&rsquo;s capabilities in the Linux ecosystem.</p>
+<h3 id="example-using-tcpdump">Example Using tcpdump<a class="td-heading-self-link" href="#example-using-tcpdump" aria-label="Heading self-link"></a></h3>
+<p>To illustrate classic BPF in action, consider a simple <code>tcpdump</code> command that captures only TCP traffic on port 80 (HTTP):</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tcpdump -i eth0 <span style="color:#4e9a06">&#39;ip and tcp port 80&#39;</span>
+</span></span></code></pre></div><p>This command filters packets to capture only those that are TCP-based and are using port 80. The underlying BPF bytecode generated by this command can be viewed using the <code>-d</code> flag:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tcpdump -i eth0 -d <span style="color:#4e9a06">&#39;ip and tcp port 80 tcp port 80&#39;</span>
+</span></span></code></pre></div><p>The output might look like this:</p>
+<pre tabindex="0"><code>(000) ldh      [12]
+(001) jeq      #0x800           jt 2    jf 12
+(002) ldb      [23]
+(003) jeq      #0x6             jt 4    jf 12
+(004) ldh      [20]
+(005) jset     #0x1fff          jt 12   jf 6
+(006) ldxb     4*([14]&amp;0xf)
+(007) ldh      [x + 14]
+(008) jeq      #0x50            jt 11   jf 9
+(009) ldh      [x + 16]
+(010) jeq      #0x50            jt 11   jf 12
+(011) ret      #262144
+(012) ret      #0
+</code></pre><h3 id="explanation-of-the-generated-bpf-bytecode">Explanation of the Generated BPF Bytecode<a class="td-heading-self-link" href="#explanation-of-the-generated-bpf-bytecode" aria-label="Heading self-link"></a></h3>
+<p>Before diving into the example, take a moment to review the following diagram of the Ethernet, IP, and TCP headers. This will help you visualize how the packet is structured, making it easier to follow along with each step in the BPF bytecode. Keep this scheme in mind as we go through the example to understand how each instruction maps to specific parts of the packet.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter1/network-structure.png" alt="Centered image" />
+</p>
+<p>Here&rsquo;s the breakdown of each instruction, including the relevant source code location and <strong>snippets</strong> from the Linux kernel where these actions are defined or represented.</p>
+<ol>
+<li>
+<p><strong>Instruction 000</strong> <code>ldh [12]</code>: Load the 16-bit EtherType field at offset 12 in the packet as described in the kernel source code <code>include/uapi/linux/if_ether.h</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define ETH_HLEN 14          </span><span style="color:#8f5902;font-style:italic">/* Total Ethernet header length */</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define ETH_P_IP 0x0800      </span><span style="color:#8f5902;font-style:italic">/* IPv4 EtherType */</span><span style="color:#8f5902;font-style:italic">
+</span></span></span></code></pre></div></li>
+<li>
+<p><strong>Instruction 001</strong> <code>jeq #0x800 jt 2 jf 12</code>: If the EtherType is <code>0x800</code> (IPv4), jump to instruction 2; otherwise, jump to instruction 12.</p>
+</li>
+<li>
+<p><strong>Instruction 002</strong> <code>ldb [23]</code>: Load the 8-bit protocol field at offset 23 in the IP header.</p>
+</li>
+<li>
+<p><strong>Instruction 003</strong> <code>jeq #0x6 jt 4 jf 12</code>: If the protocol is <code>6</code> (TCP), jump to instruction 4; otherwise, jump to instruction 12 as described in the kernel source code <code>include/uapi/linux/in.h</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define IPPROTO_TCP 6        </span><span style="color:#8f5902;font-style:italic">/* Transmission Control Protocol */</span><span style="color:#8f5902;font-style:italic">
+</span></span></span></code></pre></div></li>
+<li>
+<p><strong>Instruction 004</strong>: <code>ldh [20]</code>: Load the 16-bit TCP source port at offset 20.</p>
+</li>
+<li>
+<p><strong>Instruction 005</strong>: <code>jset #0x1fff jt 12 jf 6</code>: Check if the lower 13 bits of the TCP header are non-zero; if true, jump to instruction 12; otherwise, jump to instruction 6.</p>
+</li>
+<li>
+<p><strong>Instruction 006</strong>: <code>ldxb 4*([14]&amp;0xf)</code>: Load the value in the TCP header, adjusting by scaling based on the value in the IP header.</p>
+</li>
+<li>
+<p><strong>Instruction 007</strong>: <code>ldh [x + 14]</code>: Load the TCP destination port, located at offset 14 from the start of the packet.</p>
+</li>
+<li>
+<p><strong>Instruction 008</strong>: <code>jeq #0x50 jt 11 jf 9</code>: If the destination port is <code>80</code> (0x50 in hexadecimal), jump to instruction 11; otherwise, jump to instruction 9.</p>
+</li>
+<li>
+<p><strong>Instruction 009</strong>: <code>ldh [x + 16]</code>: Load the TCP source port, located at offset 16 from the start of the packet.</p>
+</li>
+<li>
+<p><strong>Instruction 010</strong>: <code>jeq #0x50 jt 11 jf 12</code>: If the source port is <code>80</code> (0x50), jump to instruction 11; otherwise, jump to instruction 12.</p>
+</li>
+<li>
+<p><strong>Instruction 011</strong>: <code>ret #262144</code>: If all conditions match, capture the packet (return the packet length).</p>
+</li>
+<li>
+<p><strong>Instruction 012</strong>: <code>ret #0</code>: If the conditions do not match, drop the packet.</p>
+</li>
+</ol>
+<p>These instructions illustrate a classic BPF packet filter that matches IPv4 and TCP traffic on port 80 (HTTP). The constants and structures provided are standard definitions in the Linux kernel. This bytecode demonstrates how classic BPF allows efficient filtering by executing a series of low-level instructions directly in the kernel.</p>
+
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    By specifying &ldquo;tcp port 80&rdquo; in the filter, the bytecode includes extra instructions (like Instruction 008 and Instruction 010) to check both the source and destination ports for port <code>80</code>. Without explicitly defining both ports, the filter would not distinguish between source and destination ports, simplifying the bytecode. These additional checks ensure that packets using port <code>80</code> in either direction are captured.
+
+</div>
+
+<p>Let’s explore the differences between classic BPF and eBPF to better understand the enhanced capabilities of eBPF.</p>
+<h3 id="classic-bpf-vs-ebpf">Classic BPF vs. eBPF<a class="td-heading-self-link" href="#classic-bpf-vs-ebpf" aria-label="Heading self-link"></a></h3>
+<p>As mentioned, Berkeley Packet Filter (BPF) was originally developed to filter network packets efficiently. It enabled in-kernel filtering of packets based on simple criteria. However, as the need for more versatile and performant filtering and monitoring grew, extended BPF (eBPF) emerged as a powerful evolution. eBPF transforms BPF into a general-purpose execution engine within the kernel, providing significantly more flexibility and efficiency.</p>
+<p>The following 6 points explores the key differences between eBPF and classic BPF, based on Kernel Documentation <a href="https://docs.kernel.org/bpf/classic_vs_extended.html">https://docs.kernel.org/bpf/classic_vs_extended.html</a>.</p>
+<p><strong>1. Use Cases</strong></p>
+<p><strong>Classic BPF</strong> is primarily used for packet filtering. Its primary use case is in network monitoring tools like <code>tcpdump</code>, where it allows users to specify packet filtering rules directly within the kernel.</p>
+<p>eBPF, however, has vastly expanded use cases. eBPF is used in:</p>
+<ul>
+<li><strong>System monitoring</strong>: Collecting detailed information on kernel events such as system calls, file access, and network traffic.</li>
+<li><strong>Performance profiling</strong>: Monitoring the performance of different parts of the kernel, applications, or system calls in real-time.</li>
+<li><strong>Security</strong>: Tools like seccomp (Secure Computing Mode) use eBPF to filter system calls, enforcing security policies directly at the kernel level.</li>
+<li><strong>Tracing</strong>: Tracing the execution of kernel functions and user programs, providing insights into system behavior.</li>
+</ul>
+<hr>
+<p><strong>2. Instruction Set and Operations</strong></p>
+<p>Classic BPF has a very limited instruction set, primarily designed for basic operations like loading data, performing simple arithmetic, jumping, and returning values.</p>
+<p>eBPF, in contrast, expands the instruction set significantly. It introduces new operations like:</p>
+<ul>
+<li><strong>BPF_MOV</strong> for moving data between registers,</li>
+<li><strong>BPF_ARSH</strong> for arithmetic right shift with sign extension,</li>
+<li><strong>BPF_CALL</strong> for calling helper functions (which will be explained in more details later).</li>
+</ul>
+<p>Additionally, eBPF supports 64-bit operations (via <code>BPF_ALU64</code>) and atomic operations like BPF_XADD, enabling more sophisticated processing directly in the kernel.</p>
+<p><strong>3. Registers and Data Handling</strong></p>
+<p>Classic BPF only has two registers (A and X), with limited memory and stack space. The operations on data are simple and restricted to 32-bit width, and these registers are manipulated with specific instructions that limit flexibility.</p>
+<p>eBPF greatly improves on this by expanding the number of registers from 2 to 10. eBPF&rsquo;s calling conventions are designed for high efficiency, utilizing registers (R1-R5) to pass arguments directly into the kernel functions. After the function call, registers R1-R5 are reset, and R0 holds the return value.This allows for more complex operations and handling of more data. Registers in eBPF are also 64-bit wide, which enables direct mapping to hardware registers on modern 64-bit processors. This wider register set and the introduction of a read-only frame pointer (R10) allow eBPF to handle more complex operations like function calls with multiple arguments and results.</p>
+<p><strong>4. JIT Compilation and Performance</strong></p>
+<p>Classic BPF is interpreted by the kernel, This means the kernel would read and execute each instruction one by one which adds overhead to the execution of each instruction. This can be a limiting factor when performing more complex operations or filtering on high-throughput systems.</p>
+<p>eBPF is designed with Just-In-Time (JIT) compilation in mind, meaning that eBPF programs can be translated into optimized native machine code at runtime. The JIT compiler can convert eBPF bytecode to highly efficient machine instructions, reducing the overhead significantly. This allows eBPF programs to perform at speeds comparable to native code execution, even for complex tasks like system call filtering and network traffic analysis.</p>
+<p><strong>5. Safety and Verifier</strong></p>
+<p>Classic BPF uses a simple verifier that checks for program safety by ensuring there are no errors like out-of-bounds memory access.</p>
+<p>eBPF, on the other hand, includes a more sophisticated verifier that ensures the program complies to a set of strict rules before execution. The verifier checks for issues like:</p>
+<ul>
+<li>Accessing invalid memory regions,</li>
+<li>Ensuring correct pointer arithmetic,</li>
+<li>Verifying that all function calls are made with valid arguments.</li>
+</ul>
+<p>This makes eBPF programs much safer, even when they are running with elevated privileges or performing sensitive tasks in the kernel.</p>
+<p><strong>6. Program Size and Restrictions</strong></p>
+<p>Classic BPF: The original BPF format had a program size limit of 4096 instructions, and programs had to be very efficient to avoid exceeding this limit. The limited number of registers and operations meant that programs were usually simple and short.</p>
+<p>eBPF: While eBPF still retains a 4096 instruction limit for kernels before 5.2 and one million instructions for kernel starting from 5.2, its expanded instruction set and register size allow for significantly more complex programs. Additionally, the eBPF verifier ensures that programs are safe, loop-free, and deterministic. Furthermore, there are restrictions on the number of arguments that can be passed to kernel functions (currently up to five), although these can be relaxed in future versions of eBPF. Tail calls also allow chaining multiple eBPF programs together, effectively extending the overall execution beyond the single-program instruction limit.</p>
+<p>Now, let&rsquo;s dive into real-world examples to see how eBPF is applied in action and understand its practical benefits.</p>
+
+	
+</div>
+
+
+          </main>
+        </div>
+      </div>
+      <footer class="td-footer row d-print-none">
+  <div class="container-fluid">
+    <div class="row mx-md-2">
+      <div class="td-footer__left col-6 col-sm-4 order-sm-1">
+        
+      </div><div class="td-footer__right col-6 col-sm-4 order-sm-3">
+        <ul class="td-footer__links-list">
+  
+  <li class="td-footer__links-item" data-bs-toggle="tooltip" title="GitHub" aria-label="GitHub">
+    <a target="_blank" rel="noopener" href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF" aria-label="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+      </div><div class="td-footer__center col-12 col-sm-4 py-2 order-sm-2">
+        <span class="td-footer__copyright">&copy;
+    2025
+    <span class="td-footer__authors">Hamza Megahed | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a> |</span></span><span class="td-footer__all_rights_reserved">All Rights Reserved</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script src="/js/main.min.69e2c1ae9320465ab10236d9ef752c6a4442c54b48b883b17c497b7c7d96a796.js" integrity="sha256-aeLBrpMgRlqxAjbZ73UsakRCxUtIuIOxfEl7fH2Wp5Y=" crossorigin="anonymous"></script>
+<script defer src="/js/click-to-copy.min.73478a7d4807698aed7e355eb23f9890ca18fea3158604c8471746d046702bad.js" integrity="sha256-c0eKfUgHaYrtfjVesj&#43;YkMoY/qMVhgTIRxdG0EZwK60=" crossorigin="anonymous"></script>
+<script src='/js/tabpane-persist.js'></script>
+
+  </body>
+</html>

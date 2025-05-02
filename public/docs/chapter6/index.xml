@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tools and languages on Engineering Everything with eBPF</title>
+    <link>https://ebpf.hamza-megahed.com/docs/chapter6/</link>
+    <description>Recent content in Tools and languages on Engineering Everything with eBPF</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <atom:link href="https://ebpf.hamza-megahed.com/docs/chapter6/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>bpftrace</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter6/1-bpftrace/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter6/1-bpftrace/</guid>
+      <description>bpftrace is a powerful, high-level tracing language for Linux that simplifies the process of creating eBPF (Extended Berkeley Packet Filter) programs. It simplifies the process of instrumenting kernel and user-space code by providing a simple language to attach probes to kernel functions, tracepoints, and user-defined events in a user-friendly syntax, inspired by awk, C, and other tracing tools, enabling users to quickly gain insights into system behavior. By abstracting away the complexities of low-level eBPF programming and leveraging libbpf as its backend, bpftrace allows system administrators, performance engineers, and developers to easily observe and analyze system performance without requiring extensive eBPF expertise.</description>
+    </item>
+    <item>
+      <title>BCC</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter6/2-bcc/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter6/2-bcc/</guid>
+      <description>BCC in short is a toolkit that makes eBPF development easier by providing a higher-level interface. It compiles your eBPF C code at runtime to match the target kernel’s data structures. BCC works with languages like Python, Lua, and C++, and includes helpful macros and shortcuts for simpler programming. Essentially, BCC takes your eBPF program as a C string, preprocesses it, and then compiles it using clang.&#xA;The following is a crash course on BCC.</description>
+    </item>
+    <item>
+      <title>BPFTool</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter6/3-bpftool/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter6/3-bpftool/</guid>
+      <description>BPFTool is a command-line utility for interacting with eBPF programs and maps in the Linux kernel. It provides a comprehensive set of commands for loading, inspecting, and debugging eBPF objects. With bpftool, users can load compiled eBPF programs into the kernel, attach them to various kernel events or network interfaces, and manage eBPF maps used for storing and sharing data between kernel and user space. It also offers powerful introspection capabilities, allowing users to examine the state of running eBPF programs, including their maps, attached probes, and verifier logs, making it an indispensable tool for eBPF developers and system administrators working with modern Linux observability and networking.</description>
+    </item>
+    <item>
+      <title>Tail call</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter6/4-tail-call/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter6/4-tail-call/</guid>
+      <description>Tail calls in eBPF let you chain together multiple BPF programs, effectively bypassing the instruction limit imposed on individual programs which is around 4096 instructions before kernel 5.2 and now the limit is one million instructions. Tail calls can also be used to break up the code logic into multiple parts to enable modular design. Tail call transfers control from one eBPF program to another without returning to the caller. 1.</description>
+    </item>
+  </channel>
+</rss>

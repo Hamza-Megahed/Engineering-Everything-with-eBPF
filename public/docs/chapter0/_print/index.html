@@ -1,0 +1,425 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="canonical" type="text/html" href="https://ebpf.hamza-megahed.com/docs/chapter0/">
+<link rel="alternate" type="application/rss&#43;xml" href="https://ebpf.hamza-megahed.com/docs/chapter0/index.xml">
+<meta name="robots" content="noindex, nofollow">
+
+
+<link rel="shortcut icon" href="/favicons/favicon.ico" >
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicons/android-36x36.png" sizes="36x36">
+<link rel="icon" type="image/png" href="/favicons/android-48x48.png" sizes="48x48">
+<link rel="icon" type="image/png" href="/favicons/android-72x72.png" sizes="72x72">
+<link rel="icon" type="image/png" href="/favicons/android-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicons/android-144x144.png" sizes="144x144">
+<link rel="icon" type="image/png" href="/favicons/android-192x192.png" sizes="192x192">
+
+<title>Before We Begin | Engineering Everything with eBPF</title>
+<meta name="description" content="A compact front matter bundle that gives you the author bio copyright preface and contribution checklist so you know who wrote the book under what license and how to send improvements">
+<meta property="og:url" content="https://ebpf.hamza-megahed.com/docs/chapter0/">
+  <meta property="og:site_name" content="Engineering Everything with eBPF">
+  <meta property="og:title" content="Before We Begin">
+  <meta property="og:description" content="A compact front matter bundle that gives you the author bio copyright preface and contribution checklist so you know who wrote the book under what license and how to send improvements">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="website">
+
+  <meta itemprop="name" content="Before We Begin">
+  <meta itemprop="description" content="A compact front matter bundle that gives you the author bio copyright preface and contribution checklist so you know who wrote the book under what license and how to send improvements">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Before We Begin">
+  <meta name="twitter:description" content="A compact front matter bundle that gives you the author bio copyright preface and contribution checklist so you know who wrote the book under what license and how to send improvements">
+<link rel="preload" href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" as="style" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<link href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" rel="stylesheet" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+  crossorigin="anonymous"></script>
+<script defer
+  src="https://unpkg.com/lunr@2.3.9/lunr.min.js"
+  integrity="sha384-203J0SNzyqHby3iU6hzvzltrWi/M41wOP5Gu+BiJMz5nwKykbkUx8Kp7iti0Lpli"
+  crossorigin="anonymous"></script>
+
+  </head>
+  <body class="td-section">
+    <header>
+      <nav class="td-navbar js-navbar-scroll" data-bs-theme="dark">
+<div class="container-fluid flex-column flex-md-row">
+  <a class="navbar-brand" href="/"><span class="navbar-brand__logo navbar-logo"></span><span class="navbar-brand__name">Engineering Everything with eBPF</span></a>
+  <div class="td-navbar-nav-scroll ms-md-auto" id="main_navbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="/docs/"><span>Documentation</span></a>
+      </li>
+      </ul>
+  </div>
+  <div class="d-none d-lg-block">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+  </div>
+</div>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 ps-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+This is the multi-page printable view of this section.
+<a href="#" onclick="print();return false;">Click here to print</a>.
+</p><p>
+<a href="/docs/chapter0/">Return to the regular view of this page</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">Before We Begin</h1>
+<div class="lead">A compact front matter bundle that gives you the author bio copyright preface and contribution checklist so you know who wrote the book under what license and how to send improvements</div>
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-f1abc94ab9dd0328ab8f7448ea29f5f9">Author</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-bd8dea12a0ce6cf6a67f34b2608f64bd">Copyright</a></li>
+
+
+    
+  
+    
+    
+	
+<li>3: <a href="#pg-05a22326b56c4d8a7045396638438327">Preface</a></li>
+
+
+    
+  
+    
+    
+	
+<li>4: <a href="#pg-1c6242dbc0bc81bc2d240d9164272607">Contribution Guidelines</a></li>
+
+
+    
+  
+    
+    
+	
+<li>5: <a href="#pg-bce1c354c315a95f95c7aade814709c6"></a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-f1abc94ab9dd0328ab8f7448ea29f5f9">1 - Author</h1>
+    <div class="lead">Brief background of the writer and why eBPF matters to them.</div>
+	<h3 id="author">Author<a class="td-heading-self-link" href="#author" aria-label="Heading self-link"></a></h3>
+<p>Hamza Megahed</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-bd8dea12a0ce6cf6a67f34b2608f64bd">2 - Copyright</h1>
+    <div class="lead">The legal line that tells the year, owner, and Creative Commons license.</div>
+	<h3 id="license">License<a class="td-heading-self-link" href="#license" aria-label="Heading self-link"></a></h3>
+<p>© 2025 Hamza Megahed – <em>Engineering Everything with eBPF</em></p>
+<p><strong>License: Creative Commons Attribution 4.0 International (CC BY 4.0)</strong><br>
+This license lets anyone copy, redistribute, remix, transform, and build upon the material for any purpose—even commercially—so long as they give appropriate credit and indicate if changes were made.</p>
+<p><a href="https://creativecommons.org/licenses/by/4.0/"><img alt="CC BY 4.0 badge – click for license details" src="https://i.creativecommons.org/l/by/4.0/88x31.png"></a></p>
+<h3 id="code-licenses">Code Licenses<a class="td-heading-self-link" href="#code-licenses" aria-label="Heading self-link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Part of the project</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kernel-space eBPF examples</td>
+<td><strong>GPL-2.0-or-later</strong></td>
+</tr>
+<tr>
+<td>User-space loaders, scripts, utilities</td>
+<td><strong>Apache 2.0</strong></td>
+</tr>
+<tr>
+<td>Book text &amp; figures</td>
+<td><strong>CC BY 4.0</strong> (this page)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="disclaimer">Disclaimer<a class="td-heading-self-link" href="#disclaimer" aria-label="Heading self-link"></a></h3>
+<p>Running eBPF programs generally requires root access or the <strong>CAP_BPF</strong> capability. The kernel verifier guards against crashes, but inefficient or incorrectly attached programs can still degrade performance or disrupt networking. Test all examples on a non-production system first. Neither the author shall be liable for any damages arising from the use of this material.</p>
+<p>Running eBPF programs requires elevated privileges and can affect system stability. Follow the examples at your own risk. Neither the author nor the publisher shall be liable for any damages arising from the use of this material.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-05a22326b56c4d8a7045396638438327">3 - Preface</h1>
+    <div class="lead">Welcome message explaining what you will learn and how to use the book.</div>
+	<p>Hello and welcome. <strong>Engineering Everything with eBPF</strong> is your friendly guide to eBPF on Linux. eBPF lets you run tiny programs inside the kernel so you can watch what the system is doing, filter network traffic, and even add safety checks—all without changing kernel source code. That sounds powerful, and it is. But it can also feel confusing the first time you see strange section names like <code>SEC(&quot;xdp&quot;)</code> or long helper calls. Do not worry. Every chapter walks you through one small idea at a time, then shows a real example working on your own machine.</p>
+<p><strong>Why this book exists</strong><br>
+When I began learning eBPF, I kept bouncing between blog posts and mailing-list threads, piecing things together. I wrote <strong>Engineering Everything with eBPF</strong> so you do not have to repeat that maze. You will start by loading a five-line program, see the result right away, and gradually build up to practical tools for tracing disk I/O, shaping network traffic, and securing containers.</p>
+<p><strong>Plain language, lots of examples</strong><br>
+I use short sentences, clear words, and plenty of code. Each new term—<em>map</em>, <em>verifier</em>, <em>tail call</em>—appears next to a tiny program you can copy, run, and explore. After you run the code, the explanation will make more sense. If something still feels cloudy, keep reading; later chapters revisit the idea from a different angle.</p>
+<p><strong>Tested environment</strong><br>
+All code listings were compiled and executed on Linux kernel 6.12.22, with Clang/LLVM 17 and libbpf 1.5. If you use this kernel (or a newer one) the examples should work exactly as printed. When newer kernels add handy helpers or map types, I point them out and tell you whether you need to adjust your code.</p>
+<p><strong>What you need</strong></p>
+<ul>
+<li>A Linux box or virtual machine with kernel 6.12.22+</li>
+<li><code>clang</code>, <code>lld</code>, <code>make</code>, and typical build tools</li>
+<li>Root access (or the <code>CAP_BPF</code> capability) to load programs</li>
+<li>A sense of curiosity—nothing else</li>
+</ul>
+<p><strong>How to read</strong><br>
+<em>Skim first, run later.</em> Browse the chapter, copy the program, run it, then come back and read the full explanation. Learning speeds up when you see the output with your own eyes. If a term is still unclear, do not worry; it often becomes obvious after the next example.</p>
+<p>By the final chapter you will have a small toolbox of eBPF programs you can adapt to real-world tasks—debugging, performance tuning, or keeping a service safe. Take your time, run the code, and enjoy the process. Everything will click, step by step. Let’s begin our journey into eBPF together.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-1c6242dbc0bc81bc2d240d9164272607">4 - Contribution Guidelines</h1>
+    <div class="lead">Quick steps for opening issues and pull requests plus the code and text licenses.</div>
+	<p>We’re happy you want to make <strong>Engineering Everything with eBPF</strong> better.<br>
+The steps below keep changes smooth and easy.</p>
+<ol>
+<li>
+<p><strong>Open an issue first</strong></p>
+<ul>
+<li>Create a GitHub issue for typos, unclear text, new examples, or bugs in sample code.</li>
+<li>Show what you saw and what you expect instead. Screenshots or terminal output help a lot.</li>
+</ul>
+</li>
+<li>
+<p><strong>Fork the repo and create a branch</strong></p>
+<ul>
+<li>Fork, then name your branch clearly—­for example <code>fix-ringbuf-example</code> or <code>add-cgroup-section</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Write in the same simple style</strong></p>
+<ul>
+<li>Short sentences, plain English.</li>
+<li>Use fenced code blocks (<code>```c</code> for C, <code>```bash</code> for shell).</li>
+<li>Wrap Markdown lines at about 80 characters so diffs stay readable.</li>
+</ul>
+</li>
+<li>
+<p><strong>Test what you add</strong></p>
+<ul>
+<li>All examples must build and run on <strong>at least Linux 6.12.22, Clang/LLVM 17, and libbpf 1.5—or newer</strong>.</li>
+<li>If you change existing code, run it to confirm the output still matches the book.</li>
+<li>Add a short comment showing expected output if it helps readers verify success.</li>
+</ul>
+</li>
+<li>
+<p><strong>Open a pull request</strong></p>
+<ul>
+<li>Reference the related issue (for example, <code>Fixes #123</code>).</li>
+<li>In the PR description, explain <strong>why</strong> you made the change and <strong>how</strong> you tested it.</li>
+<li>CI checks will compile the code and build the book; please wait for them to pass.</li>
+</ul>
+</li>
+<li>
+<p><strong>Review process</strong></p>
+<ul>
+<li>We aim to review within a week. Friendly suggestions are normal—feel free to ask for clarification.</li>
+<li>Once approved, a maintainer will merge and include your name in the release notes.</li>
+</ul>
+</li>
+<li>
+<p><strong>Licensing</strong></p>
+<ul>
+<li><strong>Kernel eBPF source files</strong>
+<ul>
+<li>If the file contains
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">LICENSE</span><span style="color:#000;font-weight:bold">[]</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;license&#34;</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;GPL&#34;</span><span style="color:#000;font-weight:bold">;</span>
+</span></span></code></pre></div>it is contributed under <strong>GPL-2.0-or-later</strong> so it can use GPL-only helpers.</li>
+<li>You may instead set the string to <code>&quot;BSD&quot;</code>, <code>&quot;MIT&quot;</code>, or any SPDX-compatible identifier if you prefer a more permissive license.
+<ul>
+<li><strong>Important:</strong> the kernel will then <em>not</em> allow GPL-only helpers; choose this path only if your code does not need them.</li>
+<li>State your chosen license in the file header so readers know the terms.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>User-space loaders, scripts, and utilities</strong> are <strong>Apache 2.0</strong> by default (mention in the header if you prefer GPL).</li>
+<li><strong>Book text and diagrams</strong> remain <strong>Creative Commons BY 4.0</strong>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Code of Conduct</strong></p>
+<ul>
+<li>We follow the <a href="https://www.contributor-covenant.org/">Contributor Covenant v2.1</a>. Please be respectful, patient, and welcoming.
+That’s it! Thank you for helping more people engineer everything with eBPF.</li>
+</ul>
+</li>
+</ol>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-bce1c354c315a95f95c7aade814709c6">5 - </h1>
+    
+	<!-- ---
+title: Acknowledgements
+description:
+weight: 3
+--- -->
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      <footer class="td-footer row d-print-none">
+  <div class="container-fluid">
+    <div class="row mx-md-2">
+      <div class="td-footer__left col-6 col-sm-4 order-sm-1">
+        
+      </div><div class="td-footer__right col-6 col-sm-4 order-sm-3">
+        <ul class="td-footer__links-list">
+  
+  <li class="td-footer__links-item" data-bs-toggle="tooltip" title="GitHub" aria-label="GitHub">
+    <a target="_blank" rel="noopener" href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF" aria-label="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+      </div><div class="td-footer__center col-12 col-sm-4 py-2 order-sm-2">
+        <span class="td-footer__copyright">&copy;
+    2025
+    <span class="td-footer__authors">Hamza Megahed | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a> |</span></span><span class="td-footer__all_rights_reserved">All Rights Reserved</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script src="/js/main.min.69e2c1ae9320465ab10236d9ef752c6a4442c54b48b883b17c497b7c7d96a796.js" integrity="sha256-aeLBrpMgRlqxAjbZ73UsakRCxUtIuIOxfEl7fH2Wp5Y=" crossorigin="anonymous"></script>
+<script defer src="/js/click-to-copy.min.73478a7d4807698aed7e355eb23f9890ca18fea3158604c8471746d046702bad.js" integrity="sha256-c0eKfUgHaYrtfjVesj&#43;YkMoY/qMVhgTIRxdG0EZwK60=" crossorigin="anonymous"></script>
+<script src='/js/tabpane-persist.js'></script>
+
+  </body>
+</html>

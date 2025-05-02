@@ -1,0 +1,980 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+
+
+<link rel="shortcut icon" href="/favicons/favicon.ico" >
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicons/android-36x36.png" sizes="36x36">
+<link rel="icon" type="image/png" href="/favicons/android-48x48.png" sizes="48x48">
+<link rel="icon" type="image/png" href="/favicons/android-72x72.png" sizes="72x72">
+<link rel="icon" type="image/png" href="/favicons/android-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicons/android-144x144.png" sizes="144x144">
+<link rel="icon" type="image/png" href="/favicons/android-192x192.png" sizes="192x192">
+
+<title>eBPF Maps | Engineering Everything with eBPF</title>
+<meta name="description" content="Kernel-resident hash tables arrays LRU caches and ring buffers that store data shared between eBPF programs and user processes making stateful tasks possible.">
+<meta property="og:url" content="https://ebpf.hamza-megahed.com/docs/chapter2/2-maps/">
+  <meta property="og:site_name" content="Engineering Everything with eBPF">
+  <meta property="og:title" content="eBPF Maps">
+  <meta property="og:description" content="Kernel-resident hash tables arrays LRU caches and ring buffers that store data shared between eBPF programs and user processes making stateful tasks possible.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+  <meta itemprop="name" content="eBPF Maps">
+  <meta itemprop="description" content="Kernel-resident hash tables arrays LRU caches and ring buffers that store data shared between eBPF programs and user processes making stateful tasks possible.">
+  <meta itemprop="wordCount" content="3881">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="eBPF Maps">
+  <meta name="twitter:description" content="Kernel-resident hash tables arrays LRU caches and ring buffers that store data shared between eBPF programs and user processes making stateful tasks possible.">
+<link rel="preload" href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" as="style" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<link href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" rel="stylesheet" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+  crossorigin="anonymous"></script>
+<script defer
+  src="https://unpkg.com/lunr@2.3.9/lunr.min.js"
+  integrity="sha384-203J0SNzyqHby3iU6hzvzltrWi/M41wOP5Gu+BiJMz5nwKykbkUx8Kp7iti0Lpli"
+  crossorigin="anonymous"></script>
+
+  </head>
+  <body class="td-page">
+    <header>
+      <nav class="td-navbar js-navbar-scroll" data-bs-theme="dark">
+<div class="container-fluid flex-column flex-md-row">
+  <a class="navbar-brand" href="/"><span class="navbar-brand__logo navbar-logo"></span><span class="navbar-brand__name">Engineering Everything with eBPF</span></a>
+  <div class="td-navbar-nav-scroll ms-md-auto" id="main_navbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="/docs/"><span>Documentation</span></a>
+      </li>
+      </ul>
+  </div>
+  <div class="d-none d-lg-block">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+  </div>
+</div>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <aside class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            <div id="td-sidebar-menu" class="td-sidebar__inner">
+  <form class="td-sidebar__search d-flex align-items-center">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ms-3 fas fa-bars" type="button" data-bs-toggle="collapse" data-bs-target="#td-section-nav" aria-controls="td-section-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  <nav class="td-sidebar-nav collapse" id="td-section-nav">
+    <ul class="td-sidebar-nav__section pe-md-3 ul-0">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docs-li">
+  <a href="/docs/" title="Engineering Everything with eBPF" class="align-left ps-0 td-sidebar-link td-sidebar-link__section tree-root" id="m-docs"><span class="">Documentation</span></a>
+  <ul class="ul-1">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter0-li">
+  <a href="/docs/chapter0/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter0"><span class="">Before We Begin</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter01-author-li">
+  <a href="/docs/chapter0/1-author/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter01-author"><span class="">Author</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter03-copyright-li">
+  <a href="/docs/chapter0/3-copyright/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter03-copyright"><span class="">Copyright</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter04-preface-li">
+  <a href="/docs/chapter0/4-preface/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter04-preface"><span class="">Preface</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter05-contribution-li">
+  <a href="/docs/chapter0/5-contribution/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter05-contribution"><span class="">Contribution Guidelines</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter02-acknowledgements-li">
+  <a href="/docs/chapter0/2-acknowledgements/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter02-acknowledgements"><span class=""></span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter1-li">
+  <a href="/docs/chapter1/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter1"><span class="">What is eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter11-intro-li">
+  <a href="/docs/chapter1/1-intro/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter11-intro"><span class="">Introduction</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter12-history-li">
+  <a href="/docs/chapter1/2-history/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter12-history"><span class="">History of eBPF</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter13-real-world-li">
+  <a href="/docs/chapter1/3-real-world/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter13-real-world"><span class="">eBPF in the Real World</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter14-why-li">
+  <a href="/docs/chapter1/4-why/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter14-why"><span class="">Why eBPF?</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter15-arch-li">
+  <a href="/docs/chapter1/5-arch/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter15-arch"><span class="">eBPF Architecture</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docschapter2-li">
+  <a href="/docs/chapter2/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter2"><span class="">eBPF Taking off</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter21-bpf_syscall-li">
+  <a href="/docs/chapter2/1-bpf_syscall/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter21-bpf_syscall"><span class="">bpf() syscall</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docschapter22-maps-li">
+  <a href="/docs/chapter2/2-maps/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docschapter22-maps"><span class="td-sidebar-nav-active-item">eBPF Maps</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter23-map_operations-li">
+  <a href="/docs/chapter2/3-map_operations/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter23-map_operations"><span class="">eBPF Map Operations</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter24-prog_types-li">
+  <a href="/docs/chapter2/4-prog_types/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter24-prog_types"><span class="">eBPF Program Types</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter3-li">
+  <a href="/docs/chapter3/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter3"><span class="">eBPF Probes</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter31-kprobe-kretprobe-li">
+  <a href="/docs/chapter3/1-kprobe-kretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter31-kprobe-kretprobe"><span class="">Kprobe and Kretprobe</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter32-uprobe-uretprobe-li">
+  <a href="/docs/chapter3/2-uprobe-uretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter32-uprobe-uretprobe"><span class="">Uprobes and Uretprobes</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter33-tracepoints-li">
+  <a href="/docs/chapter3/3-tracepoints/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter33-tracepoints"><span class="">Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter34-raw_tracepoints-li">
+  <a href="/docs/chapter3/4-raw_tracepoints/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter34-raw_tracepoints"><span class="">Raw Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter35-fentry-fexit-li">
+  <a href="/docs/chapter3/5-fentry-fexit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter35-fentry-fexit"><span class="">Fentry and Fexit</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter4-li">
+  <a href="/docs/chapter4/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter4"><span class="">Networking with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter41-socket-li">
+  <a href="/docs/chapter4/1-socket/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter41-socket"><span class="">Socket Filter</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter42-lwt-li">
+  <a href="/docs/chapter4/2-lwt/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter42-lwt"><span class="">Lightweight Tunnels</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter43-tc-li">
+  <a href="/docs/chapter4/3-tc/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter43-tc"><span class="">Traffic Control</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter44-xdp-li">
+  <a href="/docs/chapter4/4-xdp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter44-xdp"><span class="">XDP</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter45-cgroup_sock_addr-li">
+  <a href="/docs/chapter4/5-cgroup_sock_addr/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter45-cgroup_sock_addr"><span class="">CGroup Socket Address</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter5-li">
+  <a href="/docs/chapter5/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter5"><span class="">Security with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter51-seccomp-li">
+  <a href="/docs/chapter5/1-seccomp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter51-seccomp"><span class="">Seccomp</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter52-lsm-li">
+  <a href="/docs/chapter5/2-lsm/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter52-lsm"><span class="">Linux Security Module (LSM)</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter53-landlock-li">
+  <a href="/docs/chapter5/3-landlock/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter53-landlock"><span class="">Landlock</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter54-bpf_send_signal-li">
+  <a href="/docs/chapter5/4-bpf_send_signal/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter54-bpf_send_signal"><span class="">bpf_send_signal</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter55-tetragon-li">
+  <a href="/docs/chapter5/5-tetragon/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter55-tetragon"><span class="">Tetragon</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter56-bpfilter-li">
+  <a href="/docs/chapter5/6-bpfilter/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter56-bpfilter"><span class="">Bpfilter</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter6-li">
+  <a href="/docs/chapter6/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter6"><span class="">Tools and languages</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter61-bpftrace-li">
+  <a href="/docs/chapter6/1-bpftrace/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter61-bpftrace"><span class="">bpftrace</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter62-bcc-li">
+  <a href="/docs/chapter6/2-bcc/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter62-bcc"><span class="">BCC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter63-bpftool-li">
+  <a href="/docs/chapter6/3-bpftool/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter63-bpftool"><span class="">BPFTool</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter64-tail-call-li">
+  <a href="/docs/chapter6/4-tail-call/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter64-tail-call"><span class="">Tail call</span></a>
+</li>
+  </ul>
+</li>
+  </ul>
+</li>
+    </ul>
+  </nav>
+</div>
+
+          </aside>
+          <aside class="d-none d-xl-block col-xl-2 td-sidebar-toc d-print-none">
+            <div class="td-page-meta ms-2 pb-1 pt-2 mb-0">
+<a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/tree/main/content/docs/chapter2/2-maps.md" class="td-page-meta--view td-page-meta__view" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines fa-fw"></i> View page source</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/edit/main/content/docs/chapter2/2-maps.md" class="td-page-meta--edit td-page-meta__edit" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Edit this page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/new/main/content/docs/chapter2?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60getting-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" class="td-page-meta--child td-page-meta__child" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Create child page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new?title=eBPF%20Maps" class="td-page-meta--issue td-page-meta__issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create documentation issue</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new" class="td-page-meta--project td-page-meta__project-issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create project issue</a>
+  <a id="print" href="/docs/chapter2/_print/"><i class="fa-solid fa-print fa-fw"></i> Print entire section</a>
+
+</div>
+
+            <div class="td-toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#introduction-to-ebpf-maps">Introduction to eBPF Maps</a></li>
+        <li><a href="#maps-in-ebpf-program">Maps in eBPF program</a></li>
+        <li><a href="#1-hash-map">1. Hash Map</a></li>
+        <li><a href="#2-array-map">2. Array Map</a></li>
+        <li><a href="#3-perf-event-array-map">3. Perf Event Array Map</a></li>
+        <li><a href="#4-prog-array-map">4. Prog Array Map</a></li>
+        <li><a href="#5-percpu-hash-map">5. PERCPU Hash Map</a></li>
+        <li><a href="#6-percpu-array-map">6. PERCPU Array Map</a></li>
+        <li><a href="#7-lpm-trie-map">7. LPM Trie Map</a></li>
+        <li><a href="#8-array-of-maps-map">8. Array of Maps Map</a></li>
+        <li><a href="#9-hash-of-maps-maps">9. Hash of Maps Maps</a></li>
+        <li><a href="#10-ring-buffer-map">10. Ring Buffer Map</a></li>
+        <li><a href="#the-right-ebpf-map-type">The Right eBPF Map Type</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </div>
+    
+            
+	
+          </aside>
+          <main class="col-12 col-md-9 col-xl-8 ps-md-5" role="main">
+            
+  
+
+            <nav aria-label="breadcrumb" class="td-breadcrumbs">
+  <ol class="breadcrumb">
+  <li class="breadcrumb-item">
+    <a href="/docs/">Documentation</a></li>
+  <li class="breadcrumb-item">
+    <a href="/docs/chapter2/">eBPF Taking off</a></li>
+  <li class="breadcrumb-item active" aria-current="page">
+    eBPF Maps</li>
+  </ol>
+</nav>
+            
+<div class="td-content">
+	<h1>eBPF Maps</h1>
+	<div class="lead">Kernel-resident hash tables arrays LRU caches and ring buffers that store data shared between eBPF programs and user processes making stateful tasks possible.</div>
+	<header class="article-meta">
+		
+  </header>
+	<h3 id="introduction-to-ebpf-maps">Introduction to eBPF Maps<a class="td-heading-self-link" href="#introduction-to-ebpf-maps" aria-label="Heading self-link"></a></h3>
+<p>One of the key design elements that make eBPF so flexible and powerful is the concept of maps. An eBPF map is a data structure residing in the kernel, accessible both by eBPF programs and user space applications. Maps provide a stable way to share state, pass configuration or lookup data, store metrics, and build more complex logic around kernel events.</p>
+<p>Unlike traditional kernel data structures, eBPF maps are created, managed, and destroyed via well-defined syscalls and helper functions. They offer a form of persistent kernel memory to eBPF programs, ensuring that data can outlast a single function call or event. This allows administrators and developers to build sophisticated tools for tracing, networking, security, performance monitoring, and more—without modifying or recompiling the kernel.</p>
+<p>The Linux kernel defines numerous map types (more than 30 as of this writing), each optimized for different use cases. Some store generic key-value pairs, others store arrays or are used specifically for attaching events, referencing other maps, or implementing special data structures like tries. Choosing the right map type depends on the data and the operations you need to perform.</p>
+<p>Before we start with explaining eBPF maps, we need to install either <code>gcc</code> or <code>clang</code>, along with <code>libbpf-dev</code>, to compile our examples. These tools are essential for building and linking the necessary components for eBPF programs. On Debian and Ubuntu, you can install them using the following command:
+<code>sudo apt install gcc libbpf-dev</code></p>
+<p>Below, we explore ten commonly used eBPF map types, detailing their conceptual purpose, common use cases, and providing code snippets demonstrating their creation using the <code>bpf_create_map()</code> API.</p>
+<hr>
+<p>From the large collection defined in the kernel’s <code>/include/uapi/linux/bpf.h</code>,</p>
+<pre tabindex="0"><code>enum bpf_map_type {
+	BPF_MAP_TYPE_UNSPEC,
+	BPF_MAP_TYPE_HASH,
+	BPF_MAP_TYPE_ARRAY,
+	BPF_MAP_TYPE_PROG_ARRAY,
+	BPF_MAP_TYPE_PERF_EVENT_ARRAY,
+	BPF_MAP_TYPE_PERCPU_HASH,
+	BPF_MAP_TYPE_PERCPU_ARRAY,
+	BPF_MAP_TYPE_STACK_TRACE,
+	BPF_MAP_TYPE_CGROUP_ARRAY,
+	BPF_MAP_TYPE_LRU_HASH,
+	BPF_MAP_TYPE_LRU_PERCPU_HASH,
+	BPF_MAP_TYPE_LPM_TRIE,
+	BPF_MAP_TYPE_ARRAY_OF_MAPS,
+	BPF_MAP_TYPE_HASH_OF_MAPS,
+	BPF_MAP_TYPE_DEVMAP,
+	BPF_MAP_TYPE_SOCKMAP,
+	BPF_MAP_TYPE_CPUMAP,
+	BPF_MAP_TYPE_XSKMAP,
+	BPF_MAP_TYPE_SOCKHASH,
+	BPF_MAP_TYPE_CGROUP_STORAGE_DEPRECATED,
+	BPF_MAP_TYPE_CGROUP_STORAGE = BPF_MAP_TYPE_CGROUP_STORAGE_DEPRECATED,
+	BPF_MAP_TYPE_REUSEPORT_SOCKARRAY,
+	BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE_DEPRECATED,
+	BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE = BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE_DEPRECATED,
+	BPF_MAP_TYPE_QUEUE,
+	BPF_MAP_TYPE_STACK,
+	BPF_MAP_TYPE_SK_STORAGE,
+	BPF_MAP_TYPE_DEVMAP_HASH,
+	BPF_MAP_TYPE_STRUCT_OPS,
+	BPF_MAP_TYPE_RINGBUF,
+	BPF_MAP_TYPE_INODE_STORAGE,
+	BPF_MAP_TYPE_TASK_STORAGE,
+	BPF_MAP_TYPE_BLOOM_FILTER,
+	BPF_MAP_TYPE_USER_RINGBUF,
+	BPF_MAP_TYPE_CGRP_STORAGE,
+	BPF_MAP_TYPE_ARENA,
+	__MAX_BPF_MAP_TYPE
+};
+</code></pre><p>we’ll focus on these ten map types:</p>
+<ol>
+<li>BPF_MAP_TYPE_HASH</li>
+<li>BPF_MAP_TYPE_ARRAY</li>
+<li>BPF_MAP_TYPE_PERF_EVENT_ARRAY</li>
+<li>BPF_MAP_TYPE_PROG_ARRAY</li>
+<li>BPF_MAP_TYPE_PERCPU_HASH</li>
+<li>BPF_MAP_TYPE_PERCPU_ARRAY</li>
+<li>BPF_MAP_TYPE_LPM_TRIE</li>
+<li>BPF_MAP_TYPE_ARRAY_OF_MAPS</li>
+<li>BPF_MAP_TYPE_HASH_OF_MAPS</li>
+<li>BPF_MAP_TYPE_RINGBUF</li>
+</ol>
+<p>These map types are either widely used or particularly illustrative of eBPF’s capabilities. Together, they represent a broad spectrum of data structures and functionalities.</p>
+<h3 id="maps-in-ebpf-program">Maps in eBPF program<a class="td-heading-self-link" href="#maps-in-ebpf-program" aria-label="Heading self-link"></a></h3>
+<p>In eBPF, there are two main components: the eBPF program (which runs in the kernel) and the user-space code (both components will be explained later). It is common to define maps in the eBPF program, but maps are actually created and managed in user-space using the <code>bpf()</code> syscall.
+The eBPF program (kernel-side) defines how the map should look and how it will be used by the program. This definition specifies the map&rsquo;s type, key size, value size, and other parameters. However, the actual creation of the map (allocating memory for it in the kernel and linking it to the eBPF program) occurs in user-space. This process involves invoking the <code>bpf()</code> syscall with the <code>BPF_MAP_CREATE</code> command.
+In practice, BTF (BPF Type Format) style maps are the preferred method for defining maps in eBPF programs. Using BTF provides a more flexible, type-safe way to define maps and makes it easier to manage complex data structures. We will explain BTF (BPF Type Format) later in details. When a user-space process issues a BPF_MAP_CREATE command, the kernel invokes the map_create(&amp;attr) function which look like the following:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">static</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">union</span> <span style="color:#000">bpf_attr</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">attr</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_ops</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ops</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_token</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">token</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">numa_node</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_attr_numa_node</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">attr</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">u32</span> <span style="color:#000">map_type</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">attr</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">map_type</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">map</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">bool</span> <span style="color:#000">token_flag</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">f_flags</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000;font-weight:bold">[...]</span>
+</span></span></code></pre></div><p><strong>libbpf Wrapper for <code>BPF_MAP_CREATE</code> Command:</strong></p>
+<p>The <code>bpf_map_create()</code> function is part of the libbpf library, which provides a user-space interface for interacting with eBPF in Linux. Internally, <code>bpf_map_create()</code> sets up the necessary parameters for creating an eBPF map and then makes a call to the <code>bpf()</code> syscall with the <code>BPF_MAP_CREATE</code> command. This function simplifies the process for the user by abstracting away the complexities of directly using the <code>bpf()</code> syscall. It configures the map, including its type, key size, value size, and the number of entries, and once these parameters are prepared, <code>bpf_map_create()</code> invokes the <code>bpf()</code> syscall with the <code>BPF_MAP_CREATE</code> command, instructing the kernel to create the eBPF map. In essence, <code>bpf_map_create()</code> serves as a user-friendly wrapper around the <code>bpf()</code> syscall&rsquo;s <code>BPF_MAP_CREATE</code> command or <code>map_create</code> function, making it easier for user-space programs to create eBPF maps.</p>
+<p><code>bpf_map_create()</code> wrapper function is defined in the Kernel source code under <code>tools/lib/bpf/bpf.c</code>. The function prototype is as follows:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">enum</span> <span style="color:#000">bpf_map_type</span> <span style="color:#000">map_type</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">map_name</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#000">__u32</span> <span style="color:#000">key_size</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#000">__u32</span> <span style="color:#000">value_size</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#000">__u32</span> <span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                   <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_create_opts</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><ul>
+<li><strong><code>map_type</code></strong>: Specifies the type of the map (e.g., <code>BPF_MAP_TYPE_HASH</code>).</li>
+<li><strong><code>map_name</code></strong>: The name of the map.</li>
+<li><strong><code>key_size</code></strong>: Size of the key in the map.</li>
+<li><strong><code>value_size</code></strong>: Size of the value in the map.</li>
+<li><strong><code>max_entries</code></strong>: Maximum number of entries the map can hold.</li>
+<li><strong><code>opts</code></strong>: A pointer to the <code>bpf_map_create_opts</code> structure, which contains additional options for map creation (such as flags, BTF information, etc.).</li>
+</ul>
+<p>The <strong><code>bpf_map_create_opts</code></strong> structure in <strong>libbpf</strong> is defined as follows in <strong><code>/tools/lib/bpf/bpf.h</code></strong>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_create_opts</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">size_t</span> <span style="color:#000">sz</span><span style="color:#000;font-weight:bold">;</span>                     <span style="color:#8f5902;font-style:italic">/* Size of this struct for forward/backward compatibility */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">btf_fd</span><span style="color:#000;font-weight:bold">;</span>                  <span style="color:#8f5902;font-style:italic">/* BTF (BPF Type Format) file descriptor for type information */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">btf_key_type_id</span><span style="color:#000;font-weight:bold">;</span>         <span style="color:#8f5902;font-style:italic">/* BTF key type ID for the map */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">btf_value_type_id</span><span style="color:#000;font-weight:bold">;</span>       <span style="color:#8f5902;font-style:italic">/* BTF value type ID for the map */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">btf_vmlinux_value_type_id</span><span style="color:#000;font-weight:bold">;</span> <span style="color:#8f5902;font-style:italic">/* BTF vmlinux value type ID for maps */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">;</span>            <span style="color:#8f5902;font-style:italic">/* File descriptor for an inner map (for nested maps) */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">map_flags</span><span style="color:#000;font-weight:bold">;</span>               <span style="color:#8f5902;font-style:italic">/* Flags for the map (e.g., read-only, etc.) */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u64</span> <span style="color:#000">map_extra</span><span style="color:#000;font-weight:bold">;</span>               <span style="color:#8f5902;font-style:italic">/* Extra space for future expansion or additional settings */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">numa_node</span><span style="color:#000;font-weight:bold">;</span>               <span style="color:#8f5902;font-style:italic">/* NUMA node to assign the map */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">map_ifindex</span><span style="color:#000;font-weight:bold">;</span>             <span style="color:#8f5902;font-style:italic">/* Network interface index for map assignment */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__s32</span> <span style="color:#000">value_type_btf_obj_fd</span><span style="color:#000;font-weight:bold">;</span>   <span style="color:#8f5902;font-style:italic">/* File descriptor for the BTF object corresponding to the value type */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">token_fd</span><span style="color:#000;font-weight:bold">;</span>                <span style="color:#8f5902;font-style:italic">/* BPF token FD passed in a corresponding command&#39;s token_fd field */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">size_t</span> <span style="color:#ce5c00;font-weight:bold">:</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>                      <span style="color:#8f5902;font-style:italic">/* Reserved for future compatibility (bitfield) */</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
+</span></span></code></pre></div><ul>
+<li><strong><code>sz</code></strong>: Size of the structure, ensuring forward/backward compatibility.</li>
+<li><strong><code>btf_fd</code>, <code>btf_key_type_id</code>, <code>btf_value_type_id</code>, <code>btf_vmlinux_value_type_id</code></strong>: These fields are related to the <strong>BPF Type Format</strong> (BTF), which provides type information for the map’s key and value types.</li>
+<li><strong><code>inner_map_fd</code></strong>: The file descriptor of an inner map if the map is being used as part of a nested structure.</li>
+<li><strong><code>map_flags</code></strong>: Flags that modify the behavior of the map, such as setting the map to read-only or enabling special features (e.g., memory-mapping).</li>
+<li><strong><code>map_extra</code></strong>: Reserved for future extensions to the structure or additional configuration.</li>
+<li><strong><code>numa_node</code></strong>: Specifies the NUMA node for memory locality when creating the map (used for NUMA-aware systems).</li>
+<li><strong><code>map_ifindex</code></strong>: Specifies the network interface index for associating the map with a specific network interface.</li>
+<li><strong><code>value_type_btf_obj_fd</code></strong>: A file descriptor pointing to the BTF object representing the map’s value type.</li>
+<li><strong><code>token_fd</code></strong>: A token FD for passing file descriptors across different BPF operations.</li>
+</ul>
+<p>These fields allow for fine-grained control over how the eBPF map behaves, including its memory allocation, access permissions, and type information. Don&rsquo;t worry about these details now, as some of them will be used shortly when we dive into more examples.</p>
+<p>Now that we&rsquo;ve covered the basics of map creation, let’s start exploring some of the most commonly used eBPF map types.
+
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    All the following snippets of code use different contexts for working with the same BPF map. &ldquo;The Map Definition in eBPF Program&rdquo; snippet is used within the eBPF kernel code to declare the map (using section annotations like <code>SEC(&quot;.maps&quot;)</code>) so that the eBPF program can use it. The &ldquo;Hash Map User-Space Example snippet&rdquo;, on the other hand, shows how user-space code (using libbpf and BPF syscalls) can interact with the map—such as creating or obtaining a file descriptor for the map.
+
+</div>
+</p>
+<h3 id="1-hash-map">1. Hash Map<a class="td-heading-self-link" href="#1-hash-map" aria-label="Heading self-link"></a></h3>
+<p>A hash map stores key-value pairs. Each key maps to a corresponding value, and both the key and value have fixed sizes determined at creation time. The hash map provides fast lookups and updates, making it a great choice for data that changes frequently. Common uses include tracking connection states in networking, counting events keyed by process ID or file descriptor, or caching metadata for quick lookups.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/hash-map.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_HASH</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">hash_map_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p><strong>Hash Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_hash_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_HASH</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;hash_map_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>      <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>     <span style="color:#8f5902;font-style:italic">// value_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">,</span>             <span style="color:#8f5902;font-style:italic">// max_entries
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>               <span style="color:#8f5902;font-style:italic">// map_flags
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create hash map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_hash_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Hash map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>We can compile it using <code>gcc -o hash_map hash_map.c -lbpf</code> and <code>-lbpf</code> which tells the compiler to link against the <code>libbpf</code> library, or by using <code>clang -o ring_buff ring_buff.c -lbpf</code>
+
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    You should always use <code>close()</code> when you&rsquo;re done using a BPF map file descriptor to ensure proper resource management, prevent resource leaks, and allow the system to release the map&rsquo;s resources.
+
+</div>
+
+
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    Loading most eBPF programs into the kernel requires root privileges, as they require access to restricted kernel resources and system calls. However, it&rsquo;s possible for non-root users to load eBPF programs if they have been granted specific capabilities, such as <code>CAP_BPF</code>.
+
+</div>
+</p>
+<p>To run this program, you need to use the sudo command<code>sudo ./hash_map</code></p>
+<h3 id="2-array-map">2. Array Map<a class="td-heading-self-link" href="#2-array-map" aria-label="Heading self-link"></a></h3>
+<p>An array map stores a fixed number of elements indexed by integer keys. Unlike a hash map, array keys are not arbitrary—they are simply indexes from 0 to max_entries -1. This simplifies lookups and can provide stable, predictable memory usage. Array maps are perfect for scenarios where you know the exact number of elements you need and require constant-time indexed access. Typical uses include lookup tables, static configuration data, or indexing CPU-related counters by CPU number.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/array-map.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_ARRAY</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">256</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">array_map_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p><strong>Array Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_array_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_ARRAY</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;array_map_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>   <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>  <span style="color:#8f5902;font-style:italic">// value_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">256</span><span style="color:#000;font-weight:bold">,</span>           <span style="color:#8f5902;font-style:italic">// max_entries
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>            <span style="color:#8f5902;font-style:italic">// map_flags
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create array map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_array_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Array map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h3 id="3-perf-event-array-map">3. Perf Event Array Map<a class="td-heading-self-link" href="#3-perf-event-array-map" aria-label="Heading self-link"></a></h3>
+<p>The Perf Event Array map provides a mechanism to redirect perf events (such as hardware counters or software events) into user space using the perf ring buffer infrastructure. By attaching eBPF programs to perf events and using this map, you can efficiently gather performance metrics from the kernel, making it a cornerstone of low-overhead performance monitoring and observability tools.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/perf-event-map.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_PERF_EVENT_ARRAY</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">64</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">perf_event_array_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div>
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    You can ignore <code>max_entries</code> as it will be set automatically to the number of CPUs on your computer by <code>libbpf</code> as per <a href="https://nakryiko.com/posts/bpf-ringbuf/">https://nakryiko.com/posts/bpf-ringbuf/</a>.
+
+</div>
+
+<p><strong>Pert Event Array Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_perf_event_array_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_PERF_EVENT_ARRAY</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;perf_event_array_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>   <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>   <span style="color:#8f5902;font-style:italic">// value_size (fd)
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">64</span><span style="color:#000;font-weight:bold">,</span>            <span style="color:#8f5902;font-style:italic">// max_entries (for events)
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>            <span style="color:#8f5902;font-style:italic">// map_flags
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create perf event array map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_perf_event_array_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;perf event array map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h3 id="4-prog-array-map">4. Prog Array Map<a class="td-heading-self-link" href="#4-prog-array-map" aria-label="Heading self-link"></a></h3>
+<p>A program array holds references to other eBPF programs, enabling &ldquo;tail calls&rdquo;. Tail calls allow one eBPF program to jump into another without returning, effectively chaining multiple programs into a pipeline. This map type is essential for building modular and dynamic eBPF toolchains that can be reconfigured at runtime without reloading the entire set of programs.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/prog-array-map.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_PROG_ARRAY</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">32</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">prog_array_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p><strong>Prog Array Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_prog_array_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_PROG_ARRAY</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;prog_array_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#8f5902;font-style:italic">// value_size (prog FD)
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">32</span><span style="color:#000;font-weight:bold">,</span>          <span style="color:#8f5902;font-style:italic">// max_entries
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create prog array map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_prog_array_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Prog array map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h3 id="5-percpu-hash-map">5. PERCPU Hash Map<a class="td-heading-self-link" href="#5-percpu-hash-map" aria-label="Heading self-link"></a></h3>
+<p>A per-CPU hash map is similar to a standard hash map but stores distinct values for each CPU. This design minimizes lock contention and cache-line ping-ponging, allowing for extremely high-performance counting or state tracking when updates are frequent. Each CPU updates its own version of the value, and user space can aggregate these values later.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/percpu-hash-map.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_PERCPU_HASH</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">percpu_hash_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p><strong>PERCPU Hash Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_percpu_hash_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_PERCPU_HASH</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;percpu_hash_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>    <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>   <span style="color:#8f5902;font-style:italic">// value_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">,</span>           <span style="color:#8f5902;font-style:italic">// max_entries
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create PERCPU hash map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_percpu_hash_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;PERCPU hash map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h3 id="6-percpu-array-map">6. PERCPU Array Map<a class="td-heading-self-link" href="#6-percpu-array-map" aria-label="Heading self-link"></a></h3>
+<p>A per-CPU array, like the per-CPU hash, stores distinct copies of array elements for each CPU. This further reduces contention, making it ideal for per-CPU statistics counters, histograms, or other metrics that need to be incremented frequently without facing synchronization overhead.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/percpu-array-map.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_PERCPU_ARRAY</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">percpu_array_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p><strong>PERCPU Array Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_percpu_array_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_PERCPU_ARRAY</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;percpu_array_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>    <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>   <span style="color:#8f5902;font-style:italic">// value_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">128</span><span style="color:#000;font-weight:bold">,</span>            <span style="color:#8f5902;font-style:italic">// max_entries
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create PERCPU array map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_percpu_array_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;PERCPU array map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h3 id="7-lpm-trie-map">7. LPM Trie Map<a class="td-heading-self-link" href="#7-lpm-trie-map" aria-label="Heading self-link"></a></h3>
+<p>The LPM (Longest Prefix Match) Trie map is designed for prefix-based lookups, commonly used in networking. For example, you might store IP prefixes (like CIDR blocks) and quickly determine which prefix best matches a given IP address. This is useful for routing, firewall rules, or policy decisions based on IP addresses.
+
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    When creating an LPM Trie map, it is important to use the <code>BPF_F_NO_PREALLOC</code> flag. This flag prevents the kernel from pre-allocating memory for all entries at map creation time, allowing the map to dynamically allocate memory as needed.
+
+</div>
+</p>
+<p>For example, if you create a map that is intended to hold <strong>1,000 entries</strong>, the kernel might allocate memory for all <strong>1,000 entries</strong> at map creation time. However, in the case of an <strong>LPM Trie map</strong>, the situation is different. An LPM Trie map is used for <strong>prefix-based lookups</strong>, such as storing <strong>CIDR blocks</strong> or IP address prefixes for example <code>192.168.0.0/24</code>. The number of entries and the amount of memory required for the map can vary depending on the data stored. You can still specify a <code>max_entries</code> value when creating an LPM Trie map, but it is important to note that <strong>the kernel will ignore this value</strong>. The actual number of entries in an LPM Trie map depends on how many prefixes are inserted, and the map dynamically allocates memory based on the prefixes.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/lpm-trie-map.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_LPM_TRIE</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">lpm_trie_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p><strong>LPM Trie Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_lpm_trie_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_create_opts</span> <span style="color:#000">opts</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">{</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">opts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">sz</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">opts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">map_flags</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">BPF_F_NO_PREALLOC</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_LPM_TRIE</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;lpm_trie_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#0000cf;font-weight:bold">8</span><span style="color:#000;font-weight:bold">,</span>     <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">long</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#8f5902;font-style:italic">// value_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">,</span>  <span style="color:#8f5902;font-style:italic">// max_entries and it will ignored
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create LMP trie map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_lpm_trie_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;LMP trie map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h3 id="8-array-of-maps-map">8. Array of Maps Map<a class="td-heading-self-link" href="#8-array-of-maps-map" aria-label="Heading self-link"></a></h3>
+<p>An array-of-maps stores references to other maps. Each element in this array is itself a map FD. This structure allows building hierarchical or modular configurations. For example, you might keep a set of hash maps, each representing a different tenant or set of rules, and select which one to use at runtime by indexing into the array-of-maps.
+In the following example, we will first create a hash map to serve as the inner map, and then use this hash map as the reference for creating an array of maps.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/array-of-maps.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">inner_map</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_HASH</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">hash_map_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_ARRAY_OF_MAPS</span><span style="color:#000;font-weight:bold">);</span> 
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">4</span><span style="color:#000;font-weight:bold">);</span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__array</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">values</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_HASH</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">});</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">array_of_maps_map_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p><strong>Array of Maps Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_inner_hash_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_HASH</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;hash_map_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>      <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>     <span style="color:#8f5902;font-style:italic">// value_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">,</span>             <span style="color:#8f5902;font-style:italic">// max_entries
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>               <span style="color:#8f5902;font-style:italic">// map_flags
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create hash map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_array_of_maps</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_create_opts</span> <span style="color:#000">opts</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">{</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">opts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">sz</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">opts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">inner_map_fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">;</span>  <span style="color:#8f5902;font-style:italic">// Specify the inner map FD
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>   
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_ARRAY_OF_MAPS</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;array_of_maps_map_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>  <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>  <span style="color:#8f5902;font-style:italic">// value_size (placeholder for map FD)
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">4</span><span style="color:#000;font-weight:bold">,</span>            <span style="color:#8f5902;font-style:italic">// max_entries
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create Array of maps map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#8f5902;font-style:italic">// Step 1: Create the inner hash map
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">inner_map_fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_inner_hash_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">inner_map_fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Hash map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8f5902;font-style:italic">// Step 2: Create the array of maps, using the inner map FD
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">array_of_maps_fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_array_of_maps</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">array_of_maps_fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Array of maps map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">array_of_maps_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">array_of_maps_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">inner_map_fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">array_of_maps_fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">array_of_maps_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h3 id="9-hash-of-maps-maps">9. Hash of Maps Maps<a class="td-heading-self-link" href="#9-hash-of-maps-maps" aria-label="Heading self-link"></a></h3>
+<p>A hash-of-maps extends the concept of array-of-maps to dynamic keying. Instead of indexing by integer, you can use arbitrary keys to select which map is referenced. This allows flexible and dynamic grouping of maps, where user space can manage complex configurations by updating keys and associated map FDs. Again, <code>bpf_create_map()</code> cannot set <code>inner_map_fd</code>, so this example is minimal.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/hash-of-maps.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">inner_map</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_HASH</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">hash_map_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_HASH_OF_MAPS</span><span style="color:#000;font-weight:bold">);</span> 
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">4</span><span style="color:#000;font-weight:bold">);</span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__array</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">values</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_HASH</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">});</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">hash_of_maps_map_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p><strong>Hash of Maps Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_inner_hash_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_HASH</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;hash_map_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>      <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>     <span style="color:#8f5902;font-style:italic">// value_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">1024</span><span style="color:#000;font-weight:bold">,</span>             <span style="color:#8f5902;font-style:italic">// max_entries
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>               <span style="color:#8f5902;font-style:italic">// map_flags
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create hash map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_hash_of_maps</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_create_opts</span> <span style="color:#000">opts</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">{</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">opts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">sz</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">opts</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">inner_map_fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">;</span>  <span style="color:#8f5902;font-style:italic">// Specify the inner map FD
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_HASH_OF_MAPS</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;hash_of_maps_map_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>  <span style="color:#8f5902;font-style:italic">// key_size
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">),</span>  <span style="color:#8f5902;font-style:italic">// value_size (placeholder for map FD)
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">4</span><span style="color:#000;font-weight:bold">,</span>            <span style="color:#8f5902;font-style:italic">// max_entries
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create hash of maps map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#8f5902;font-style:italic">// Step 1: Create the inner hash map
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">inner_map_fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_inner_hash_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">inner_map_fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Hash map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8f5902;font-style:italic">// Step 2: Create the array of maps, using the inner map FD
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">array_of_maps_fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_hash_of_maps</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">array_of_maps_fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Array_of_maps map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">array_of_maps_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">inner_map_fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">inner_map_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">array_of_maps_fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">array_of_maps_fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h3 id="10-ring-buffer-map">10. Ring Buffer Map<a class="td-heading-self-link" href="#10-ring-buffer-map" aria-label="Heading self-link"></a></h3>
+<p>The ring buffer map is a relatively new addition that enables lock-free communication from kernel to user space. Instead of performing lookups or updates for each record, the kernel-side eBPF program writes events into the ring buffer, and user space reads them as a continuous stream. A ring buffer is a circular data structure that uses a continuous block of memory to store data sequentially. When data is added to the buffer and the end is reached, new data wraps around to the beginning, potentially overwriting older data if it hasn&rsquo;t been read yet. A typical ring buffer uses two pointers (or &ldquo;heads&rdquo;): one for writing and one for reading. The write pointer marks where new data is added, while the read pointer indicates where data should be consumed. This dual-pointer system allows for efficient and concurrent operations, ensuring that the writer doesn&rsquo;t overwrite data before the reader has processed it. Additionally, the ring buffer is shared across all CPUs, consolidating events from multiple cores into a single stream. This greatly reduces overhead for high-volume event reporting, making it ideal for profiling, tracing, or continuous monitoring tools.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter2/ring-buffer.png" alt="Centered image" />
+</p>
+<p><strong>BTF Map Definition in eBPF Program</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_RINGBUF</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">4096</span><span style="color:#000;font-weight:bold">);</span> <span style="color:#8f5902;font-style:italic">//It must be a power of 2
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">ring_buffer_map_example</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div>
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    <code>max_entries</code> in <code>BPF_MAP_TYPE_RINGBUF</code> must be a power of 2 such as <code>4096</code>.
+
+</div>
+
+<p><strong>Ring Buffer Map User-Space Example</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">create_ringbuf_map</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8f5902;font-style:italic">// The size of the ringbuf is given in bytes by max_entries.
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_MAP_TYPE_RINGBUF</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;ring_buffer_map_example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span>    <span style="color:#8f5902;font-style:italic">// key_size = 0 for ringbuf
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span>    <span style="color:#8f5902;font-style:italic">// value_size = 0 for ringbuf
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>                            <span style="color:#0000cf;font-weight:bold">4096</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create ring buffer map: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">strerror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">create_ringbuf_map</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span> <span style="color:#ce5c00;font-weight:bold">&gt;=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Ring buffer map created successfully with fd: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fd</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h3 id="the-right-ebpf-map-type">The Right eBPF Map Type<a class="td-heading-self-link" href="#the-right-ebpf-map-type" aria-label="Heading self-link"></a></h3>
+<p>By combining these map types with your eBPF programs, you can build sophisticated, runtime-configurable kernel instrumentation, security monitors, network traffic analyzers, and performance profiling tools. Each map type adds a new capability or performance characteristic, allowing developers to craft solutions that were previously challenging or impossible without kernel modifications. This flexibility not only enhances existing solutions but also opens up new possibilities for kernel-level programming. Given the ongoing evolution of eBPF, selecting the right map type for your use case becomes even more important. When doing so, it&rsquo;s essential to consider factors such as access patterns, data size, performance requirements, and the complexity of your architecture. Here are some things to keep in mind:</p>
+<ul>
+<li><strong>Access Pattern and Data Size</strong>:<br>
+If you have a known, fixed number of entries indexed by integer keys, <code>BPF_MAP_TYPE_ARRAY</code> might be ideal. If keys are dynamic or unpredictable, <code>BPF_MAP_TYPE_HASH</code> might be the go-to.</li>
+<li><strong>Performance and Concurrency</strong>:<br>
+Under heavy load, where multiple CPUs frequently update shared data, per-CPU maps (<code>BPF_MAP_TYPE_PERCPU_HASH</code> or <code>BPF_MAP_TYPE_PERCPU_ARRAY</code>) can reduce contention. Similarly, <code>BPF_MAP_TYPE_RINGBUF</code> is the perfect fit for high-throughput streaming scenarios.</li>
+<li><strong>Complexity and Modularity</strong>:<br>
+If you need to dynamically chain programs or manage multiple maps at runtime, <code>BPF_MAP_TYPE_PROG_ARRAY</code>, <code>BPF_MAP_TYPE_ARRAY_OF_MAPS</code>, or <code>BPF_MAP_TYPE_HASH_OF_MAPS</code> facilitate more sophisticated architectures.</li>
+<li><strong>Networking and Prefix Matching</strong>:<br>
+For IP-based lookups, <code>BPF_MAP_TYPE_LPM_TRIE</code> offers a specialized structure optimized for network prefixes and routing logic.</li>
+<li><strong>Observability and Tracing</strong>:<br>
+<code>BPF_MAP_TYPE_PERF_EVENT_ARRAY</code> ties into the Linux perf subsystem, enabling advanced performance monitoring and event correlation in conjunction with eBPF programs.</li>
+</ul>
+
+	
+</div>
+
+
+          </main>
+        </div>
+      </div>
+      <footer class="td-footer row d-print-none">
+  <div class="container-fluid">
+    <div class="row mx-md-2">
+      <div class="td-footer__left col-6 col-sm-4 order-sm-1">
+        
+      </div><div class="td-footer__right col-6 col-sm-4 order-sm-3">
+        <ul class="td-footer__links-list">
+  
+  <li class="td-footer__links-item" data-bs-toggle="tooltip" title="GitHub" aria-label="GitHub">
+    <a target="_blank" rel="noopener" href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF" aria-label="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+      </div><div class="td-footer__center col-12 col-sm-4 py-2 order-sm-2">
+        <span class="td-footer__copyright">&copy;
+    2025
+    <span class="td-footer__authors">Hamza Megahed | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a> |</span></span><span class="td-footer__all_rights_reserved">All Rights Reserved</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script src="/js/main.min.69e2c1ae9320465ab10236d9ef752c6a4442c54b48b883b17c497b7c7d96a796.js" integrity="sha256-aeLBrpMgRlqxAjbZ73UsakRCxUtIuIOxfEl7fH2Wp5Y=" crossorigin="anonymous"></script>
+<script defer src="/js/click-to-copy.min.73478a7d4807698aed7e355eb23f9890ca18fea3158604c8471746d046702bad.js" integrity="sha256-c0eKfUgHaYrtfjVesj&#43;YkMoY/qMVhgTIRxdG0EZwK60=" crossorigin="anonymous"></script>
+<script src='/js/tabpane-persist.js'></script>
+
+  </body>
+</html>

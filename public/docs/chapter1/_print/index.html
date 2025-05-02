@@ -1,0 +1,607 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="canonical" type="text/html" href="https://ebpf.hamza-megahed.com/docs/chapter1/">
+<link rel="alternate" type="application/rss&#43;xml" href="https://ebpf.hamza-megahed.com/docs/chapter1/index.xml">
+<meta name="robots" content="noindex, nofollow">
+
+
+<link rel="shortcut icon" href="/favicons/favicon.ico" >
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicons/android-36x36.png" sizes="36x36">
+<link rel="icon" type="image/png" href="/favicons/android-48x48.png" sizes="48x48">
+<link rel="icon" type="image/png" href="/favicons/android-72x72.png" sizes="72x72">
+<link rel="icon" type="image/png" href="/favicons/android-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicons/android-144x144.png" sizes="144x144">
+<link rel="icon" type="image/png" href="/favicons/android-192x192.png" sizes="192x192">
+
+<title>What is eBPF | Engineering Everything with eBPF</title>
+<meta name="description" content="AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
+<meta property="og:url" content="https://ebpf.hamza-megahed.com/docs/chapter1/">
+  <meta property="og:site_name" content="Engineering Everything with eBPF">
+  <meta property="og:title" content="What is eBPF">
+  <meta property="og:description" content="AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="website">
+
+  <meta itemprop="name" content="What is eBPF">
+  <meta itemprop="description" content="AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="What is eBPF">
+  <meta name="twitter:description" content="AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
+<link rel="preload" href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" as="style" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<link href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" rel="stylesheet" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+  crossorigin="anonymous"></script>
+<script defer
+  src="https://unpkg.com/lunr@2.3.9/lunr.min.js"
+  integrity="sha384-203J0SNzyqHby3iU6hzvzltrWi/M41wOP5Gu+BiJMz5nwKykbkUx8Kp7iti0Lpli"
+  crossorigin="anonymous"></script>
+
+  </head>
+  <body class="td-section">
+    <header>
+      <nav class="td-navbar js-navbar-scroll" data-bs-theme="dark">
+<div class="container-fluid flex-column flex-md-row">
+  <a class="navbar-brand" href="/"><span class="navbar-brand__logo navbar-logo"></span><span class="navbar-brand__name">Engineering Everything with eBPF</span></a>
+  <div class="td-navbar-nav-scroll ms-md-auto" id="main_navbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="/docs/"><span>Documentation</span></a>
+      </li>
+      </ul>
+  </div>
+  <div class="d-none d-lg-block">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+  </div>
+</div>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <main class="col-12 col-md-9 col-xl-8 ps-md-5" role="main">
+            
+
+
+
+
+<div class="td-content">
+<div class="pageinfo pageinfo-primary d-print-none">
+<p>
+This is the multi-page printable view of this section.
+<a href="#" onclick="print();return false;">Click here to print</a>.
+</p><p>
+<a href="/docs/chapter1/">Return to the regular view of this page</a>.
+</p>
+</div>
+
+
+
+<h1 class="title">What is eBPF</h1>
+<div class="lead">AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.</div>
+
+
+
+
+    <ul>
+    
+  
+  
+  
+  
+
+  
+    
+    
+	
+<li>1: <a href="#pg-bc61bcf6c1e33409689f51be243e74b1">Introduction</a></li>
+
+
+    
+  
+    
+    
+	
+<li>2: <a href="#pg-7d4be615997631ee15f3b986ea0bdd99">History of eBPF</a></li>
+
+
+    
+  
+    
+    
+	
+<li>3: <a href="#pg-913f3a33743572b7b9ac9a4356af7737">eBPF in the Real World</a></li>
+
+
+    
+  
+    
+    
+	
+<li>4: <a href="#pg-a8fa3a1fe994e20887a5a028f76006d1">Why eBPF?</a></li>
+
+
+    
+  
+    
+    
+	
+<li>5: <a href="#pg-68d2ba4ee51daffab776702aa5ed8d84">eBPF Architecture</a></li>
+
+
+    
+  
+
+    </ul>
+
+
+<div class="content">
+      
+</div>
+</div>
+
+
+  
+  
+  
+  
+
+  
+  
+
+  
+    
+    
+	
+    
+
+<div class="td-content" style="">
+    
+	<h1 id="pg-bc61bcf6c1e33409689f51be243e74b1">1 - Introduction</h1>
+    <div class="lead">Plain language snapshot of eBPF as tiny programs running safely in the Linux kernel.</div>
+	<p><strong>eBPF</strong> (Extended Berkeley Packet Filter) is a revolutionary in-kernel virtual machine that allows developers to execute custom programs directly within the Linux kernel. Unlike traditional approaches, which require recompiling or modifying the kernel, eBPF enables the dynamic injection of code, providing a safe and efficient way to extend kernel functionality without rebooting the system.</p>
+<p>eBPF programs are typically written in a restricted subset of C, compiled into bytecode, and then loaded into the kernel using the <code>bpf()</code> system call (which will be explained in more detail later). Once loaded, these programs can be attached to various hooks or events within the kernel, such as system calls, network packets, and tracepoints. The execution of eBPF programs is governed by strict safety checks to prevent them from crashing the kernel or accessing unauthorized memory areas.</p>
+<p>In simpler terms, think of eBPF as a sandboxed virtual machine inside the kernel that can observe and modify system behavior safely and efficiently. This technology has opened up new possibilities for performance monitoring, networking enhancements, and security enforcement.</p>
+
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    eBPF is not a virtual machine in the traditional sense but rather a mechanism for executing special-purpose bytecode within the kernel.
+
+</div>
+
+<h3 id="key-capabilities-of-ebpf">Key Capabilities of eBPF<a class="td-heading-self-link" href="#key-capabilities-of-ebpf" aria-label="Heading self-link"></a></h3>
+<ol>
+<li>
+<p><strong>Tracing</strong>: eBPF provides powerful tracing capabilities that allow developers to observe and analyze the behavior of the kernel and user-space applications. By attaching eBPF programs to tracepoints, kprobes (kernel probes), and uprobes (user-space probes), you can gather detailed insights into system performance and diagnose issues in real-time (which will be explained later).</p>
+<ul>
+<li><strong>Example Use Case</strong>: Using eBPF you can trace file open operations to see which files are being accessed by a process by attacheing an eBPF program to the <code>open()</code> system call tracepoint and prints the filename each time a file is opened. In cybersecurity, it helps detect unauthorized file access, enabling early threat detection and compliance monitoring.</li>
+</ul>
+</li>
+<li>
+<p><strong>Networking</strong>: eBPF enables advanced networking features by allowing custom packet filtering, modification, and routing logic to run within the kernel. This eliminates the need to copy packets to user space, reducing latency and improving performance.</p>
+<ul>
+<li><strong>Example Use Case</strong>: The XDP (eXpress Data Path) framework uses eBPF to perform high-speed packet processing at the network interface card (NIC) level. This is particularly useful for applications like DDoS mitigation and load balancing.</li>
+</ul>
+</li>
+<li>
+<p><strong>Security</strong>: eBPF enhances system security by allowing real-time monitoring and enforcement of security policies. With eBPF, you can detect and respond to security events, such as unauthorized system calls or suspicious network activity.</p>
+<ul>
+<li><strong>Example Use Case</strong>: Seccomp can be used to enforce security policies by restricting the system calls a process is allowed to make. In containerized environments or isolated applications, seccomp helps ensure that only necessary and authorized system calls are permitted, preventing potential security breaches by blocking access to sensitive kernel functionality.</li>
+</ul>
+</li>
+<li>
+<p><strong>Observability</strong>: eBPF provides deep observability into system behavior by allowing the collection of detailed telemetry data. Unlike traditional logging and metrics, eBPF-based observability can capture low-level events without requiring changes to application code.</p>
+<ul>
+<li><strong>Example Use Case</strong>: Tools like <code>bcc</code> (BPF Compiler Collection) and <code>bpftrace</code> allow you to profile CPU usage, memory access, and I/O operations in real-time, helping to identify performance bottlenecks and optimize system performance. In cybersecurity, this can be used to monitor for anomalous system behavior, such as unusual CPU spikes or memory access patterns, which could indicate a malware infection or unauthorized activities.</li>
+</ul>
+</li>
+</ol>
+<p>Don&rsquo;t worry if some of these concepts seem challenging right now; we’ll break them down with clear examples throughout the book. Now, let’s dive into the history of eBPF.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-7d4be615997631ee15f3b986ea0bdd99">2 - History of eBPF</h1>
+    <div class="lead">Journey from classic BPF in the nineties to the modern 64-bit virtual machine.</div>
+	<h3 id="origins-of-bpf-berkeley-packet-filter">Origins of BPF (Berkeley Packet Filter)<a class="td-heading-self-link" href="#origins-of-bpf-berkeley-packet-filter" aria-label="Heading self-link"></a></h3>
+<p>The origins of eBPF (extended Berkeley Packet Filter) trace back to its predecessor, the Berkeley Packet Filter (BPF). BPF was first introduced in 1992 by Steven McCanne and Van Jacobson at the Lawrence Berkeley Laboratory. It was designed to provide a high-performance, user-programmable packet filtering mechanism for network monitoring tools, particularly for capturing packets in real-time.</p>
+<p>Prior to BPF, packet capturing was inefficient due to the need for constant context switching between the kernel and user space. The kernel would pass every network packet to user space, where filtering decisions were made. This approach led to significant overhead. BPF addressed this problem by enabling the execution of filtering programs directly within the kernel, allowing only relevant packets to be passed to user space. This dramatically improved performance and efficiency.</p>
+<h3 id="classic-bpf-and-its-limitations">Classic BPF and Its Limitations<a class="td-heading-self-link" href="#classic-bpf-and-its-limitations" aria-label="Heading self-link"></a></h3>
+<p>Classic BPF, often referred to as &ldquo;cBPF,&rdquo; worked by allowing users to write simple programs to filter network traffic based on specific patterns. These programs were expressed as sequences of low-level instructions that the BPF virtual machine (VM) running in the kernel could interpret and execute. The most notable tool that leveraged cBPF was <code>tcpdump</code>, which allowed network administrators to capture and analyze network packets effectively.</p>
+<p>Despite its efficiency, cBPF had several limitations:</p>
+<ol>
+<li><strong>Limited Instruction Set</strong>: The instruction set of classic BPF was restricted to basic filtering operations, making it unsuitable for more complex use cases.</li>
+<li><strong>Single-Purpose</strong>: cBPF was designed primarily for packet filtering. It lacked the flexibility to perform tasks beyond network monitoring.</li>
+<li><strong>32-bit Architecture</strong>: Classic BPF programs operated on 32-bit registers, which limited performance and data processing capabilities.</li>
+<li><strong>Lack of Extensibility</strong>: There was no straightforward way to extend the functionality of cBPF beyond packet filtering.</li>
+</ol>
+<h3 id="integration-of-bpf-into-the-linux-kernel">Integration of BPF into the Linux Kernel<a class="td-heading-self-link" href="#integration-of-bpf-into-the-linux-kernel" aria-label="Heading self-link"></a></h3>
+<p>BPF was first integrated into the Linux kernel in 1997, starting from version 2.1. This integration allowed kernel-level packet filtering for tools like <code>tcpdump</code> and <code>iptables</code>. Over time, the BPF VM became a reliable mechanism for filtering network traffic efficiently within the kernel space.</p>
+<p>However, as system and network performance demands grew, the limitations of classic BPF became more clear. The need for a more powerful, flexible, and extensible version of BPF led to the development of eBPF.</p>
+<h3 id="introduction-and-evolution-of-ebpf-2014-present">Introduction and Evolution of eBPF (2014-Present)<a class="td-heading-self-link" href="#introduction-and-evolution-of-ebpf-2014-present" aria-label="Heading self-link"></a></h3>
+<p>In 2014, the Linux kernel version 3.18 introduced &ldquo;extended BPF&rdquo; (eBPF). eBPF was a significant enhancement over classic BPF, providing a modern, flexible, and powerful framework for executing user-defined programs within the kernel. The key improvements introduced by eBPF include:</p>
+<ol>
+<li><strong>64-bit Registers</strong>: eBPF uses a 64-bit architecture, which improves performance and data-handling capabilities.</li>
+<li><strong>General-Purpose</strong>: eBPF is no longer limited to packet filtering; it can be used for various tasks, including tracing, performance monitoring, security enforcement, and more.</li>
+<li><strong>Extensible and Safe</strong>: eBPF programs are verified by an in-kernel verifier to ensure safety, preventing programs from crashing the kernel or causing security vulnerabilities.</li>
+<li><strong>Just-In-Time (JIT) Compilation</strong>: eBPF programs can be compiled into native machine code at runtime, which significantly improves execution speed.</li>
+<li><strong>Maps and Helpers</strong>: eBPF supports maps (key-value storage) and helper functions that provide interaction between eBPF programs and the kernel.</li>
+</ol>
+<p>Since its introduction, eBPF has evolved rapidly, with continuous enhancements to its feature set and performance. Projects like <code>bcc</code> (BPF Compiler Collection), <code>bpftool</code>, and <code>libbpf</code> have made writing and deploying eBPF programs more accessible. eBPF is now used extensively for networking, observability, and security tasks in major projects like Cilium, Falco, and the Kubernetes ecosystem.</p>
+<h3 id="naming-confusion">Naming Confusion<a class="td-heading-self-link" href="#naming-confusion" aria-label="Heading self-link"></a></h3>
+<p>The terminology surrounding BPF and eBPF often leads to confusion due to the historical evolution of the technology. Originally, BPF referred exclusively to the Berkeley Packet Filter designed for packet capture. However, with the introduction of eBPF in 2014, the technology evolved far beyond its initial purpose, supporting tasks like tracing, performance monitoring, and security.</p>
+<p>Despite these advancements, many tools and kernel APIs continue to use the term &ldquo;BPF&rdquo; even when referring to eBPF functionality. For example, commands like <code>bpftool</code> and the <code>bpf()</code> system call refer to eBPF features while retaining the older name. This overlap in terminology can cause misunderstandings, especially for newcomers who may not be aware of the differences between classic BPF and modern eBPF.</p>
+<p>To avoid confusion, it&rsquo;s helpful to use &ldquo;BPF&rdquo; when referring to the original packet-filtering technology and &ldquo;eBPF&rdquo; when discussing the extended capabilities introduced in the modern framework. This distinction clarifies communication and ensures a better understanding of the technology&rsquo;s capabilities in the Linux ecosystem.</p>
+<h3 id="example-using-tcpdump">Example Using tcpdump<a class="td-heading-self-link" href="#example-using-tcpdump" aria-label="Heading self-link"></a></h3>
+<p>To illustrate classic BPF in action, consider a simple <code>tcpdump</code> command that captures only TCP traffic on port 80 (HTTP):</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tcpdump -i eth0 <span style="color:#4e9a06">&#39;ip and tcp port 80&#39;</span>
+</span></span></code></pre></div><p>This command filters packets to capture only those that are TCP-based and are using port 80. The underlying BPF bytecode generated by this command can be viewed using the <code>-d</code> flag:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tcpdump -i eth0 -d <span style="color:#4e9a06">&#39;ip and tcp port 80 tcp port 80&#39;</span>
+</span></span></code></pre></div><p>The output might look like this:</p>
+<pre tabindex="0"><code>(000) ldh      [12]
+(001) jeq      #0x800           jt 2    jf 12
+(002) ldb      [23]
+(003) jeq      #0x6             jt 4    jf 12
+(004) ldh      [20]
+(005) jset     #0x1fff          jt 12   jf 6
+(006) ldxb     4*([14]&amp;0xf)
+(007) ldh      [x + 14]
+(008) jeq      #0x50            jt 11   jf 9
+(009) ldh      [x + 16]
+(010) jeq      #0x50            jt 11   jf 12
+(011) ret      #262144
+(012) ret      #0
+</code></pre><h3 id="explanation-of-the-generated-bpf-bytecode">Explanation of the Generated BPF Bytecode<a class="td-heading-self-link" href="#explanation-of-the-generated-bpf-bytecode" aria-label="Heading self-link"></a></h3>
+<p>Before diving into the example, take a moment to review the following diagram of the Ethernet, IP, and TCP headers. This will help you visualize how the packet is structured, making it easier to follow along with each step in the BPF bytecode. Keep this scheme in mind as we go through the example to understand how each instruction maps to specific parts of the packet.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter1/network-structure.png" alt="Centered image" />
+</p>
+<p>Here&rsquo;s the breakdown of each instruction, including the relevant source code location and <strong>snippets</strong> from the Linux kernel where these actions are defined or represented.</p>
+<ol>
+<li>
+<p><strong>Instruction 000</strong> <code>ldh [12]</code>: Load the 16-bit EtherType field at offset 12 in the packet as described in the kernel source code <code>include/uapi/linux/if_ether.h</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define ETH_HLEN 14          </span><span style="color:#8f5902;font-style:italic">/* Total Ethernet header length */</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define ETH_P_IP 0x0800      </span><span style="color:#8f5902;font-style:italic">/* IPv4 EtherType */</span><span style="color:#8f5902;font-style:italic">
+</span></span></span></code></pre></div></li>
+<li>
+<p><strong>Instruction 001</strong> <code>jeq #0x800 jt 2 jf 12</code>: If the EtherType is <code>0x800</code> (IPv4), jump to instruction 2; otherwise, jump to instruction 12.</p>
+</li>
+<li>
+<p><strong>Instruction 002</strong> <code>ldb [23]</code>: Load the 8-bit protocol field at offset 23 in the IP header.</p>
+</li>
+<li>
+<p><strong>Instruction 003</strong> <code>jeq #0x6 jt 4 jf 12</code>: If the protocol is <code>6</code> (TCP), jump to instruction 4; otherwise, jump to instruction 12 as described in the kernel source code <code>include/uapi/linux/in.h</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define IPPROTO_TCP 6        </span><span style="color:#8f5902;font-style:italic">/* Transmission Control Protocol */</span><span style="color:#8f5902;font-style:italic">
+</span></span></span></code></pre></div></li>
+<li>
+<p><strong>Instruction 004</strong>: <code>ldh [20]</code>: Load the 16-bit TCP source port at offset 20.</p>
+</li>
+<li>
+<p><strong>Instruction 005</strong>: <code>jset #0x1fff jt 12 jf 6</code>: Check if the lower 13 bits of the TCP header are non-zero; if true, jump to instruction 12; otherwise, jump to instruction 6.</p>
+</li>
+<li>
+<p><strong>Instruction 006</strong>: <code>ldxb 4*([14]&amp;0xf)</code>: Load the value in the TCP header, adjusting by scaling based on the value in the IP header.</p>
+</li>
+<li>
+<p><strong>Instruction 007</strong>: <code>ldh [x + 14]</code>: Load the TCP destination port, located at offset 14 from the start of the packet.</p>
+</li>
+<li>
+<p><strong>Instruction 008</strong>: <code>jeq #0x50 jt 11 jf 9</code>: If the destination port is <code>80</code> (0x50 in hexadecimal), jump to instruction 11; otherwise, jump to instruction 9.</p>
+</li>
+<li>
+<p><strong>Instruction 009</strong>: <code>ldh [x + 16]</code>: Load the TCP source port, located at offset 16 from the start of the packet.</p>
+</li>
+<li>
+<p><strong>Instruction 010</strong>: <code>jeq #0x50 jt 11 jf 12</code>: If the source port is <code>80</code> (0x50), jump to instruction 11; otherwise, jump to instruction 12.</p>
+</li>
+<li>
+<p><strong>Instruction 011</strong>: <code>ret #262144</code>: If all conditions match, capture the packet (return the packet length).</p>
+</li>
+<li>
+<p><strong>Instruction 012</strong>: <code>ret #0</code>: If the conditions do not match, drop the packet.</p>
+</li>
+</ol>
+<p>These instructions illustrate a classic BPF packet filter that matches IPv4 and TCP traffic on port 80 (HTTP). The constants and structures provided are standard definitions in the Linux kernel. This bytecode demonstrates how classic BPF allows efficient filtering by executing a series of low-level instructions directly in the kernel.</p>
+
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    By specifying &ldquo;tcp port 80&rdquo; in the filter, the bytecode includes extra instructions (like Instruction 008 and Instruction 010) to check both the source and destination ports for port <code>80</code>. Without explicitly defining both ports, the filter would not distinguish between source and destination ports, simplifying the bytecode. These additional checks ensure that packets using port <code>80</code> in either direction are captured.
+
+</div>
+
+<p>Let’s explore the differences between classic BPF and eBPF to better understand the enhanced capabilities of eBPF.</p>
+<h3 id="classic-bpf-vs-ebpf">Classic BPF vs. eBPF<a class="td-heading-self-link" href="#classic-bpf-vs-ebpf" aria-label="Heading self-link"></a></h3>
+<p>As mentioned, Berkeley Packet Filter (BPF) was originally developed to filter network packets efficiently. It enabled in-kernel filtering of packets based on simple criteria. However, as the need for more versatile and performant filtering and monitoring grew, extended BPF (eBPF) emerged as a powerful evolution. eBPF transforms BPF into a general-purpose execution engine within the kernel, providing significantly more flexibility and efficiency.</p>
+<p>The following 6 points explores the key differences between eBPF and classic BPF, based on Kernel Documentation <a href="https://docs.kernel.org/bpf/classic_vs_extended.html">https://docs.kernel.org/bpf/classic_vs_extended.html</a>.</p>
+<p><strong>1. Use Cases</strong></p>
+<p><strong>Classic BPF</strong> is primarily used for packet filtering. Its primary use case is in network monitoring tools like <code>tcpdump</code>, where it allows users to specify packet filtering rules directly within the kernel.</p>
+<p>eBPF, however, has vastly expanded use cases. eBPF is used in:</p>
+<ul>
+<li><strong>System monitoring</strong>: Collecting detailed information on kernel events such as system calls, file access, and network traffic.</li>
+<li><strong>Performance profiling</strong>: Monitoring the performance of different parts of the kernel, applications, or system calls in real-time.</li>
+<li><strong>Security</strong>: Tools like seccomp (Secure Computing Mode) use eBPF to filter system calls, enforcing security policies directly at the kernel level.</li>
+<li><strong>Tracing</strong>: Tracing the execution of kernel functions and user programs, providing insights into system behavior.</li>
+</ul>
+<hr>
+<p><strong>2. Instruction Set and Operations</strong></p>
+<p>Classic BPF has a very limited instruction set, primarily designed for basic operations like loading data, performing simple arithmetic, jumping, and returning values.</p>
+<p>eBPF, in contrast, expands the instruction set significantly. It introduces new operations like:</p>
+<ul>
+<li><strong>BPF_MOV</strong> for moving data between registers,</li>
+<li><strong>BPF_ARSH</strong> for arithmetic right shift with sign extension,</li>
+<li><strong>BPF_CALL</strong> for calling helper functions (which will be explained in more details later).</li>
+</ul>
+<p>Additionally, eBPF supports 64-bit operations (via <code>BPF_ALU64</code>) and atomic operations like BPF_XADD, enabling more sophisticated processing directly in the kernel.</p>
+<p><strong>3. Registers and Data Handling</strong></p>
+<p>Classic BPF only has two registers (A and X), with limited memory and stack space. The operations on data are simple and restricted to 32-bit width, and these registers are manipulated with specific instructions that limit flexibility.</p>
+<p>eBPF greatly improves on this by expanding the number of registers from 2 to 10. eBPF&rsquo;s calling conventions are designed for high efficiency, utilizing registers (R1-R5) to pass arguments directly into the kernel functions. After the function call, registers R1-R5 are reset, and R0 holds the return value.This allows for more complex operations and handling of more data. Registers in eBPF are also 64-bit wide, which enables direct mapping to hardware registers on modern 64-bit processors. This wider register set and the introduction of a read-only frame pointer (R10) allow eBPF to handle more complex operations like function calls with multiple arguments and results.</p>
+<p><strong>4. JIT Compilation and Performance</strong></p>
+<p>Classic BPF is interpreted by the kernel, This means the kernel would read and execute each instruction one by one which adds overhead to the execution of each instruction. This can be a limiting factor when performing more complex operations or filtering on high-throughput systems.</p>
+<p>eBPF is designed with Just-In-Time (JIT) compilation in mind, meaning that eBPF programs can be translated into optimized native machine code at runtime. The JIT compiler can convert eBPF bytecode to highly efficient machine instructions, reducing the overhead significantly. This allows eBPF programs to perform at speeds comparable to native code execution, even for complex tasks like system call filtering and network traffic analysis.</p>
+<p><strong>5. Safety and Verifier</strong></p>
+<p>Classic BPF uses a simple verifier that checks for program safety by ensuring there are no errors like out-of-bounds memory access.</p>
+<p>eBPF, on the other hand, includes a more sophisticated verifier that ensures the program complies to a set of strict rules before execution. The verifier checks for issues like:</p>
+<ul>
+<li>Accessing invalid memory regions,</li>
+<li>Ensuring correct pointer arithmetic,</li>
+<li>Verifying that all function calls are made with valid arguments.</li>
+</ul>
+<p>This makes eBPF programs much safer, even when they are running with elevated privileges or performing sensitive tasks in the kernel.</p>
+<p><strong>6. Program Size and Restrictions</strong></p>
+<p>Classic BPF: The original BPF format had a program size limit of 4096 instructions, and programs had to be very efficient to avoid exceeding this limit. The limited number of registers and operations meant that programs were usually simple and short.</p>
+<p>eBPF: While eBPF still retains a 4096 instruction limit for kernels before 5.2 and one million instructions for kernel starting from 5.2, its expanded instruction set and register size allow for significantly more complex programs. Additionally, the eBPF verifier ensures that programs are safe, loop-free, and deterministic. Furthermore, there are restrictions on the number of arguments that can be passed to kernel functions (currently up to five), although these can be relaxed in future versions of eBPF. Tail calls also allow chaining multiple eBPF programs together, effectively extending the overall execution beyond the single-program instruction limit.</p>
+<p>Now, let&rsquo;s dive into real-world examples to see how eBPF is applied in action and understand its practical benefits.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-913f3a33743572b7b9ac9a4356af7737">3 - eBPF in the Real World</h1>
+    <div class="lead">Short case studies of Netflix Meta Cloudflare and more.</div>
+	<h3 id="netflix-performance-tracing-and-debugging">Netflix: Performance Tracing and Debugging<a class="td-heading-self-link" href="#netflix-performance-tracing-and-debugging" aria-label="Heading self-link"></a></h3>
+<p>Netflix relies heavily on maintaining a high level of performance and reliability for its massive streaming infrastructure. With millions of users accessing content simultaneously, identifying performance bottlenecks and ensuring smooth streaming is critical. To address these challenges, Netflix leverages eBPF for advanced performance tracing and debugging.</p>
+<p>eBPF allows Netflix engineers to dynamically instrument production systems to gain real-time insights into various kernel and application-level events without impacting system performance. Tools like BPFtrace and bcc (BPF Compiler Collection) help trace everything from CPU utilization to memory allocation and disk I/O latency. eBPF enables the monitoring of these metrics without requiring code modifications or system restarts, providing a seamless debugging experience.</p>
+<p>One of the key benefits for Netflix is the ability to analyze issues in real time. When a problem arises, engineers can deploy eBPF-based tracing programs to identify the root cause immediately. This minimizes downtime and ensures rapid resolution. For example, if a particular server experiences unexpected delays, eBPF can quickly pinpoint whether the issue stems from the network stack, disk latency, or a CPU bottleneck.</p>
+<p>Moreover, eBPF’s low overhead makes it suitable for use in high-traffic production environments. Unlike traditional tracing tools, which often introduce performance degradation, eBPF maintains efficiency while providing deep insights. This combination of power and performance helps Netflix maintain the quality of service users expect.</p>
+<h3 id="facebook-meta-load-balancing-with-katran">Facebook (Meta): Load Balancing with Katran<a class="td-heading-self-link" href="#facebook-meta-load-balancing-with-katran" aria-label="Heading self-link"></a></h3>
+<p>Facebook (now Meta) handles billions of user interactions daily, requiring robust and efficient load-balancing mechanisms. To achieve this, Facebook developed Katran, a high-performance, eBPF-based layer 4 load balancer. Katran powers the edge network for Facebook’s backend services, providing scalable and reliable traffic distribution.</p>
+<p>Katran uses XDP eBPF to offload load-balancing tasks to the Linux kernel, bypassing some of the traditional limitations of user-space load balancers. By running directly in the kernel, eBPF ensures that packet processing is both fast and efficient, reducing the need for context switches and avoiding bottlenecks.</p>
+<p>A key feature of Katran is its ability to dynamically adapt to changes in traffic patterns. eBPF programs enable the load balancer to update its forwarding rules on the fly without requiring restarts. This dynamic updating capability ensures minimal disruption and allows Facebook to handle sudden traffic surges smoothly <a href="https://engineering.fb.com/2018/05/22/open-source/open-sourcing-katran-a-scalable-network-load-balancer/">https://engineering.fb.com/2018/05/22/open-source/open-sourcing-katran-a-scalable-network-load-balancer/</a>.</p>
+<h3 id="cloudflare-ddos-mitigation">Cloudflare: DDoS Mitigation<a class="td-heading-self-link" href="#cloudflare-ddos-mitigation" aria-label="Heading self-link"></a></h3>
+<p>Cloudflare provides security and performance services to millions of websites worldwide, making it a prime target for Distributed Denial of Service (DDoS) attacks. To protect against these attacks, Cloudflare uses XDP eBPF to enhance its DDoS mitigation capabilities.</p>
+<p>eBPF enables Cloudflare to monitor network traffic in real time, identifying and filtering out malicious packets before they reach the application layer. By deploying eBPF programs directly in the kernel, Cloudflare can analyze packet headers, track connection states, and enforce filtering rules with minimal latency.</p>
+<p>One advantage of using eBPF for DDoS mitigation is its flexibility. eBPF allows Cloudflare to update filtering logic dynamically, adapting to new attack vectors without requiring system downtime or restarts. For example, when a new type of DDoS attack is identified, Cloudflare can deploy an updated eBPF filter to block the attack within seconds <a href="https://blog.cloudflare.com/l4drop-xdp-ebpf-based-ddos-mitigations/">https://blog.cloudflare.com/l4drop-xdp-ebpf-based-ddos-mitigations/</a>.</p>
+<p>Moreover, eBPF’s performance efficiency ensures that mitigation measures do not degrade legitimate traffic. Cloudflare can maintain high throughput and low latency even when under attack, providing a seamless experience for end users.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-a8fa3a1fe994e20887a5a028f76006d1">4 - Why eBPF?</h1>
+    <div class="lead">Key benefits such as speed safety live updates observability and portability.</div>
+	<p>eBPF offers a range of benefits that make it an attractive choice for organizations looking to improve performance, security, and flexibility in their systems. Here are some key reasons to use eBPF:</p>
+<ol>
+<li><strong>High Performance</strong></li>
+</ol>
+<p>eBPF programs run directly in the kernel, avoiding the performance penalties associated with user-space operations. With Just-In-Time (JIT) compilation, eBPF code is translated into efficient machine code, ensuring minimal latency and high throughput. This makes eBPF suitable for performance-critical applications like load balancing, packet filtering, and tracing.</p>
+<ol start="2">
+<li><strong>Flexibility in Use Cases</strong></li>
+</ol>
+<p>eBPF’s flexibility allows it to be used across various domains, including:</p>
+<ul>
+<li><strong>Networking</strong>: Load balancing, DDoS mitigation, and network filtering.</li>
+<li><strong>Tracing</strong>: Performance monitoring, debugging, and observability.</li>
+<li><strong>Security</strong>: Real-time policy enforcement, intrusion detection, and runtime security monitoring.</li>
+</ul>
+<p>This flexibility allows organizations to implement a wide range of solutions without needing different tools for each use case.</p>
+<ol start="3">
+<li><strong>Security Enhancements</strong></li>
+</ol>
+<p>eBPF enhances security by enabling real-time policy enforcement and providing deep visibility into system behavior. The eBPF verifier ensures that programs are safe to run, preventing harmful or insecure code from affecting the kernel. This safety mechanism reduces the risk of vulnerabilities and exploits.</p>
+<ol start="4">
+<li><strong>Dynamic Updates</strong></li>
+</ol>
+<p>One of eBPF’s standout features is its ability to update functionality dynamically. Whether for tracing, load balancing, or security filtering, eBPF programs can be modified and reloaded without rebooting the system. This ensures minimal downtime and enables rapid responses to changing conditions.</p>
+<ol start="5">
+<li><strong>Observability and Monitoring</strong></li>
+</ol>
+<p>eBPF provides powerful tools for real-time observability. By attaching eBPF programs to various kernel and user-space events, organizations can gain detailed insights into system behavior, identify bottlenecks, and troubleshoot issues quickly.</p>
+<ol start="6">
+<li><strong>Portability</strong></li>
+</ol>
+<p>While eBPF programs are highly portable across different Linux distributions, their portability can be affected by variations in kernel versions, architectures, and the available helper functions. The eBPF subsystem in the kernel provides a consistent foundation, but certain kernel updates or changes in architecture may introduce new features or limitations that require modifications to the eBPF programs. Despite these potential variations, eBPF still offers a relatively high degree of portability for cloud-based applications and large-scale environments, allowing organizations to deploy solutions across diverse systems with minimal overhead, provided that compatibility is taken into account.</p>
+<p>Now that we’ve explored the general benefits of eBPF, let’s take a closer look at how these advantages specifically apply to the realm of cybersecurity.</p>
+<h3 id="ebpf-in-cybersecurity">eBPF in Cybersecurity<a class="td-heading-self-link" href="#ebpf-in-cybersecurity" aria-label="Heading self-link"></a></h3>
+<p>eBPF’s capabilities make it a powerful tool for enhancing cybersecurity across multiple layers of infrastructure. By operating within the kernel, eBPF can monitor, analyze, and enforce security policies with low latency and high efficiency. This ability to operate in real time gives organizations a crucial edge in protecting against modern cyber threats.</p>
+<ol>
+<li><strong>Intrusion Detection and Prevention</strong></li>
+</ol>
+<p>eBPF enables deep inspection of network traffic and system calls, allowing for real-time detection of anomalous behavior. Organizations can use eBPF to build intrusion detection and prevention systems (IDS/IPS) that identify and block malicious activities such as SQL injection, malware payloads, and privilege escalation attempts. eBPF’s ability to analyze packets at the kernel level ensures minimal overhead while maintaining thorough security checks.</p>
+<ol start="2">
+<li><strong>DDoS Mitigation</strong></li>
+</ol>
+<p>eBPF’s flexibility allows for rapid deployment of filters to block DDoS traffic patterns. When an attack is detected, eBPF programs can be dynamically updated to mitigate new attack vectors in real time. This adaptive capability ensures continuous protection without service disruption.</p>
+<ol start="3">
+<li><strong>Runtime Security Enforcement</strong></li>
+</ol>
+<p>eBPF can enforce security policies at runtime by monitoring system calls and blocking unauthorized actions. For instance, if a process attempts to access restricted files or execute suspicious operations, eBPF can intervene immediately to block the action and alert administrators. This helps mitigate insider threats and potential exploits.</p>
+<ol start="4">
+<li><strong>Process and Kernel Integrity Monitoring</strong></li>
+</ol>
+<p>By attaching eBPF probes to system processes and kernel functions, organizations can monitor for integrity violations. eBPF can detect unauthorized modifications to critical processes (such as injecting code into a running process) or kernel structures, providing an additional layer of defense against cyber attacks.</p>
+<ol start="5">
+<li><strong>Real-Time Threat Intelligence</strong></li>
+</ol>
+<p>eBPF can integrate with threat intelligence platforms to apply real-time security updates. For example, new threat indicators can be deployed as eBPF filters to block known malicious IP addresses, domains, or file hashes. This real-time enforcement capability helps organizations stay ahead of evolving threats.</p>
+<p>In summary, eBPF’s combination of real-time monitoring, dynamic policy enforcement, and low-latency execution makes it a cornerstone for modern cybersecurity strategies. It could empowers organizations to defend against cyber threats while maintaining performance and system integrity.</p>
+<p>Don’t worry if this all feels a bit abstract right now—throughout the next chapters, we’ll dive into specific examples that illustrate how eBPF can be applied to these cybersecurity challenges.</p>
+<p>Now that we&rsquo;ve seen how eBPF can enhance cybersecurity, let&rsquo;s take a closer look at its architecture, which enables these powerful capabilities.</p>
+
+</div>
+
+
+
+    
+	
+  
+    
+    
+	
+    
+
+<div class="td-content" style="page-break-before: always">
+    
+	<h1 id="pg-68d2ba4ee51daffab776702aa5ed8d84">5 - eBPF Architecture</h1>
+    <div class="lead">High level flow loader to verifier to JIT with maps and helpers alongside.</div>
+	<p>The eBPF architecture is both simple—through its rigid instruction set, maps, and helpers—and sophisticated—via the verifier, JIT, and integration points. At a high level, it is a pipeline taking user-space defined logic through a safety check and into the kernel’s execution environment. At a deep level, each component (verifier, maps, JIT) enforces strict rules that guarantee the kernel’s stability and performance.
+Through this layered design, eBPF achieves a rare combination: the ability to safely run custom code inside the kernel at near-native speeds while maintaining robust security and reliability guarantees.</p>
+<p>Some of the following may not be clear to you yet, as each component will be explained in more detail in the following chapters.</p>
+<p>A high-level view of the architecture:</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter1/eBPF-Architecture.png" alt="Centered image" />
+</p>
+<h4 id="ebpf-loader-and-user-space-tools">eBPF Loader and User-Space Tools<a class="td-heading-self-link" href="#ebpf-loader-and-user-space-tools" aria-label="Heading self-link"></a></h4>
+<p>User space tooling compiles and loads these eBPF programs. For example, Clang/LLVM: Compiles C (or other) source code to eBPF bytecode using a special <code>-target bpf</code> flag. The workflow is similar to the following:</p>
+<ol>
+<li>Write program in C (or higher-level language).</li>
+<li>Compile to eBPF bytecode with clang.</li>
+<li>Use <code>bpf()</code> system calls via libbpf or bpftool to load the bytecode into the kernel.</li>
+<li>The verifier inspects it, and if safe, it is ready to run.</li>
+</ol>
+<p>This pipeline ensures a controlled, step-by-step process from user space into the kernel.</p>
+<h4 id="verification-and-safety-constraints">Verification and Safety Constraints<a class="td-heading-self-link" href="#verification-and-safety-constraints" aria-label="Heading self-link"></a></h4>
+<p>Before an eBPF program runs, it must pass through a static verifier that analyzes every possible execution path. The verifier ensures:</p>
+<ul>
+<li><strong>Memory Safety:</strong> No out-of-bounds accesses to the stack, no invalid pointer arithmetic, and no unsafe direct memory dereferences.</li>
+<li><strong>Termination Guarantee:</strong> No infinite loops; all loops must have known upper bounds.</li>
+<li><strong>Argument Checking:</strong> Arguments passed to helper functions must conform to expected types and constraints.</li>
+<li><strong>Register State Tracking:</strong> The verifier tracks register states to ensure no use of uninitialized values and proper pointer usage rules.</li>
+</ul>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter1/verifier.png" alt="Centered image" />
+</p>
+<p>The verifier ensures that once a program is accepted, it cannot violate kernel integrity.</p>
+<h4 id="jit-compilation-and-performanc">JIT Compilation and Performanc<a class="td-heading-self-link" href="#jit-compilation-and-performanc" aria-label="Heading self-link"></a></h4>
+<p>Once verified, eBPF bytecode can be interpreted by an in-kernel virtual machine, or just-in-time compiled into native machine instructions. The JIT compiler:</p>
+<ul>
+<li>Translates eBPF instructions to efficient CPU instructions.</li>
+<li>Eliminates interpretation overhead.</li>
+<li>Ensures near-native performance, which is vital for high-frequency events like networking.</li>
+</ul>
+<p>This makes eBPF suitable for performance-critical tasks, such as packet processing at line rate with XDP (eXpress Data Path).</p>
+<h4 id="context-and-hook-points">Context and Hook Points<a class="td-heading-self-link" href="#context-and-hook-points" aria-label="Heading self-link"></a></h4>
+<p>eBPF programs are executed when certain kernel events occur. These events are known as <code>hook points</code>. Common hook points include:</p>
+<ul>
+<li><strong>Tracepoints &amp; Kprobes:</strong> Run when specific kernel functions or events occur.</li>
+<li><strong>XDP Hooks:</strong> Triggered at the earliest point in network packet processing, allowing for ultra-fast packet filtering or modification.</li>
+<li><strong>Socket and TC Hooks:</strong> Attach to sockets or traffic control ingress/egress points for per-packet decision making.</li>
+</ul>
+<p>Each hook provides a context—a structured pointer to data relevant to that event (e.g., packet metadata, process info). The program reads fields from this context within verifier-approved bounds, making decisions based on current state.</p>
+<h4 id="maps">Maps<a class="td-heading-self-link" href="#maps" aria-label="Heading self-link"></a></h4>
+<p>Maps are the primary mechanism for storing and sharing state between eBPF programs and user space. They enable persistent data storage, counters, histograms, or lookup tables that eBPF code can use at runtime.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter1/maps.png" alt="Centered image" />
+</p>
+<p>The verifier knows the properties of each map and ensures all access is safe (e.g., correct key size, no out-of-bounds reads). This static knowledge allows for safe data sharing between eBPF and user space.</p>
+<p>Don&rsquo;t worry if you don&rsquo;t fully understand all the details yet—this is completely normal! As we go through applied examples, each step of the architecture will become much clearer, and you&rsquo;ll be able to see how everything fits together in practice.</p>
+
+</div>
+
+
+
+    
+	
+  
+
+
+
+          </main>
+        </div>
+      </div>
+      <footer class="td-footer row d-print-none">
+  <div class="container-fluid">
+    <div class="row mx-md-2">
+      <div class="td-footer__left col-6 col-sm-4 order-sm-1">
+        
+      </div><div class="td-footer__right col-6 col-sm-4 order-sm-3">
+        <ul class="td-footer__links-list">
+  
+  <li class="td-footer__links-item" data-bs-toggle="tooltip" title="GitHub" aria-label="GitHub">
+    <a target="_blank" rel="noopener" href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF" aria-label="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+      </div><div class="td-footer__center col-12 col-sm-4 py-2 order-sm-2">
+        <span class="td-footer__copyright">&copy;
+    2025
+    <span class="td-footer__authors">Hamza Megahed | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a> |</span></span><span class="td-footer__all_rights_reserved">All Rights Reserved</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script src="/js/main.min.69e2c1ae9320465ab10236d9ef752c6a4442c54b48b883b17c497b7c7d96a796.js" integrity="sha256-aeLBrpMgRlqxAjbZ73UsakRCxUtIuIOxfEl7fH2Wp5Y=" crossorigin="anonymous"></script>
+<script defer src="/js/click-to-copy.min.73478a7d4807698aed7e355eb23f9890ca18fea3158604c8471746d046702bad.js" integrity="sha256-c0eKfUgHaYrtfjVesj&#43;YkMoY/qMVhgTIRxdG0EZwK60=" crossorigin="anonymous"></script>
+<script src='/js/tabpane-persist.js'></script>
+
+  </body>
+</html>

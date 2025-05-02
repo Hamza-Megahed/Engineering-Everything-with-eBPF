@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>eBPF Taking off on Engineering Everything with eBPF</title>
+    <link>https://ebpf.hamza-megahed.com/docs/chapter2/</link>
+    <description>Recent content in eBPF Taking off on Engineering Everything with eBPF</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <atom:link href="https://ebpf.hamza-megahed.com/docs/chapter2/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>bpf() syscall</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter2/1-bpf_syscall/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter2/1-bpf_syscall/</guid>
+      <description>Introduction to the bpf() System Call The bpf() system call serves as a central mechanism in the Linux kernel for working with the Extended Berkeley Packet Filter (eBPF) subsystem. Originally introduced as a tool to filter packets in the kernel’s networking stack, Berkeley Packet Filters (BPF) allowed user space to define small programs that run efficiently in kernel space. Over time, this concept has evolved significantly from “classic” BPF (cBPF) to “extended” BPF (eBPF), which unlocks a far richer set of capabilities.</description>
+    </item>
+    <item>
+      <title>eBPF Maps</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter2/2-maps/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter2/2-maps/</guid>
+      <description>Introduction to eBPF Maps One of the key design elements that make eBPF so flexible and powerful is the concept of maps. An eBPF map is a data structure residing in the kernel, accessible both by eBPF programs and user space applications. Maps provide a stable way to share state, pass configuration or lookup data, store metrics, and build more complex logic around kernel events.&#xA;Unlike traditional kernel data structures, eBPF maps are created, managed, and destroyed via well-defined syscalls and helper functions.</description>
+    </item>
+    <item>
+      <title>eBPF Map Operations</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter2/3-map_operations/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter2/3-map_operations/</guid>
+      <description>eBPF Map Operations Overview eBPF map operations are a set of functions defined in the Linux kernel that allow interaction with eBPF maps. These operations enable reading, writing, deleting, and managing data within the maps. The operations are part of the bpf_cmd defined in the kernel source file /include/uapi/linux/bpf.h. Some commonly used operations include:&#xA;BPF_MAP_CREATE: Creates a new eBPF map. This operation sets up a map. BPF_MAP_UPDATE_ELEM: Inserts or updates a key-value pair.</description>
+    </item>
+    <item>
+      <title>eBPF Program Types</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter2/4-prog_types/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter2/4-prog_types/</guid>
+      <description>Understanding eBPF’s capabilities is a thorough grasp of eBPF program types. Each eBPF program type represents a different interface or hook point in the kernel’s workflow. By selecting a particular program type when loading an eBPF program, the user defines the program’s environment: which kernel functions or events it can attach to, what kinds of data structures it can access, and which kernel helper functions can be called. Understanding these program types is crucial, because eBPF is not a one-size-fits-all technology.</description>
+    </item>
+  </channel>
+</rss>

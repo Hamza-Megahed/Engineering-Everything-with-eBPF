@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>What is eBPF on Engineering Everything with eBPF</title>
+    <link>https://ebpf.hamza-megahed.com/docs/chapter1/</link>
+    <description>Recent content in What is eBPF on Engineering Everything with eBPF</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <atom:link href="https://ebpf.hamza-megahed.com/docs/chapter1/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Introduction</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter1/1-intro/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter1/1-intro/</guid>
+      <description>eBPF (Extended Berkeley Packet Filter) is a revolutionary in-kernel virtual machine that allows developers to execute custom programs directly within the Linux kernel. Unlike traditional approaches, which require recompiling or modifying the kernel, eBPF enables the dynamic injection of code, providing a safe and efficient way to extend kernel functionality without rebooting the system.&#xA;eBPF programs are typically written in a restricted subset of C, compiled into bytecode, and then loaded into the kernel using the bpf() system call (which will be explained in more detail later).</description>
+    </item>
+    <item>
+      <title>History of eBPF</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter1/2-history/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter1/2-history/</guid>
+      <description>Origins of BPF (Berkeley Packet Filter) The origins of eBPF (extended Berkeley Packet Filter) trace back to its predecessor, the Berkeley Packet Filter (BPF). BPF was first introduced in 1992 by Steven McCanne and Van Jacobson at the Lawrence Berkeley Laboratory. It was designed to provide a high-performance, user-programmable packet filtering mechanism for network monitoring tools, particularly for capturing packets in real-time.&#xA;Prior to BPF, packet capturing was inefficient due to the need for constant context switching between the kernel and user space.</description>
+    </item>
+    <item>
+      <title>eBPF in the Real World</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter1/3-real-world/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter1/3-real-world/</guid>
+      <description>Netflix: Performance Tracing and Debugging Netflix relies heavily on maintaining a high level of performance and reliability for its massive streaming infrastructure. With millions of users accessing content simultaneously, identifying performance bottlenecks and ensuring smooth streaming is critical. To address these challenges, Netflix leverages eBPF for advanced performance tracing and debugging.&#xA;eBPF allows Netflix engineers to dynamically instrument production systems to gain real-time insights into various kernel and application-level events without impacting system performance.</description>
+    </item>
+    <item>
+      <title>Why eBPF?</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter1/4-why/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter1/4-why/</guid>
+      <description>eBPF offers a range of benefits that make it an attractive choice for organizations looking to improve performance, security, and flexibility in their systems. Here are some key reasons to use eBPF:&#xA;High Performance eBPF programs run directly in the kernel, avoiding the performance penalties associated with user-space operations. With Just-In-Time (JIT) compilation, eBPF code is translated into efficient machine code, ensuring minimal latency and high throughput. This makes eBPF suitable for performance-critical applications like load balancing, packet filtering, and tracing.</description>
+    </item>
+    <item>
+      <title>eBPF Architecture</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter1/5-arch/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter1/5-arch/</guid>
+      <description>The eBPF architecture is both simple—through its rigid instruction set, maps, and helpers—and sophisticated—via the verifier, JIT, and integration points. At a high level, it is a pipeline taking user-space defined logic through a safety check and into the kernel’s execution environment. At a deep level, each component (verifier, maps, JIT) enforces strict rules that guarantee the kernel’s stability and performance. Through this layered design, eBPF achieves a rare combination: the ability to safely run custom code inside the kernel at near-native speeds while maintaining robust security and reliability guarantees.</description>
+    </item>
+  </channel>
+</rss>

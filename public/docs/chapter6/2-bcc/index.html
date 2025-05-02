@@ -1,0 +1,1076 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+
+
+<link rel="shortcut icon" href="/favicons/favicon.ico" >
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicons/android-36x36.png" sizes="36x36">
+<link rel="icon" type="image/png" href="/favicons/android-48x48.png" sizes="48x48">
+<link rel="icon" type="image/png" href="/favicons/android-72x72.png" sizes="72x72">
+<link rel="icon" type="image/png" href="/favicons/android-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicons/android-144x144.png" sizes="144x144">
+<link rel="icon" type="image/png" href="/favicons/android-192x192.png" sizes="192x192">
+
+<title>BCC | Engineering Everything with eBPF</title>
+<meta name="description" content="BPF Compiler Collection a Python and Lua toolkit that wraps Clang so you can embed small eBPF snippets in scripts and run them with just a few lines of loader code.">
+<meta property="og:url" content="https://ebpf.hamza-megahed.com/docs/chapter6/2-bcc/">
+  <meta property="og:site_name" content="Engineering Everything with eBPF">
+  <meta property="og:title" content="BCC">
+  <meta property="og:description" content="BPF Compiler Collection a Python and Lua toolkit that wraps Clang so you can embed small eBPF snippets in scripts and run them with just a few lines of loader code.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+  <meta itemprop="name" content="BCC">
+  <meta itemprop="description" content="BPF Compiler Collection a Python and Lua toolkit that wraps Clang so you can embed small eBPF snippets in scripts and run them with just a few lines of loader code.">
+  <meta itemprop="wordCount" content="2611">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="BCC">
+  <meta name="twitter:description" content="BPF Compiler Collection a Python and Lua toolkit that wraps Clang so you can embed small eBPF snippets in scripts and run them with just a few lines of loader code.">
+<link rel="preload" href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" as="style" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<link href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" rel="stylesheet" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+  crossorigin="anonymous"></script>
+<script defer
+  src="https://unpkg.com/lunr@2.3.9/lunr.min.js"
+  integrity="sha384-203J0SNzyqHby3iU6hzvzltrWi/M41wOP5Gu+BiJMz5nwKykbkUx8Kp7iti0Lpli"
+  crossorigin="anonymous"></script>
+
+  </head>
+  <body class="td-page">
+    <header>
+      <nav class="td-navbar js-navbar-scroll" data-bs-theme="dark">
+<div class="container-fluid flex-column flex-md-row">
+  <a class="navbar-brand" href="/"><span class="navbar-brand__logo navbar-logo"></span><span class="navbar-brand__name">Engineering Everything with eBPF</span></a>
+  <div class="td-navbar-nav-scroll ms-md-auto" id="main_navbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="/docs/"><span>Documentation</span></a>
+      </li>
+      </ul>
+  </div>
+  <div class="d-none d-lg-block">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+  </div>
+</div>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <aside class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            <div id="td-sidebar-menu" class="td-sidebar__inner">
+  <form class="td-sidebar__search d-flex align-items-center">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ms-3 fas fa-bars" type="button" data-bs-toggle="collapse" data-bs-target="#td-section-nav" aria-controls="td-section-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  <nav class="td-sidebar-nav collapse" id="td-section-nav">
+    <ul class="td-sidebar-nav__section pe-md-3 ul-0">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docs-li">
+  <a href="/docs/" title="Engineering Everything with eBPF" class="align-left ps-0 td-sidebar-link td-sidebar-link__section tree-root" id="m-docs"><span class="">Documentation</span></a>
+  <ul class="ul-1">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter0-li">
+  <a href="/docs/chapter0/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter0"><span class="">Before We Begin</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter01-author-li">
+  <a href="/docs/chapter0/1-author/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter01-author"><span class="">Author</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter03-copyright-li">
+  <a href="/docs/chapter0/3-copyright/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter03-copyright"><span class="">Copyright</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter04-preface-li">
+  <a href="/docs/chapter0/4-preface/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter04-preface"><span class="">Preface</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter05-contribution-li">
+  <a href="/docs/chapter0/5-contribution/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter05-contribution"><span class="">Contribution Guidelines</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter02-acknowledgements-li">
+  <a href="/docs/chapter0/2-acknowledgements/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter02-acknowledgements"><span class=""></span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter1-li">
+  <a href="/docs/chapter1/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter1"><span class="">What is eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter11-intro-li">
+  <a href="/docs/chapter1/1-intro/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter11-intro"><span class="">Introduction</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter12-history-li">
+  <a href="/docs/chapter1/2-history/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter12-history"><span class="">History of eBPF</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter13-real-world-li">
+  <a href="/docs/chapter1/3-real-world/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter13-real-world"><span class="">eBPF in the Real World</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter14-why-li">
+  <a href="/docs/chapter1/4-why/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter14-why"><span class="">Why eBPF?</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter15-arch-li">
+  <a href="/docs/chapter1/5-arch/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter15-arch"><span class="">eBPF Architecture</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter2-li">
+  <a href="/docs/chapter2/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter2"><span class="">eBPF Taking off</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter21-bpf_syscall-li">
+  <a href="/docs/chapter2/1-bpf_syscall/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter21-bpf_syscall"><span class="">bpf() syscall</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter22-maps-li">
+  <a href="/docs/chapter2/2-maps/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter22-maps"><span class="">eBPF Maps</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter23-map_operations-li">
+  <a href="/docs/chapter2/3-map_operations/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter23-map_operations"><span class="">eBPF Map Operations</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter24-prog_types-li">
+  <a href="/docs/chapter2/4-prog_types/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter24-prog_types"><span class="">eBPF Program Types</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter3-li">
+  <a href="/docs/chapter3/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter3"><span class="">eBPF Probes</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter31-kprobe-kretprobe-li">
+  <a href="/docs/chapter3/1-kprobe-kretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter31-kprobe-kretprobe"><span class="">Kprobe and Kretprobe</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter32-uprobe-uretprobe-li">
+  <a href="/docs/chapter3/2-uprobe-uretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter32-uprobe-uretprobe"><span class="">Uprobes and Uretprobes</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter33-tracepoints-li">
+  <a href="/docs/chapter3/3-tracepoints/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter33-tracepoints"><span class="">Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter34-raw_tracepoints-li">
+  <a href="/docs/chapter3/4-raw_tracepoints/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter34-raw_tracepoints"><span class="">Raw Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter35-fentry-fexit-li">
+  <a href="/docs/chapter3/5-fentry-fexit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter35-fentry-fexit"><span class="">Fentry and Fexit</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter4-li">
+  <a href="/docs/chapter4/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter4"><span class="">Networking with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter41-socket-li">
+  <a href="/docs/chapter4/1-socket/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter41-socket"><span class="">Socket Filter</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter42-lwt-li">
+  <a href="/docs/chapter4/2-lwt/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter42-lwt"><span class="">Lightweight Tunnels</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter43-tc-li">
+  <a href="/docs/chapter4/3-tc/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter43-tc"><span class="">Traffic Control</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter44-xdp-li">
+  <a href="/docs/chapter4/4-xdp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter44-xdp"><span class="">XDP</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter45-cgroup_sock_addr-li">
+  <a href="/docs/chapter4/5-cgroup_sock_addr/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter45-cgroup_sock_addr"><span class="">CGroup Socket Address</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter5-li">
+  <a href="/docs/chapter5/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter5"><span class="">Security with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter51-seccomp-li">
+  <a href="/docs/chapter5/1-seccomp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter51-seccomp"><span class="">Seccomp</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter52-lsm-li">
+  <a href="/docs/chapter5/2-lsm/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter52-lsm"><span class="">Linux Security Module (LSM)</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter53-landlock-li">
+  <a href="/docs/chapter5/3-landlock/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter53-landlock"><span class="">Landlock</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter54-bpf_send_signal-li">
+  <a href="/docs/chapter5/4-bpf_send_signal/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter54-bpf_send_signal"><span class="">bpf_send_signal</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter55-tetragon-li">
+  <a href="/docs/chapter5/5-tetragon/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter55-tetragon"><span class="">Tetragon</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter56-bpfilter-li">
+  <a href="/docs/chapter5/6-bpfilter/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter56-bpfilter"><span class="">Bpfilter</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docschapter6-li">
+  <a href="/docs/chapter6/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter6"><span class="">Tools and languages</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter61-bpftrace-li">
+  <a href="/docs/chapter6/1-bpftrace/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter61-bpftrace"><span class="">bpftrace</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docschapter62-bcc-li">
+  <a href="/docs/chapter6/2-bcc/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docschapter62-bcc"><span class="td-sidebar-nav-active-item">BCC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter63-bpftool-li">
+  <a href="/docs/chapter6/3-bpftool/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter63-bpftool"><span class="">BPFTool</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter64-tail-call-li">
+  <a href="/docs/chapter6/4-tail-call/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter64-tail-call"><span class="">Tail call</span></a>
+</li>
+  </ul>
+</li>
+  </ul>
+</li>
+    </ul>
+  </nav>
+</div>
+
+          </aside>
+          <aside class="d-none d-xl-block col-xl-2 td-sidebar-toc d-print-none">
+            <div class="td-page-meta ms-2 pb-1 pt-2 mb-0">
+<a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/tree/main/content/docs/chapter6/2-bcc.md" class="td-page-meta--view td-page-meta__view" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines fa-fw"></i> View page source</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/edit/main/content/docs/chapter6/2-bcc.md" class="td-page-meta--edit td-page-meta__edit" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Edit this page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/new/main/content/docs/chapter6?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60getting-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" class="td-page-meta--child td-page-meta__child" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Create child page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new?title=BCC" class="td-page-meta--issue td-page-meta__issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create documentation issue</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new" class="td-page-meta--project td-page-meta__project-issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create project issue</a>
+  <a id="print" href="/docs/chapter6/_print/"><i class="fa-solid fa-print fa-fw"></i> Print entire section</a>
+
+</div>
+
+            <div class="td-toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#probes-definition">Probes Definition:</a></li>
+    <li><a href="#data-handling">Data handling:</a></li>
+    <li><a href="#buffers">Buffers</a></li>
+    <li><a href="#maps">Maps</a></li>
+    <li><a href="#map-operations">Map Operations</a></li>
+    <li><a href="#bcc-python">BCC Python</a></li>
+    <li><a href="#output">Output</a></li>
+    <li><a href="#examples">Examples</a></li>
+    <li><a href="#bcc-tools">BCC Tools</a>
+      <ul>
+        <li><a href="#general">General</a></li>
+        <li><a href="#memory-and-process-tools">Memory and Process Tools</a></li>
+        <li><a href="#performance-and-time-tools">Performance and Time Tools</a></li>
+        <li><a href="#cpu-and-scheduler-tools">CPU and Scheduler Tools</a></li>
+        <li><a href="#network-and-sockets-tools">Network and Sockets Tools</a></li>
+        <li><a href="#storage-and-filesystems-tools">Storage and Filesystems Tools</a></li>
+        <li><a href="#filesystems-tools">Filesystems Tools</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </div>
+    
+            
+	
+          </aside>
+          <main class="col-12 col-md-9 col-xl-8 ps-md-5" role="main">
+            
+  
+
+            <nav aria-label="breadcrumb" class="td-breadcrumbs">
+  <ol class="breadcrumb">
+  <li class="breadcrumb-item">
+    <a href="/docs/">Documentation</a></li>
+  <li class="breadcrumb-item">
+    <a href="/docs/chapter6/">Tools and languages</a></li>
+  <li class="breadcrumb-item active" aria-current="page">
+    BCC</li>
+  </ol>
+</nav>
+            
+<div class="td-content">
+	<h1>BCC</h1>
+	<div class="lead">BPF Compiler Collection a Python and Lua toolkit that wraps Clang so you can embed small eBPF snippets in scripts and run them with just a few lines of loader code.</div>
+	<header class="article-meta">
+		
+  </header>
+	<p>BCC in short  is a toolkit that makes eBPF development easier by providing a higher-level interface. It compiles your eBPF C code at runtime to match the target kernel’s data structures. BCC works with languages like Python, Lua, and C++, and includes helpful macros and shortcuts for simpler programming. Essentially, BCC takes your eBPF program as a C string, preprocesses it, and then compiles it using clang.</p>
+<p>The following is a crash course on BCC. I strongly recommend reading the BCC manual as well—it’s incredibly detailed and covers topics that are too extensive for this chapter.</p>
+<h2 id="probes-definition">Probes Definition:<a class="td-heading-self-link" href="#probes-definition" aria-label="Heading self-link"></a></h2>
+<ol>
+<li>kprobe: <code>kprobe__</code> followed by the name of kernel function name. For example, <code>int kprobe__do_mkdirat(struct pt_regs *ctx)</code>. <code>struct pt_regs *ctx</code> as a context for kprobe. Arguments can be extracted using <code>PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), ...</code> macros.</li>
+<li>kretprobe: <code>kretprobe__</code> followed by the name of kernel function name. For example, <code>int kretprobe__do_mkdirat(struct pt_regs *ctx)</code>. Return value can be extracted using <code>PT_REGS_RC(ctx)</code> macro.</li>
+<li>uprobes: Can be declared as regular C function. For example, <code>int function(struct pt_regs *ctx)</code>. Arguments can be extracted using <code>PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), ...</code> macros.</li>
+<li>uretprobes: Can be declared as regular C function<code>int function(struct pt_regs *ctx)</code>. Return value can be extracted using <code>PT_REGS_RC(ctx)</code> macro.</li>
+<li>Tracepoints: <code>TRACEPOINT_PROBE</code> followed by <code>(category, event)</code> . For example,  <code>TRACEPOINT_PROBE(sched,sched_process_exit)</code>. Arguments are available in an <code>args</code> struct and you can list of argument from the <code>format</code> file. Foe example, <code>args-&gt;pathname</code> in case of <code>TRACEPOINT_PROBE(syscalls, sys_enter_unlinkat)</code>.</li>
+<li>Raw Tracepoints: <code>RAW_TRACEPOINT_PROBE(event)</code>. For example, <code>RAW_TRACEPOINT_PROBE(sys_enter)</code>. As stated before, raw tracepoint uses <code>bpf_raw_tracepoint_args</code> as context and it has args as <code>args[0]</code> -&gt; points to <code>pt_regs</code> structure and <code>args[1]</code> is the syscall number. To access the target functions&rsquo; parameters, you can either cast <code>ctx-&gt;args[0]</code> to a pointer to a <code>struct pt_regs</code> and use it directly, or copy its contents into a local variable of type <code>struct pt_regs</code> (e.g., <code>struct pt_regs regs;</code>). Then, you can extract the syscall parameters using the <code>PT_REGS_PARM</code> macros (such as <code>PT_REGS_PARM1</code>, <code>PT_REGS_PARM2</code>, etc.).</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>    <span style="color:#8f5902;font-style:italic">// Copy the pt_regs structure from the raw tracepoint args.
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">bpf_probe_read</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">])</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#8f5902;font-style:italic">// Get the second parameter (pathname) from the registers.
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">pathname</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">PT_REGS_PARM2</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><ol start="7">
+<li>LSM: <code>LSM_PROBE(hook_name,typeof(arg1), typeof(arg1)...)</code>. For example, to prevent creating a new directory:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">LSM_PROBE</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">path_mkdir</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">path</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dir</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">dentry</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dentry</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">umode_t</span> <span style="color:#000">mode</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">ret</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_trace_printk</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;LSM path_mkdir: mode=%d, ret=%d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">mode</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">ret</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h2 id="data-handling">Data handling:<a class="td-heading-self-link" href="#data-handling" aria-label="Heading self-link"></a></h2>
+<ol>
+<li><code>bpf_probe_read_kernel</code> helper function with the following prototype:<code>int bpf_probe_read_kernel(void *dst, int size, const void *src)</code>. <code>bpf_probe_read_kernel</code> is used for copying arbitrary data (e.g., structures, buffers) from kernel space and returns 0 on success.</li>
+<li><code>bpf_probe_read_kernel_str</code> helper function with the following prototype: <code>int bpf_probe_read_kernel_str(void *dst, int size, const void *src)</code>. <code>bpf_probe_read_kernel_str</code> is used for reading null-terminated strings from kernel space and returns the length of the string including the trailing NULL on success.</li>
+<li><code>bpf_probe_read_user</code> helper function with the following prototype: <code>int bpf_probe_read_user(void *dst, int size, const void *src)</code>. <code>bpf_probe_read_user</code> is used for copying arbitrary data (e.g., structures, buffers) from user space and returns 0 on success</li>
+<li><code>bpf_probe_read_user_str</code> helper function with the following prototype: <code>int bpf_probe_read_user_str(void *dst, int size, const void *src)</code>. <code>bpf_probe_read_user_str</code> is used for reading null-terminated strings from user space and returns the length of the string including the trailing NULL on success.</li>
+<li><code>bpf_ktime_get_ns</code>: returns <code>u64</code> time elapsed since system boot in nanoseconds.</li>
+<li><code>bpf_get_current_pid_tgid</code>: returns <code>u64</code> current tgid and pid.</li>
+<li><code>bpf_get_current_uid_gid</code>: returns <code>u64</code> current pid and gid.</li>
+<li><code>bpf_get_current_comm(void *buf, __u32 size_of_buf)</code>:  copy current process name into pointer<code>buf</code> and sizeof at least 16 bytes.
+For example:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">TASK_COMM_LEN</span><span style="color:#000;font-weight:bold">];</span> <span style="color:#8f5902;font-style:italic">// TASK_COMM_LEN = 16, defined in include/linux/sched.h
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#000">bpf_get_current_comm</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">));</span>
+</span></span></code></pre></div><ol start="9">
+<li><code>bpf_get_current_task</code> helper function returns current task as a pointer to <code>struct task_struct</code>.</li>
+</ol>
+<h2 id="buffers">Buffers<a class="td-heading-self-link" href="#buffers" aria-label="Heading self-link"></a></h2>
+<ol>
+<li><code>BPF_PERF_OUTPUT(name)</code>: creates eBPF table to push data out to user-space using perf buffer.</li>
+<li><code>perf_submit</code>: a method of a <code>BPF_PERF_OUTPUT</code> to submit data to user-space. <code>perf_submit</code> has the following prototype: <code>int perf_submit((void *)ctx, (void *)data, u32 data_size)</code>.</li>
+<li><code>BPF_RINGBUF_OUTPUT</code>:  creates eBPF table to push data out to user-space using ring buffer. It has the following prototype <code>BPF_RINGBUF_OUTPUT(name, page_cnt)</code>, <code>page_cnt</code> is number of memory pages for ring buffer size.</li>
+<li><code>ringbuf_output</code>: a method of the <code>BPF_RINGBUF_OUTPUT</code> to submit data to user-space.<code>ringbuf_output</code> has the following prototype: <code>int ringbuf_output((void *)data, u64 data_size, u64 flags)</code>.</li>
+<li><code>ringbuf_reserve</code>: a method of the <code>BPF_RINGBUF_OUTPUT</code> to reserve a space in ring buffer and allocate data structure pointer for output data. It has the following prototype: <code>void* ringbuf_reserve(u64 data_size)</code>.</li>
+<li><code>ringbuf_submit</code>: a method of the <code>BPF_RINGBUF_OUTPUT</code> to submit data to user-space. <code>ringbuf_submit</code> has the following prototype: <code>void ringbuf_submit((void *)data, u64 flags)</code>.</li>
+</ol>
+<h2 id="maps">Maps<a class="td-heading-self-link" href="#maps" aria-label="Heading self-link"></a></h2>
+<ol>
+<li><code>BPF_HASH</code>: creates hash map. For example, <code>BPF_HASH(my_hash, u64, u64);</code>.</li>
+<li><code>BPF_ARRAY</code>: creates array map.</li>
+</ol>
+<p>BCC has also <code>BPF_HISTOGRAM</code>, <code>BPF_STACK_TRACE</code>, <code>BPF_PERF_ARRAY</code>, <code>BPF_PERCPU_HASH</code>, <code>BPF_PERCPU_ARRAY</code>, <code>BPF_LPM_TRIE</code>,<code>BPF_PROG_ARRAY</code>, <code>BPF_CPUMAP</code>, <code>BPF_ARRAY_OF_MAPS</code> and <code>BPF_HASH_OF_MAPS</code>.</p>
+<h2 id="map-operations">Map Operations<a class="td-heading-self-link" href="#map-operations" aria-label="Heading self-link"></a></h2>
+<ol>
+<li><code>*val map.lookup(&amp;key)</code>: return a pointer to value if exists.</li>
+<li><code>map.delete(&amp;key)</code>: delete a key from map.</li>
+<li><code>map.update(&amp;key, &amp;val)</code>: updates value for a given key.</li>
+<li><code>map.insert(&amp;key, &amp;val)</code>: inserts a value for a given key.</li>
+<li><code>map.increment(key[, increment_amount])</code>: increments the key by <code>increment_amount</code>.</li>
+</ol>
+<h2 id="bcc-python">BCC Python<a class="td-heading-self-link" href="#bcc-python" aria-label="Heading self-link"></a></h2>
+<ol>
+<li><code>BPF(text=prog)</code>: creates eBPF object.</li>
+<li><code>BPF.attach_kprobe(event=&quot;event&quot;, fn_name=&quot;name&quot;)</code>: attach a probe into kernel function <code>event</code> and use <code>name</code> as kprobe handler.</li>
+<li><code>BPF.attach_kretprobe(event=&quot;event&quot;, fn_name=&quot;name&quot;)</code>: the same as <code>attach_kprobe</code>.</li>
+<li><code>BPF.attach_tracepoint(tp=&quot;tracepoint&quot;, fn_name=&quot;name&quot;)</code>: attach a probe into <code>tracepoint</code> and use <code>name</code> as tracepoint handler.</li>
+<li><code>BPF.attach_uprobe(name=&quot;location&quot;, sym=&quot;symbol&quot;, fn_name=&quot;name&quot;)</code>: attach a probe to<code>location</code> with <code>symbol</code>use <code>name</code> as uprobe handler. For example,</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">b</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">attach_uprobe</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">name</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#4e9a06">&#34;/bin/bash&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">sym</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#4e9a06">&#34;shell_execve&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fn_name</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#4e9a06">&#34;bash_exec&#34;</span><span style="color:#000;font-weight:bold">)</span>
+</span></span></code></pre></div><p>Attach a probe to <code>shell_execve</code> symbol in binary or object file<code>/bin/bash</code>and use <code>bash_exec</code> as a handler.</p>
+<ol start="6">
+<li><code>BPF.attach_uretprobe(name=&quot;location&quot;, sym=&quot;symbol&quot;, fn_name=&quot;name&quot;)</code>: the same as <code>attach_uprobe</code>.</li>
+<li><code>BPF.attach_raw_tracepoint(tp=&quot;tracepoint&quot;, fn_name=&quot;name&quot;)</code>: the same as <code>attach_tracepoint</code>.</li>
+<li><code>BPF.attach_xdp(dev=&quot;device&quot;, fn=b.load_func(&quot;fn_name&quot;,BPF.XDP), flags)</code>: attach XDP to <code>device</code>, use <code>fn_name</code> as handler for each ingress packet. Flags are defined in <code>include/uapi/linux/if_link.h</code> as the following:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a40000">#</span><span style="color:#000">define</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">XDP_FLAGS_UPDATE_IF_NOEXIST</span><span style="color:#f8f8f8;text-decoration:underline">	</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">1U</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#ce5c00;font-weight:bold">&lt;&lt;</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">0</span><span style="color:#000;font-weight:bold">)</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#8f5902;font-style:italic">//--&gt;</span><span style="color:#f8f8f8;text-decoration:underline">
+</span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline"></span><span style="color:#a40000">#</span><span style="color:#000">define</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">XDP_FLAGS_SKB_MODE</span><span style="color:#f8f8f8;text-decoration:underline">		</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">1U</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#ce5c00;font-weight:bold">&lt;&lt;</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">1</span><span style="color:#000;font-weight:bold">)</span><span style="color:#f8f8f8;text-decoration:underline">
+</span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline"></span><span style="color:#a40000">#</span><span style="color:#000">define</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">XDP_FLAGS_DRV_MODE</span><span style="color:#f8f8f8;text-decoration:underline">		</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">1U</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#ce5c00;font-weight:bold">&lt;&lt;</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">2</span><span style="color:#000;font-weight:bold">)</span><span style="color:#f8f8f8;text-decoration:underline">
+</span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline"></span><span style="color:#a40000">#</span><span style="color:#000">define</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">XDP_FLAGS_HW_MODE</span><span style="color:#f8f8f8;text-decoration:underline">		</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">1U</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#ce5c00;font-weight:bold">&lt;&lt;</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">3</span><span style="color:#000;font-weight:bold">)</span><span style="color:#f8f8f8;text-decoration:underline">
+</span></span></span></code></pre></div><p>XDP_FLAGS_UPDATE_IF_NOEXIST	(1U &laquo; 0): This flag attaches the XDP program if there isn’t already one present.
+XDP_FLAGS_SKB_MODE (1U &laquo; 1): This flag attaches the XDP program in generic mode.
+XDP_FLAGS_DRV_MODE (1U &laquo; 2): This flag attaches the XDP program in native driver mode.
+XDP_FLAGS_HW_MODE (1U &laquo; 3): This flag is used for offloading the XDP program to supported hardware (NICs that support XDP offload).</p>
+<ol start="9">
+<li><code>BPF.remove_xdp(&quot;device&quot;)</code>: removes XDP program from interface <code>device</code>.</li>
+<li><code>BPF.detach_kprobe(event=&quot;event&quot;, fn_name=&quot;name&quot;)</code>: detach a kprobe.</li>
+<li><code>BPF.detach_kretprobe(event=&quot;event&quot;, fn_name=&quot;name&quot;)</code>: detach a kretprobe.</li>
+</ol>
+<h2 id="output">Output<a class="td-heading-self-link" href="#output" aria-label="Heading self-link"></a></h2>
+<ol>
+<li><code>BPF.perf_buffer_poll(timeout=T)</code>: polls data from perf buffer.</li>
+<li><code>BPF.ring_buffer_poll(timeout=T)</code>: polls data from ring buffer.</li>
+<li><code>table.open_perf_buffer(callback, page_cnt=N, lost_cb=None)</code>: opens a perf ring buffer for <code>BPF_PERF_OUTPUT</code>.</li>
+<li><code>table.open_ring_buffer(callback, ctx=None)</code>: opens a buffer ring for <code>BPF_RINGBUF_OUTPUT</code>.</li>
+<li><code>BPF.trace_print</code>: reads from <code>/sys/kernel/debug/tracing/trace_pipe</code> and prints the contents.</li>
+</ol>
+<h2 id="examples">Examples<a class="td-heading-self-link" href="#examples" aria-label="Heading self-link"></a></h2>
+<p>Let&rsquo;s look at example The following eBPF kernel code yo attack kprobe to <code>do_mkdirat</code> kernel function.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">from</span> <span style="color:#000">bcc</span> <span style="color:#000">import</span> <span style="color:#000">BPF</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">prog</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">r</span><span style="color:#4e9a06">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;uapi/linux/ptrace.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/fs.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define MAX_FILENAME_LEN 256
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">kprobe__do_mkdirat</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">pt_regs</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">pid_t</span> <span style="color:#000">pid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_get_current_pid_tgid</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#ce5c00;font-weight:bold">&gt;&gt;</span> <span style="color:#0000cf;font-weight:bold">32</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">fname</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">MAX_FILENAME_LEN</span><span style="color:#000;font-weight:bold">]</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">{};</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">filename</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">filename</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">PT_REGS_PARM2</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">name_ptr</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_probe_read</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">name_ptr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">name_ptr</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">name</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">name</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_probe_read_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fname</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">fname</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000">name_ptr</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">umode_t</span> <span style="color:#000">mode</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">PT_REGS_PARM3</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_trace_printk</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;KPROBE ENTRY pid = %d, filename = %s, mode = %u&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">fname</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">mode</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#4e9a06">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">b</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">BPF</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">text</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#000">prog</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000">print</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Tracing mkdir calls... Hit Ctrl-C to exit.&#34;</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000">b</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">trace_print</span><span style="color:#000;font-weight:bold">()</span>
+</span></span></code></pre></div><p><code>bpf_trace_printk</code> function is similar to <code>bpf_printk</code> macro. First, we create an eBPF object from the C code using <code>b = BPF(text=prog)</code>. We don&rsquo;t have to add <code>attach_kprobe</code> because we followed the naming convention of kprobe which is <code>kprobe__</code> followed by the name of kernel function name <code>kprobe__do_mkdirat</code>.
+Run <code>sudo python3 bcc-mkdir.py</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>b<span style="color:#4e9a06">&#39;  mkdir-1706 [...] KPROBE ENTRY pid = 1706, filename = test1, mode = 511&#39;</span>
+</span></span><span style="display:flex;"><span>b<span style="color:#4e9a06">&#39;  mkdir-1708 [...] KPROBE ENTRY pid = 1708, filename = test2, mode = 511&#39;</span>
+</span></span></code></pre></div><p>We don&rsquo;t have to compile because BCC compiles eBPF C code at runtime and there is no need to write a separate user-space. If you notice, the previous code is exactly similar to the following:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define __TARGET_ARCH_x86
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;vmlinux.h&#34;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_tracing.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_core_read.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">LICENSE</span><span style="color:#000;font-weight:bold">[]</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;license&#34;</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;GPL&#34;</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;kprobe/do_mkdirat&#34;</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">kprobe_mkdir</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">pt_regs</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">pid_t</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">umode_t</span> <span style="color:#000">mode</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">pid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_get_current_pid_tgid</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#ce5c00;font-weight:bold">&gt;&gt;</span> <span style="color:#0000cf;font-weight:bold">32</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">filename</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">name</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">filename</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">PT_REGS_PARM2</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">filename</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">BPF_CORE_READ</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">name</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">name</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">mode</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">PT_REGS_PARM3</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_printk</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;KPROBE ENTRY pid = %d, filename = %s, mode = %u</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">filename</span><span style="color:#000;font-weight:bold">,</span><span style="color:#000">mode</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>Let&rsquo;s explore another example which uses Tracepoints with ring buffer map.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">from</span> <span style="color:#000">bcc</span> <span style="color:#000">import</span> <span style="color:#000">BPF</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">prog</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">u32</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">16</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">filename</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">256</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">BPF_RINGBUF_OUTPUT</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">events</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">4096</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">TRACEPOINT_PROBE</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">syscalls</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">sys_enter_unlinkat</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">evt</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">events</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">ringbuf_reserve</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">evt</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">evt</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_get_current_pid_tgid</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#ce5c00;font-weight:bold">&gt;&gt;</span> <span style="color:#0000cf;font-weight:bold">32</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_get_current_comm</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8f5902;font-style:italic">// In the tracepoint for unlinkat, the second argument (args-&gt;pathname) is the filename.
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#000">bpf_probe_read_user_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000">args</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pathname</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">events</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">ringbuf_submit</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#4e9a06">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">def</span> <span style="color:#000">print_event</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">cpu</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">data</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">)</span><span style="color:#ce5c00;font-weight:bold">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">event</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">b</span><span style="color:#000;font-weight:bold">[</span><span style="color:#4e9a06">&#34;events&#34;</span><span style="color:#000;font-weight:bold">].</span><span style="color:#000">event</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">data</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">print</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;PID: %d, COMM: %s, File: %s&#34;</span> <span style="color:#ce5c00;font-weight:bold">%</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#000;font-weight:bold">(</span><span style="color:#000">event</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>           <span style="color:#000">event</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">decode</span><span style="color:#000;font-weight:bold">(</span><span style="color:#a40000">&#39;</span><span style="color:#000">utf</span><span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#0000cf;font-weight:bold">8</span><span style="color:#a40000">&#39;</span><span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>           <span style="color:#000">event</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">decode</span><span style="color:#000;font-weight:bold">(</span><span style="color:#a40000">&#39;</span><span style="color:#000">utf</span><span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#0000cf;font-weight:bold">8</span><span style="color:#a40000">&#39;</span><span style="color:#000;font-weight:bold">)))</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">b</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">BPF</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">text</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#000">prog</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000">b</span><span style="color:#000;font-weight:bold">[</span><span style="color:#4e9a06">&#34;events&#34;</span><span style="color:#000;font-weight:bold">].</span><span style="color:#000">open_ring_buffer</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">print_event</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">print</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Tracing unlinkat syscall... Hit Ctrl-C to end.&#34;</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">while</span> <span style="color:#f57900">True</span><span style="color:#000;font-weight:bold">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f57900">try</span><span style="color:#000;font-weight:bold">:</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">b</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">ring_buffer_poll</span><span style="color:#000;font-weight:bold">(</span><span style="color:#0000cf;font-weight:bold">100</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">except</span> <span style="color:#f57900">KeyboardInterrupt</span><span style="color:#000;font-weight:bold">:</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">exit</span><span style="color:#000;font-weight:bold">()</span>
+</span></span></code></pre></div><p>The <code>print_event</code> callback function to the ring buffer which will be called every time an event is received from the ring buffer. <code>print_event</code> takes cpu number, pointer to raw data of the event data structure defined in eBPF code and size of the event data.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">def</span> <span style="color:#000">print_event</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">cpu</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">data</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">):</span>
+</span></span></code></pre></div><p>Then, event is defined automatically using BCC from eBPF data structure <code>event</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#000">event</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">b</span><span style="color:#000;font-weight:bold">[</span><span style="color:#4e9a06">&#34;events&#34;</span><span style="color:#000;font-weight:bold">]</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">event</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">data</span><span style="color:#000;font-weight:bold">)</span>
+</span></span></code></pre></div><p>Then, printing out the contents of the event:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#204a87">print</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;PID: </span><span style="color:#4e9a06">%d</span><span style="color:#4e9a06">, COMM: </span><span style="color:#4e9a06">%s</span><span style="color:#4e9a06">, File: </span><span style="color:#4e9a06">%s</span><span style="color:#4e9a06">&#34;</span> <span style="color:#ce5c00;font-weight:bold">%</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#000;font-weight:bold">(</span><span style="color:#000">event</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#000">event</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">comm</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">decode</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#39;utf-8&#39;</span><span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#000">event</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">filename</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">decode</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#39;utf-8&#39;</span><span style="color:#000;font-weight:bold">)))</span>
+</span></span></code></pre></div><p>Then,we create an eBPF object from the C code using <code>b = BPF(text=prog)</code>. Then, we opened the ring buffer associated with the map named <code>events</code> with callback function (<code>print_event</code>) to process data that is submitted to the ring buffer.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#000">b</span><span style="color:#000;font-weight:bold">[</span><span style="color:#4e9a06">&#34;events&#34;</span><span style="color:#000;font-weight:bold">]</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">open_ring_buffer</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">print_event</span><span style="color:#000;font-weight:bold">)</span>
+</span></span></code></pre></div><p>We don&rsquo;t need to use <code>BPF.attach_tracepoint</code> because we followed the naming convention for <code>tracepoints</code> which is <code>TRACEPOINT_PROBE(_category_, _event_)</code>. Finally, we start polling from the ring buffer with 100ms timeout.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#000">b</span><span style="color:#ce5c00;font-weight:bold">.</span><span style="color:#000">ring_buffer_poll</span><span style="color:#000;font-weight:bold">(</span><span style="color:#0000cf;font-weight:bold">100</span><span style="color:#000;font-weight:bold">)</span>  <span style="color:#8f5902;font-style:italic"># 100ms timeout</span>
+</span></span></code></pre></div><p>If you noticed, this code is similar to what we did in tracepoint.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define __TARGET_ARCH_x86
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;vmlinux.h&#34;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_tracing.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_core_read.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">16</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">filename</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">256</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_RINGBUF</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">4096</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">events</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">_license</span><span style="color:#000;font-weight:bold">[]</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;license&#34;</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;GPL&#34;</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;tracepoint/syscalls/sys_enter_unlinkat&#34;</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">trace_unlinkat</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">trace_event_raw_sys_enter</span><span style="color:#ce5c00;font-weight:bold">*</span> <span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">evt</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">evt</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_ringbuf_reserve</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">events</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">evt</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_get_current_pid_tgid</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#ce5c00;font-weight:bold">&gt;&gt;</span> <span style="color:#0000cf;font-weight:bold">32</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_get_current_comm</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_probe_read_user_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">]);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_ringbuf_submit</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><h2 id="bcc-tools">BCC Tools<a class="td-heading-self-link" href="#bcc-tools" aria-label="Heading self-link"></a></h2>
+<p>The following tables are from the BCC GitHub repository. These tables contain useful tools for different aspects of system analysis, including general tracing and debugging, memory and process monitoring, performance and timing, CPU and scheduler statistics, network and socket monitoring, as well as storage and filesystems diagnostics. Each category offers a range of tools designed to help you quickly diagnose issues, tune performance, and gather insights into system behavior using BPF-based instrumentation.</p>
+<h3 id="general">General<a class="td-heading-self-link" href="#general" aria-label="Heading self-link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>argdist</td>
+<td>Display function parameter values as a histogram or frequency count.</td>
+</tr>
+<tr>
+<td>bashreadline</td>
+<td>Print entered bash commands system wide.</td>
+</tr>
+<tr>
+<td>bpflist</td>
+<td>Display processes with active BPF programs and maps.</td>
+</tr>
+<tr>
+<td>capable</td>
+<td>Trace security capability checks.</td>
+</tr>
+<tr>
+<td>compactsnoop</td>
+<td>Trace compact zone events with PID and latency.</td>
+</tr>
+<tr>
+<td>criticalstat</td>
+<td>Trace and report long atomic critical sections in the kernel.</td>
+</tr>
+<tr>
+<td>deadlock</td>
+<td>Detect potential deadlocks on a running process.</td>
+</tr>
+<tr>
+<td>drsnoop</td>
+<td>Trace direct reclaim events with PID and latency.</td>
+</tr>
+<tr>
+<td>funccount</td>
+<td>Count kernel function calls.</td>
+</tr>
+<tr>
+<td>inject</td>
+<td>Targeted error injection with call chain and predicates.</td>
+</tr>
+<tr>
+<td>klockstat</td>
+<td>Traces kernel mutex lock events and displays lock statistics.</td>
+</tr>
+<tr>
+<td>opensnoop</td>
+<td>Trace open() syscalls.</td>
+</tr>
+<tr>
+<td>readahead</td>
+<td>Show performance of read-ahead cache.</td>
+</tr>
+<tr>
+<td>reset-trace</td>
+<td>Reset the state of tracing. Maintenance tool only.</td>
+</tr>
+<tr>
+<td>stackcount</td>
+<td>Count kernel function calls and their stack traces.</td>
+</tr>
+<tr>
+<td>syncsnoop</td>
+<td>Trace sync() syscall.</td>
+</tr>
+<tr>
+<td>threadsnoop</td>
+<td>List new thread creation.</td>
+</tr>
+<tr>
+<td>tplist</td>
+<td>Display kernel tracepoints or USDT probes and their formats.</td>
+</tr>
+<tr>
+<td>trace</td>
+<td>Trace arbitrary functions, with filters.</td>
+</tr>
+<tr>
+<td>ttysnoop</td>
+<td>Watch live output from a tty or pts device.</td>
+</tr>
+<tr>
+<td>ucalls</td>
+<td>Summarize method calls or Linux syscalls in high-level languages.</td>
+</tr>
+<tr>
+<td>uflow</td>
+<td>Print a method flow graph in high-level languages.</td>
+</tr>
+<tr>
+<td>ugc</td>
+<td>Trace garbage collection events in high-level languages.</td>
+</tr>
+<tr>
+<td>uobjnew</td>
+<td>Summarize object allocation events by object type and number of bytes allocated.</td>
+</tr>
+<tr>
+<td>ustat</td>
+<td>Collect events such as GCs, thread creations, object allocations, exceptions, etc.</td>
+</tr>
+<tr>
+<td>uthreads</td>
+<td>Trace thread creation events in Java and raw pthreads.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="memory-and-process-tools">Memory and Process Tools<a class="td-heading-self-link" href="#memory-and-process-tools" aria-label="Heading self-link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>execsnoop</td>
+<td>Trace new processes via exec() syscalls.</td>
+</tr>
+<tr>
+<td>exitsnoop</td>
+<td>Trace process termination (exit and fatal signals).</td>
+</tr>
+<tr>
+<td>killsnoop</td>
+<td>Trace signals issued by the kill() syscall.</td>
+</tr>
+<tr>
+<td>kvmexit</td>
+<td>Display the exit_reason and its statistics of each vm exit.</td>
+</tr>
+<tr>
+<td>memleak</td>
+<td>Display outstanding memory allocations to find memory leaks.</td>
+</tr>
+<tr>
+<td>numasched</td>
+<td>Track the migration of processes between NUMAs.</td>
+</tr>
+<tr>
+<td>oomkill</td>
+<td>Trace the out-of-memory (OOM) killer.</td>
+</tr>
+<tr>
+<td>pidpersec</td>
+<td>Count new processes (via fork).</td>
+</tr>
+<tr>
+<td>rdmaucma</td>
+<td>Trace RDMA Userspace Connection Manager Access events.</td>
+</tr>
+<tr>
+<td>shmsnoop</td>
+<td>Trace System V shared memory syscalls.</td>
+</tr>
+<tr>
+<td>slabratetop</td>
+<td>Kernel SLAB/SLUB memory cache allocation rate top.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="performance-and-time-tools">Performance and Time Tools<a class="td-heading-self-link" href="#performance-and-time-tools" aria-label="Heading self-link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dbslower</td>
+<td>Trace MySQL/PostgreSQL queries slower than a threshold.</td>
+</tr>
+<tr>
+<td>dbstat</td>
+<td>Summarize MySQL/PostgreSQL query latency as a histogram.</td>
+</tr>
+<tr>
+<td>funcinterval</td>
+<td>Time interval between the same function as a histogram.</td>
+</tr>
+<tr>
+<td>funclatency</td>
+<td>Time functions and show their latency distribution.</td>
+</tr>
+<tr>
+<td>funcslower</td>
+<td>Trace slow kernel or user function calls.</td>
+</tr>
+<tr>
+<td>hardirqs</td>
+<td>Measure hard IRQ (hard interrupt) event time.</td>
+</tr>
+<tr>
+<td>mysqld_qslower</td>
+<td>Trace MySQL server queries slower than a threshold.</td>
+</tr>
+<tr>
+<td>ppchcalls</td>
+<td>Summarize ppc hcall counts and latencies.</td>
+</tr>
+<tr>
+<td>softirqs</td>
+<td>Measure soft IRQ (soft interrupt) event time.</td>
+</tr>
+<tr>
+<td>syscount</td>
+<td>Summarize syscall counts and latencies.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cpu-and-scheduler-tools">CPU and Scheduler Tools<a class="td-heading-self-link" href="#cpu-and-scheduler-tools" aria-label="Heading self-link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cpudist</td>
+<td>Summarize on- and off-CPU time per task as a histogram.</td>
+</tr>
+<tr>
+<td>cpuunclaimed</td>
+<td>Sample CPU run queues and calculate unclaimed idle CPU.</td>
+</tr>
+<tr>
+<td>llcstat</td>
+<td>Summarize CPU cache references and misses by process.</td>
+</tr>
+<tr>
+<td>offcputime</td>
+<td>Summarize off-CPU time by kernel stack trace.</td>
+</tr>
+<tr>
+<td>offwaketime</td>
+<td>Summarize blocked time by kernel off-CPU stack and waker stack.</td>
+</tr>
+<tr>
+<td>profile</td>
+<td>Profile CPU usage by sampling stack traces at a timed interval.</td>
+</tr>
+<tr>
+<td>runqlat</td>
+<td>Run queue (scheduler) latency as a histogram.</td>
+</tr>
+<tr>
+<td>runqlen</td>
+<td>Run queue length as a histogram.</td>
+</tr>
+<tr>
+<td>runqslower</td>
+<td>Trace long process scheduling delays.</td>
+</tr>
+<tr>
+<td>wakeuptime</td>
+<td>Summarize sleep-to-wakeup time by waker kernel stack.</td>
+</tr>
+<tr>
+<td>wqlat</td>
+<td>Summarize work waiting latency on workqueue.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="network-and-sockets-tools">Network and Sockets Tools<a class="td-heading-self-link" href="#network-and-sockets-tools" aria-label="Heading self-link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gethostlatency</td>
+<td>Show latency for getaddrinfo/gethostbyname[2] calls.</td>
+</tr>
+<tr>
+<td>bindsnoop</td>
+<td>Trace IPv4 and IPv6 bind() system calls (bind()).</td>
+</tr>
+<tr>
+<td>netqtop</td>
+<td>Trace and display packets distribution on NIC queues.</td>
+</tr>
+<tr>
+<td>sofdsnoop</td>
+<td>Trace FDs passed through unix sockets.</td>
+</tr>
+<tr>
+<td>solisten</td>
+<td>Trace TCP socket listen.</td>
+</tr>
+<tr>
+<td>sslsniff</td>
+<td>Sniff OpenSSL written and readed data.</td>
+</tr>
+<tr>
+<td>tcpaccept</td>
+<td>Trace TCP passive connections (accept()).</td>
+</tr>
+<tr>
+<td>tcpconnect</td>
+<td>Trace TCP active connections (connect()).</td>
+</tr>
+<tr>
+<td>tcpconnlat</td>
+<td>Trace TCP active connection latency (connect()).</td>
+</tr>
+<tr>
+<td>tcpdrop</td>
+<td>Trace kernel-based TCP packet drops with details.</td>
+</tr>
+<tr>
+<td>tcplife</td>
+<td>Trace TCP sessions and summarize lifespan.</td>
+</tr>
+<tr>
+<td>tcpretrans</td>
+<td>Trace TCP retransmits and TLPs.</td>
+</tr>
+<tr>
+<td>tcprtt</td>
+<td>Trace TCP round trip time.</td>
+</tr>
+<tr>
+<td>tcpstates</td>
+<td>Trace TCP session state changes with durations.</td>
+</tr>
+<tr>
+<td>tcpsubnet</td>
+<td>Summarize and aggregate TCP send by subnet.</td>
+</tr>
+<tr>
+<td>tcpsynbl</td>
+<td>Show TCP SYN backlog.</td>
+</tr>
+<tr>
+<td>tcptop</td>
+<td>Summarize TCP send/recv throughput by host. Top for TCP.</td>
+</tr>
+<tr>
+<td>tcptracer</td>
+<td>Trace TCP established connections (connect(), accept(), close()).</td>
+</tr>
+<tr>
+<td>tcpcong</td>
+<td>Trace TCP socket congestion control status duration.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="storage-and-filesystems-tools">Storage and Filesystems Tools<a class="td-heading-self-link" href="#storage-and-filesystems-tools" aria-label="Heading self-link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bitesize</td>
+<td>Show per process I/O size histogram.</td>
+</tr>
+<tr>
+<td>cachestat</td>
+<td>Trace page cache hit/miss ratio.</td>
+</tr>
+<tr>
+<td>cachetop</td>
+<td>Trace page cache hit/miss ratio by processes.</td>
+</tr>
+<tr>
+<td>dcsnoop</td>
+<td>Trace directory entry cache (dcache) lookups.</td>
+</tr>
+<tr>
+<td>dcstat</td>
+<td>Directory entry cache (dcache) stats.</td>
+</tr>
+<tr>
+<td>biolatency</td>
+<td>Summarize block device I/O latency as a histogram.</td>
+</tr>
+<tr>
+<td>biotop</td>
+<td>Top for disks: Summarize block device I/O by process.</td>
+</tr>
+<tr>
+<td>biopattern</td>
+<td>Identify random/sequential disk access patterns.</td>
+</tr>
+<tr>
+<td>biosnoop</td>
+<td>Trace block device I/O with PID and latency.</td>
+</tr>
+<tr>
+<td>dirtop</td>
+<td>File reads and writes by directory. Top for directories.</td>
+</tr>
+<tr>
+<td>filelife</td>
+<td>Trace the lifespan of short-lived files.</td>
+</tr>
+<tr>
+<td>filegone</td>
+<td>Trace why file gone (deleted or renamed).</td>
+</tr>
+<tr>
+<td>fileslower</td>
+<td>Trace slow synchronous file reads and writes.</td>
+</tr>
+<tr>
+<td>filetop</td>
+<td>File reads and writes by filename and process. Top for files.</td>
+</tr>
+<tr>
+<td>mdflush</td>
+<td>Trace md flush events.</td>
+</tr>
+<tr>
+<td>mountsnoop</td>
+<td>Trace mount and umount syscalls system-wide.</td>
+</tr>
+<tr>
+<td>virtiostat</td>
+<td>Show VIRTIO device IO statistics.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="filesystems-tools">Filesystems Tools<a class="td-heading-self-link" href="#filesystems-tools" aria-label="Heading self-link"></a></h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>btrfsdist</td>
+<td>Summarize btrfs operation latency distribution as a histogram.</td>
+</tr>
+<tr>
+<td>btrfsslower</td>
+<td>Trace slow btrfs operations.</td>
+</tr>
+<tr>
+<td>ext4dist</td>
+<td>Summarize ext4 operation latency distribution as a histogram.</td>
+</tr>
+<tr>
+<td>ext4slower</td>
+<td>Trace slow ext4 operations.</td>
+</tr>
+<tr>
+<td>nfsslower</td>
+<td>Trace slow NFS operations.</td>
+</tr>
+<tr>
+<td>nfsdist</td>
+<td>Summarize NFS operation latency distribution as a histogram.</td>
+</tr>
+<tr>
+<td>vfscount</td>
+<td>Count VFS calls.</td>
+</tr>
+<tr>
+<td>vfsstat</td>
+<td>Count some VFS calls, with column output.</td>
+</tr>
+<tr>
+<td>xfsdist</td>
+<td>Summarize XFS operation latency distribution as a histogram.</td>
+</tr>
+<tr>
+<td>xfsslower</td>
+<td>Trace slow XFS operations.</td>
+</tr>
+<tr>
+<td>zfsdist</td>
+<td>Summarize ZFS operation latency distribution as a histogram.</td>
+</tr>
+<tr>
+<td>zfsslower</td>
+<td>Trace slow ZFS operations.</td>
+</tr>
+</tbody>
+</table>
+
+	
+</div>
+
+
+          </main>
+        </div>
+      </div>
+      <footer class="td-footer row d-print-none">
+  <div class="container-fluid">
+    <div class="row mx-md-2">
+      <div class="td-footer__left col-6 col-sm-4 order-sm-1">
+        
+      </div><div class="td-footer__right col-6 col-sm-4 order-sm-3">
+        <ul class="td-footer__links-list">
+  
+  <li class="td-footer__links-item" data-bs-toggle="tooltip" title="GitHub" aria-label="GitHub">
+    <a target="_blank" rel="noopener" href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF" aria-label="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+      </div><div class="td-footer__center col-12 col-sm-4 py-2 order-sm-2">
+        <span class="td-footer__copyright">&copy;
+    2025
+    <span class="td-footer__authors">Hamza Megahed | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a> |</span></span><span class="td-footer__all_rights_reserved">All Rights Reserved</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script src="/js/main.min.69e2c1ae9320465ab10236d9ef752c6a4442c54b48b883b17c497b7c7d96a796.js" integrity="sha256-aeLBrpMgRlqxAjbZ73UsakRCxUtIuIOxfEl7fH2Wp5Y=" crossorigin="anonymous"></script>
+<script defer src="/js/click-to-copy.min.73478a7d4807698aed7e355eb23f9890ca18fea3158604c8471746d046702bad.js" integrity="sha256-c0eKfUgHaYrtfjVesj&#43;YkMoY/qMVhgTIRxdG0EZwK60=" crossorigin="anonymous"></script>
+<script src='/js/tabpane-persist.js'></script>
+
+  </body>
+</html>

@@ -1,0 +1,155 @@
+<svg width="682pt" height="914pt" viewBox="0.00 0.00 681.55 913.80" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 909.8)">
+<title>DOT graph for eBPF program</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-909.8 677.55,-909.8 677.55,4 -4,4"/>
+<g id="clust1" class="cluster">
+<title>cluster_0</title>
+<polygon fill="none" stroke="black" stroke-dasharray="5,2" points="8,-8 8,-897.8 646,-897.8 646,-8 8,-8"/>
+<text text-anchor="middle" x="327" y="-881.2" font-family="Times,serif" font-size="14.00">func_0 ()</text>
+</g>
+<!-- fn_0_bb_0 -->
+<g id="node1" class="node">
+<title>fn_0_bb_0</title>
+<polygon fill="lightgrey" stroke="black" points="472,-865 410.87,-847 472,-829 533.13,-847 472,-865"/>
+<polyline fill="none" stroke="black" points="422.38,-850.39 422.38,-843.61"/>
+<polyline fill="none" stroke="black" points="460.49,-832.39 483.51,-832.39"/>
+<polyline fill="none" stroke="black" points="521.62,-843.61 521.62,-850.39"/>
+<polyline fill="none" stroke="black" points="483.51,-861.61 460.49,-861.61"/>
+<text text-anchor="middle" x="472" y="-842.8" font-family="Times,serif" font-size="14.00">ENTRY</text>
+</g>
+<!-- fn_0_bb_2 -->
+<g id="node2" class="node">
+<title>fn_0_bb_2</title>
+<polygon fill="lightgrey" stroke="black" points="326.11,-526.9 326.11,-792.5 617.89,-792.5 617.89,-526.9 326.11,-526.9"/>
+<text text-anchor="start" x="334.11" y="-775.9" font-family="Times,serif" font-size="14.00">; int count_getpid(void * ctx):</text>
+<text text-anchor="start" x="334.11" y="-759.1" font-family="Times,serif" font-size="14.00">; int count_getpid(void *ctx)</text>
+<text text-anchor="start" x="334.11" y="-742.3" font-family="Times,serif" font-size="14.00">0: (b7) r1 = 0</text>
+<polyline fill="none" stroke="black" points="326.11,-734.1 617.89,-734.1"/>
+<text text-anchor="start" x="334.11" y="-717.5" font-family="Times,serif" font-size="14.00">; int key = 0;</text>
+<text text-anchor="start" x="334.11" y="-700.7" font-family="Times,serif" font-size="14.00">1: (63) *(u32 *)(r10 -4) = r1</text>
+<polyline fill="none" stroke="black" points="326.11,-692.5 617.89,-692.5"/>
+<text text-anchor="start" x="334.11" y="-675.9" font-family="Times,serif" font-size="14.00">2: (bf) r2 = r10</text>
+<polyline fill="none" stroke="black" points="326.11,-667.7 617.89,-667.7"/>
+<text text-anchor="start" x="334.11" y="-651.1" font-family="Times,serif" font-size="14.00">3: (07) r2 += -4</text>
+<polyline fill="none" stroke="black" points="326.11,-642.9 617.89,-642.9"/>
+<text text-anchor="start" x="334.11" y="-626.3" font-family="Times,serif" font-size="14.00">; value = bpf_map_lookup_elem(&amp;count, &amp;key);</text>
+<text text-anchor="start" x="334.11" y="-609.5" font-family="Times,serif" font-size="14.00">4: (18) r1 = map[id:147]</text>
+<polyline fill="none" stroke="black" points="326.11,-601.3 617.89,-601.3"/>
+<text text-anchor="start" x="334.11" y="-584.7" font-family="Times,serif" font-size="14.00">6: (07) r1 += 264</text>
+<polyline fill="none" stroke="black" points="326.11,-576.5 617.89,-576.5"/>
+<text text-anchor="start" x="334.11" y="-559.9" font-family="Times,serif" font-size="14.00">7: (61) r0 = *(u32 *)(r2 +0)</text>
+<polyline fill="none" stroke="black" points="326.11,-551.7 617.89,-551.7"/>
+<text text-anchor="start" x="334.11" y="-535.1" font-family="Times,serif" font-size="14.00">8: (35) if r0 &gt;= 0x1 goto pc+3</text>
+</g>
+<!-- fn_0_bb_0&#45;&gt;fn_0_bb_2 -->
+<g id="edge1" class="edge">
+<title>fn_0_bb_0:s-&gt;fn_0_bb_2:n</title>
+<path fill="none" stroke="black" stroke-width="2" d="M472,-829C472,-817.62 472,-812.32 472,-804.45"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="475.5,-806.03 472,-796.03 468.5,-806.03 475.5,-806.03"/>
+</g>
+<!-- fn_0_bb_1 -->
+<g id="node8" class="node">
+<title>fn_0_bb_1</title>
+<polygon fill="lightgrey" stroke="black" points="569,-52 522.3,-34 569,-16 615.7,-34 569,-52"/>
+<polyline fill="none" stroke="black" points="533.49,-38.32 533.49,-29.68"/>
+<polyline fill="none" stroke="black" points="557.8,-20.32 580.2,-20.32"/>
+<polyline fill="none" stroke="black" points="604.51,-29.68 604.51,-38.32"/>
+<polyline fill="none" stroke="black" points="580.2,-47.68 557.8,-47.68"/>
+<text text-anchor="middle" x="569" y="-29.8" font-family="Times,serif" font-size="14.00">EXIT</text>
+</g>
+<!-- fn_0_bb_0&#45;&gt;fn_0_bb_1 -->
+<!-- fn_0_bb_3 -->
+<g id="node3" class="node">
+<title>fn_0_bb_3</title>
+<polygon fill="lightgrey" stroke="black" points="16.11,-398.7 16.11,-489.9 307.89,-489.9 307.89,-398.7 16.11,-398.7"/>
+<text text-anchor="start" x="24.11" y="-473.3" font-family="Times,serif" font-size="14.00">; value = bpf_map_lookup_elem(&amp;count, &amp;key);</text>
+<text text-anchor="start" x="24.11" y="-456.5" font-family="Times,serif" font-size="14.00">9: (67) r0 &lt;&lt;= 3</text>
+<polyline fill="none" stroke="black" points="16.11,-448.3 307.89,-448.3"/>
+<text text-anchor="start" x="24.11" y="-431.7" font-family="Times,serif" font-size="14.00">10: (0f) r0 += r1</text>
+<polyline fill="none" stroke="black" points="16.11,-423.5 307.89,-423.5"/>
+<text text-anchor="start" x="24.11" y="-406.9" font-family="Times,serif" font-size="14.00">11: (05) goto pc+1</text>
+</g>
+<!-- fn_0_bb_2&#45;&gt;fn_0_bb_3 -->
+<g id="edge2" class="edge">
+<title>fn_0_bb_2:s-&gt;fn_0_bb_3:n</title>
+<path fill="none" stroke="black" stroke-width="2" d="M472,-526.4C472,-461.25 198.4,-547.95 165.27,-501.18"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="169.13,-501.85 162.88,-493.3 162.43,-503.88 169.13,-501.85"/>
+</g>
+<!-- fn_0_bb_4 -->
+<g id="node4" class="node">
+<title>fn_0_bb_4</title>
+<polygon fill="lightgrey" stroke="black" points="326.11,-423.5 326.11,-465.1 617.89,-465.1 617.89,-423.5 326.11,-423.5"/>
+<text text-anchor="start" x="334.11" y="-448.5" font-family="Times,serif" font-size="14.00">; value = bpf_map_lookup_elem(&amp;count, &amp;key);</text>
+<text text-anchor="start" x="334.11" y="-431.7" font-family="Times,serif" font-size="14.00">12: (b7) r0 = 0</text>
+</g>
+<!-- fn_0_bb_2&#45;&gt;fn_0_bb_4 -->
+<g id="edge3" class="edge">
+<title>fn_0_bb_2:s-&gt;fn_0_bb_4:n</title>
+<path fill="none" stroke="black" stroke-width="2" d="M472,-526.4C472,-503.79 472,-495.48 472,-477.34"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="475.5,-479.13 472,-469.13 468.5,-479.13 475.5,-479.13"/>
+</g>
+<!-- fn_0_bb_5 -->
+<g id="node5" class="node">
+<title>fn_0_bb_5</title>
+<polygon fill="lightgrey" stroke="black" points="373.14,-320.1 373.14,-361.7 564.86,-361.7 564.86,-320.1 373.14,-320.1"/>
+<text text-anchor="start" x="381.14" y="-345.1" font-family="Times,serif" font-size="14.00">; if (value)</text>
+<text text-anchor="start" x="381.14" y="-328.3" font-family="Times,serif" font-size="14.00">13: (15) if r0 == 0x0 goto pc+3</text>
+</g>
+<!-- fn_0_bb_3&#45;&gt;fn_0_bb_5 -->
+<g id="edge4" class="edge">
+<title>fn_0_bb_3:s-&gt;fn_0_bb_5:n</title>
+<path fill="none" stroke="black" stroke-width="2" d="M162,-398.2C162,-333.8 431.82,-418.88 465.55,-373.17"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="468.43,-375.68 468.09,-365.09 461.75,-373.58 468.43,-375.68"/>
+</g>
+<!-- fn_0_bb_4&#45;&gt;fn_0_bb_5 -->
+<g id="edge5" class="edge">
+<title>fn_0_bb_4:s-&gt;fn_0_bb_5:n</title>
+<path fill="none" stroke="black" stroke-width="2" d="M472,-422.5C472,-399.86 469.86,-391.6 469.2,-373.45"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="472.73,-375.16 469.05,-365.23 465.73,-375.29 472.73,-375.16"/>
+</g>
+<!-- fn_0_bb_6 -->
+<g id="node6" class="node">
+<title>fn_0_bb_6</title>
+<polygon fill="lightgrey" stroke="black" points="375.01,-191.9 375.01,-283.1 552.99,-283.1 552.99,-191.9 375.01,-191.9"/>
+<text text-anchor="start" x="383.01" y="-266.5" font-family="Times,serif" font-size="14.00">; (*value)++;</text>
+<text text-anchor="start" x="383.01" y="-249.7" font-family="Times,serif" font-size="14.00">14: (61) r1 = *(u32 *)(r0 +0)</text>
+<polyline fill="none" stroke="black" points="375.01,-241.5 552.99,-241.5"/>
+<text text-anchor="start" x="383.01" y="-224.9" font-family="Times,serif" font-size="14.00">15: (07) r1 += 1</text>
+<polyline fill="none" stroke="black" points="375.01,-216.7 552.99,-216.7"/>
+<text text-anchor="start" x="383.01" y="-200.1" font-family="Times,serif" font-size="14.00">16: (63) *(u32 *)(r0 +0) = r1</text>
+</g>
+<!-- fn_0_bb_5&#45;&gt;fn_0_bb_6 -->
+<g id="edge6" class="edge">
+<title>fn_0_bb_5:s-&gt;fn_0_bb_6:n</title>
+<path fill="none" stroke="black" stroke-width="2" d="M469,-319.6C469,-307.99 466.42,-302.82 464.96,-294.83"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="468.6,-296.28 464.26,-286.62 461.63,-296.88 468.6,-296.28"/>
+</g>
+<!-- fn_0_bb_7 -->
+<g id="node7" class="node">
+<title>fn_0_bb_7</title>
+<polygon fill="lightgrey" stroke="black" points="520.11,-88.5 520.11,-154.9 617.89,-154.9 617.89,-88.5 520.11,-88.5"/>
+<text text-anchor="start" x="528.11" y="-138.3" font-family="Times,serif" font-size="14.00">; return 0;</text>
+<text text-anchor="start" x="528.11" y="-121.5" font-family="Times,serif" font-size="14.00">17: (b7) r0 = 0</text>
+<polyline fill="none" stroke="black" points="520.11,-113.3 617.89,-113.3"/>
+<text text-anchor="start" x="528.11" y="-96.7" font-family="Times,serif" font-size="14.00">18: (95) exit</text>
+</g>
+<!-- fn_0_bb_5&#45;&gt;fn_0_bb_7 -->
+<g id="edge7" class="edge">
+<title>fn_0_bb_5:s-&gt;fn_0_bb_7:n</title>
+<path fill="none" stroke="black" stroke-width="2" d="M469,-319.6C469,-275.28 535.96,-319.47 562,-283.6 593.23,-240.58 572.35,-215.97 569.34,-166.67"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="572.9,-168.31 569.09,-158.43 565.9,-168.53 572.9,-168.31"/>
+</g>
+<!-- fn_0_bb_6&#45;&gt;fn_0_bb_7 -->
+<g id="edge8" class="edge">
+<title>fn_0_bb_6:s-&gt;fn_0_bb_7:n</title>
+<path fill="none" stroke="black" stroke-width="2" d="M464,-191.4C464,-146.69 550.24,-193.97 566.4,-166.51"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="569.44,-168.88 568.31,-158.35 562.63,-167.29 569.44,-168.88"/>
+</g>
+<!-- fn_0_bb_7&#45;&gt;fn_0_bb_1 -->
+<g id="edge9" class="edge">
+<title>fn_0_bb_7:s-&gt;fn_0_bb_1:n</title>
+<path fill="none" stroke="black" stroke-width="2" d="M569,-88C569,-76.62 569,-71.32 569,-63.45"/>
+<polygon fill="black" stroke="black" stroke-width="2" points="572.5,-65.03 569,-55.03 565.5,-65.03 572.5,-65.03"/>
+</g>
+</g>
+</svg>

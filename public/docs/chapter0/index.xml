@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Before We Begin on Engineering Everything with eBPF</title>
+    <link>https://ebpf.hamza-megahed.com/docs/chapter0/</link>
+    <description>Recent content in Before We Begin on Engineering Everything with eBPF</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <atom:link href="https://ebpf.hamza-megahed.com/docs/chapter0/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Author</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter0/1-author/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter0/1-author/</guid>
+      <description>Author Hamza Megahed</description>
+    </item>
+    <item>
+      <title>Copyright</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter0/3-copyright/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter0/3-copyright/</guid>
+      <description>License © 2025 Hamza Megahed – Engineering Everything with eBPF&#xA;License: Creative Commons Attribution 4.0 International (CC BY 4.0)&#xA;This license lets anyone copy, redistribute, remix, transform, and build upon the material for any purpose—even commercially—so long as they give appropriate credit and indicate if changes were made.&#xA;Code Licenses Part of the project License Kernel-space eBPF examples GPL-2.0-or-later User-space loaders, scripts, utilities Apache 2.0 Book text &amp;amp; figures CC BY 4.</description>
+    </item>
+    <item>
+      <title>Preface</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter0/4-preface/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter0/4-preface/</guid>
+      <description>Hello and welcome. Engineering Everything with eBPF is your friendly guide to eBPF on Linux. eBPF lets you run tiny programs inside the kernel so you can watch what the system is doing, filter network traffic, and even add safety checks—all without changing kernel source code. That sounds powerful, and it is. But it can also feel confusing the first time you see strange section names like SEC(&amp;quot;xdp&amp;quot;) or long helper calls.</description>
+    </item>
+    <item>
+      <title>Contribution Guidelines</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter0/5-contribution/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter0/5-contribution/</guid>
+      <description>We’re happy you want to make Engineering Everything with eBPF better.&#xA;The steps below keep changes smooth and easy.&#xA;Open an issue first&#xA;Create a GitHub issue for typos, unclear text, new examples, or bugs in sample code. Show what you saw and what you expect instead. Screenshots or terminal output help a lot. Fork the repo and create a branch&#xA;Fork, then name your branch clearly—­for example fix-ringbuf-example or add-cgroup-section.</description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter0/2-acknowledgements/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter0/2-acknowledgements/</guid>
+      <description> </description>
+    </item>
+  </channel>
+</rss>

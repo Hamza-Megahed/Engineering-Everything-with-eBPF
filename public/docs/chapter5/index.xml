@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Security with eBPF on Engineering Everything with eBPF</title>
+    <link>https://ebpf.hamza-megahed.com/docs/chapter5/</link>
+    <description>Recent content in Security with eBPF on Engineering Everything with eBPF</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <atom:link href="https://ebpf.hamza-megahed.com/docs/chapter5/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Seccomp</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter5/1-seccomp/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter5/1-seccomp/</guid>
+      <description>Seccomp, short for Secure Computing Mode, is a powerful kernel feature that limits the system calls a process can make, thereby reducing the exposed kernel surface and mitigating potential attacks. Seccomp is a security facility in the Linux kernel designed to be a tool for sandboxing processes by restricting the set of system calls they can use. to minimizes the kernel’s exposed interface, allowing developers to reduce the risk of kernel-level exploits.</description>
+    </item>
+    <item>
+      <title>Linux Security Module (LSM)</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter5/2-lsm/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter5/2-lsm/</guid>
+      <description>LSM is a framework built into the Linux kernel that provides a set of hooks—well-defined points in the kernel code—where security modules can enforce access control and other security policies. These hooks are statically integrated into the kernel, meaning that a given security module (such as SELinux, AppArmor, or Smack) is selected at build or boot time via configuration options. Once active, the LSM framework directs security-relevant decisions (like permission checks, file access, or process operations) through these hooks so that the chosen security policy is applied consistently throughout the system.</description>
+    </item>
+    <item>
+      <title>Landlock</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter5/3-landlock/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter5/3-landlock/</guid>
+      <description>Landlock is a Linux Security Module (LSM) introduced in Linux kernel 5.13 based on eBPF that allows processes to restrict their own privileges in a fine-grained, stackable, and unprivileged manner. Unlike traditional Mandatory Access Control (MAC) systems such as SELinux and AppArmor, which require administrative setup, Landlock enables unprivileged processes to sandbox themselves. This makes it particularly useful for running potentially vulnerable applications while limiting their ability to perform unauthorized actions.</description>
+    </item>
+    <item>
+      <title>bpf_send_signal</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter5/4-bpf_send_signal/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter5/4-bpf_send_signal/</guid>
+      <description>bpf_send_signal() is a helper function that allows a eBPF program to send a Unix signal (e.g., SIGUSR1, SIGKILL, etc.) to the current process (the process that triggered execution of the BPF program). If an anomaly is detected (e.g., unauthorized file access, network connections, or excessive resource usage), the eBPF program can send a signal to terminate the offending process. bpf_send_signal_thread() helper function is similar to bpf_send_signal() except it will send a signal to thread corresponding to the current task.</description>
+    </item>
+    <item>
+      <title>Tetragon</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter5/5-tetragon/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter5/5-tetragon/</guid>
+      <description>Tetragon is an open-source tool that uses eBPF to monitor and control Linux systems. It tracks events like process execution, network connections, and file access in real time. You can write custom rules to filter these events, and it runs with very little performance impact. Although it works great with Kubernetes and container setups, it can secure any Linux system that supports eBPF. Its kernel-level enforcement can, for example, kill a process if it violates a rule, adding a strong layer of security.</description>
+    </item>
+    <item>
+      <title>Bpfilter</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter5/6-bpfilter/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter5/6-bpfilter/</guid>
+      <description>bpfilter is a eBPF-based packet filtering currently maintained by meta, designed to replace or complement traditional packet filtering systems such as netfilter/iptables. It leverages the power of eBPF programs to implement filtering directly in the kernel. bpfilter is part of a broader shift towards eBPF-driven networking, moving away from older, monolithic approaches with minimal overhead.&#xA;bpfilter consists of two parts: daemon and front-ends. Font-end such as bfcli which receives firewall rules from administrators and send them to the daemon (bpfilter).</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,660 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+
+
+<link rel="shortcut icon" href="/favicons/favicon.ico" >
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicons/android-36x36.png" sizes="36x36">
+<link rel="icon" type="image/png" href="/favicons/android-48x48.png" sizes="48x48">
+<link rel="icon" type="image/png" href="/favicons/android-72x72.png" sizes="72x72">
+<link rel="icon" type="image/png" href="/favicons/android-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicons/android-144x144.png" sizes="144x144">
+<link rel="icon" type="image/png" href="/favicons/android-192x192.png" sizes="192x192">
+
+<title>Raw Tracepoints | Engineering Everything with eBPF</title>
+<meta name="description" content="Lower level access when you need every byte of the event payload.">
+<meta property="og:url" content="https://ebpf.hamza-megahed.com/docs/chapter3/4-raw_tracepoints/">
+  <meta property="og:site_name" content="Engineering Everything with eBPF">
+  <meta property="og:title" content="Raw Tracepoints">
+  <meta property="og:description" content="Lower level access when you need every byte of the event payload.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+  <meta itemprop="name" content="Raw Tracepoints">
+  <meta itemprop="description" content="Lower level access when you need every byte of the event payload.">
+  <meta itemprop="wordCount" content="1434">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Raw Tracepoints">
+  <meta name="twitter:description" content="Lower level access when you need every byte of the event payload.">
+<link rel="preload" href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" as="style" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<link href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" rel="stylesheet" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+  crossorigin="anonymous"></script>
+<script defer
+  src="https://unpkg.com/lunr@2.3.9/lunr.min.js"
+  integrity="sha384-203J0SNzyqHby3iU6hzvzltrWi/M41wOP5Gu+BiJMz5nwKykbkUx8Kp7iti0Lpli"
+  crossorigin="anonymous"></script>
+
+  </head>
+  <body class="td-page">
+    <header>
+      <nav class="td-navbar js-navbar-scroll" data-bs-theme="dark">
+<div class="container-fluid flex-column flex-md-row">
+  <a class="navbar-brand" href="/"><span class="navbar-brand__logo navbar-logo"></span><span class="navbar-brand__name">Engineering Everything with eBPF</span></a>
+  <div class="td-navbar-nav-scroll ms-md-auto" id="main_navbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="/docs/"><span>Documentation</span></a>
+      </li>
+      </ul>
+  </div>
+  <div class="d-none d-lg-block">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+  </div>
+</div>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <aside class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            <div id="td-sidebar-menu" class="td-sidebar__inner">
+  <form class="td-sidebar__search d-flex align-items-center">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ms-3 fas fa-bars" type="button" data-bs-toggle="collapse" data-bs-target="#td-section-nav" aria-controls="td-section-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  <nav class="td-sidebar-nav collapse" id="td-section-nav">
+    <ul class="td-sidebar-nav__section pe-md-3 ul-0">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docs-li">
+  <a href="/docs/" title="Engineering Everything with eBPF" class="align-left ps-0 td-sidebar-link td-sidebar-link__section tree-root" id="m-docs"><span class="">Documentation</span></a>
+  <ul class="ul-1">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter0-li">
+  <a href="/docs/chapter0/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter0"><span class="">Before We Begin</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter01-author-li">
+  <a href="/docs/chapter0/1-author/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter01-author"><span class="">Author</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter03-copyright-li">
+  <a href="/docs/chapter0/3-copyright/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter03-copyright"><span class="">Copyright</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter04-preface-li">
+  <a href="/docs/chapter0/4-preface/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter04-preface"><span class="">Preface</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter05-contribution-li">
+  <a href="/docs/chapter0/5-contribution/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter05-contribution"><span class="">Contribution Guidelines</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter02-acknowledgements-li">
+  <a href="/docs/chapter0/2-acknowledgements/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter02-acknowledgements"><span class=""></span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter1-li">
+  <a href="/docs/chapter1/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter1"><span class="">What is eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter11-intro-li">
+  <a href="/docs/chapter1/1-intro/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter11-intro"><span class="">Introduction</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter12-history-li">
+  <a href="/docs/chapter1/2-history/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter12-history"><span class="">History of eBPF</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter13-real-world-li">
+  <a href="/docs/chapter1/3-real-world/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter13-real-world"><span class="">eBPF in the Real World</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter14-why-li">
+  <a href="/docs/chapter1/4-why/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter14-why"><span class="">Why eBPF?</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter15-arch-li">
+  <a href="/docs/chapter1/5-arch/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter15-arch"><span class="">eBPF Architecture</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter2-li">
+  <a href="/docs/chapter2/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter2"><span class="">eBPF Taking off</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter21-bpf_syscall-li">
+  <a href="/docs/chapter2/1-bpf_syscall/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter21-bpf_syscall"><span class="">bpf() syscall</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter22-maps-li">
+  <a href="/docs/chapter2/2-maps/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter22-maps"><span class="">eBPF Maps</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter23-map_operations-li">
+  <a href="/docs/chapter2/3-map_operations/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter23-map_operations"><span class="">eBPF Map Operations</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter24-prog_types-li">
+  <a href="/docs/chapter2/4-prog_types/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter24-prog_types"><span class="">eBPF Program Types</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docschapter3-li">
+  <a href="/docs/chapter3/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter3"><span class="">eBPF Probes</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter31-kprobe-kretprobe-li">
+  <a href="/docs/chapter3/1-kprobe-kretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter31-kprobe-kretprobe"><span class="">Kprobe and Kretprobe</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter32-uprobe-uretprobe-li">
+  <a href="/docs/chapter3/2-uprobe-uretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter32-uprobe-uretprobe"><span class="">Uprobes and Uretprobes</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter33-tracepoints-li">
+  <a href="/docs/chapter3/3-tracepoints/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter33-tracepoints"><span class="">Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docschapter34-raw_tracepoints-li">
+  <a href="/docs/chapter3/4-raw_tracepoints/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docschapter34-raw_tracepoints"><span class="td-sidebar-nav-active-item">Raw Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter35-fentry-fexit-li">
+  <a href="/docs/chapter3/5-fentry-fexit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter35-fentry-fexit"><span class="">Fentry and Fexit</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter4-li">
+  <a href="/docs/chapter4/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter4"><span class="">Networking with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter41-socket-li">
+  <a href="/docs/chapter4/1-socket/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter41-socket"><span class="">Socket Filter</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter42-lwt-li">
+  <a href="/docs/chapter4/2-lwt/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter42-lwt"><span class="">Lightweight Tunnels</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter43-tc-li">
+  <a href="/docs/chapter4/3-tc/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter43-tc"><span class="">Traffic Control</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter44-xdp-li">
+  <a href="/docs/chapter4/4-xdp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter44-xdp"><span class="">XDP</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter45-cgroup_sock_addr-li">
+  <a href="/docs/chapter4/5-cgroup_sock_addr/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter45-cgroup_sock_addr"><span class="">CGroup Socket Address</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter5-li">
+  <a href="/docs/chapter5/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter5"><span class="">Security with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter51-seccomp-li">
+  <a href="/docs/chapter5/1-seccomp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter51-seccomp"><span class="">Seccomp</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter52-lsm-li">
+  <a href="/docs/chapter5/2-lsm/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter52-lsm"><span class="">Linux Security Module (LSM)</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter53-landlock-li">
+  <a href="/docs/chapter5/3-landlock/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter53-landlock"><span class="">Landlock</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter54-bpf_send_signal-li">
+  <a href="/docs/chapter5/4-bpf_send_signal/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter54-bpf_send_signal"><span class="">bpf_send_signal</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter55-tetragon-li">
+  <a href="/docs/chapter5/5-tetragon/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter55-tetragon"><span class="">Tetragon</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter56-bpfilter-li">
+  <a href="/docs/chapter5/6-bpfilter/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter56-bpfilter"><span class="">Bpfilter</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter6-li">
+  <a href="/docs/chapter6/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter6"><span class="">Tools and languages</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter61-bpftrace-li">
+  <a href="/docs/chapter6/1-bpftrace/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter61-bpftrace"><span class="">bpftrace</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter62-bcc-li">
+  <a href="/docs/chapter6/2-bcc/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter62-bcc"><span class="">BCC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter63-bpftool-li">
+  <a href="/docs/chapter6/3-bpftool/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter63-bpftool"><span class="">BPFTool</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter64-tail-call-li">
+  <a href="/docs/chapter6/4-tail-call/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter64-tail-call"><span class="">Tail call</span></a>
+</li>
+  </ul>
+</li>
+  </ul>
+</li>
+    </ul>
+  </nav>
+</div>
+
+          </aside>
+          <aside class="d-none d-xl-block col-xl-2 td-sidebar-toc d-print-none">
+            <div class="td-page-meta ms-2 pb-1 pt-2 mb-0">
+<a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/tree/main/content/docs/chapter3/4-raw_tracepoints.md" class="td-page-meta--view td-page-meta__view" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines fa-fw"></i> View page source</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/edit/main/content/docs/chapter3/4-raw_tracepoints.md" class="td-page-meta--edit td-page-meta__edit" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Edit this page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/new/main/content/docs/chapter3?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60getting-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" class="td-page-meta--child td-page-meta__child" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Create child page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new?title=Raw%20Tracepoints" class="td-page-meta--issue td-page-meta__issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create documentation issue</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new" class="td-page-meta--project td-page-meta__project-issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create project issue</a>
+  <a id="print" href="/docs/chapter3/_print/"><i class="fa-solid fa-print fa-fw"></i> Print entire section</a>
+
+</div>
+
+            <div class="td-toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#how-raw-tracepoints-work-under-the-hood">How Raw Tracepoints Work Under the Hood</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </div>
+    
+            
+	
+          </aside>
+          <main class="col-12 col-md-9 col-xl-8 ps-md-5" role="main">
+            
+  
+
+            <nav aria-label="breadcrumb" class="td-breadcrumbs">
+  <ol class="breadcrumb">
+  <li class="breadcrumb-item">
+    <a href="/docs/">Documentation</a></li>
+  <li class="breadcrumb-item">
+    <a href="/docs/chapter3/">eBPF Probes</a></li>
+  <li class="breadcrumb-item active" aria-current="page">
+    Raw Tracepoints</li>
+  </ol>
+</nav>
+            
+<div class="td-content">
+	<h1>Raw Tracepoints</h1>
+	<div class="lead">Lower level access when you need every byte of the event payload.</div>
+	<header class="article-meta">
+		
+  </header>
+	<p>Raw tracepoints provide a lower-level interface to the same static instrumentation points used by regular tracepoints, but without the overhead of argument type casting and stable ABI guarantees. Introduced in Linux 4.17 by Alexei Starovoitov. Whereas normal tracepoints provide a stable set of arguments, often cast into well-defined data structures, raw tracepoints give direct access to the arguments in the form used by the kernel’s tracepoint handler. This means there’s no guarantee about the argument layout staying consistent across kernel versions—if the kernel’s internal definition of the tracepoint changes, your raw tracepoint program must adapt. Raw tracepoints attach to the same kernel tracepoints as normal tracepoint-based BPF programs. You specify a raw tracepoint by name, just as you would a regular tracepoint, but you load the BPF program with a type that indicates you want raw access, such as <code>BPF_PROG_TYPE_TRACING</code> with a section prefix like <code>raw_tp/</code> or <code>tp_btf/</code>.</p>
+<h3 id="how-raw-tracepoints-work-under-the-hood">How Raw Tracepoints Work Under the Hood<a class="td-heading-self-link" href="#how-raw-tracepoints-work-under-the-hood" aria-label="Heading self-link"></a></h3>
+<p>Raw tracepoints use the same static jump patching mechanism as regular tracepoints, they differ in that they pass unformatted, low-level event data directly to the attached program.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter3/raw-tracepoint.png" alt="Centered image" />
+</p>
+<p>The list of all raw tracepoints are available at <code>/sys/kernel/debug/tracing/available_events</code> file</p>
+<p>Raw tracepoints are not defined for each individual syscall but are provided as generic entry and exit points (such as sys_enter and sys_exit) for all system calls. Therefore, if you want to target a specific syscall, you must filter events by checking the syscall ID.</p>
+<p>Raw tracepoint uses <code>bpf_raw_tracepoint_args</code> data structure as context which is defined in <code>include/uapi/linux/bpf.h</code>as the following:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_raw_tracepoint_args</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">__u64</span> <span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
+</span></span></code></pre></div><p>To get what args points to in case of <code>sys_enter</code> is by examining <code>include/trace/events/syscalls.h</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">TRACE_EVENT_SYSCALL</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">sys_enter</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_PROTO</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">pt_regs</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">long</span> <span style="color:#000">id</span><span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_ARGS</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">id</span><span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_STRUCT__entry</span><span style="color:#000;font-weight:bold">(</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__field</span><span style="color:#000;font-weight:bold">(</span>	<span style="color:#204a87;font-weight:bold">long</span><span style="color:#000;font-weight:bold">,</span>		<span style="color:#000">id</span>		<span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__array</span><span style="color:#000;font-weight:bold">(</span>	<span style="color:#204a87;font-weight:bold">unsigned</span> <span style="color:#204a87;font-weight:bold">long</span><span style="color:#000;font-weight:bold">,</span>	<span style="color:#000">args</span><span style="color:#000;font-weight:bold">,</span>	<span style="color:#0000cf;font-weight:bold">6</span>	<span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_fast_assign</span><span style="color:#000;font-weight:bold">(</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">id</span>	<span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">id</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">syscall_get_arguments</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">current</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_printk</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;NR %ld (%lx, %lx, %lx, %lx, %lx, %lx)&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>		  <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">id</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>		  <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">],</span> <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">],</span> <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">2</span><span style="color:#000;font-weight:bold">],</span>
+</span></span><span style="display:flex;"><span>		  <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">3</span><span style="color:#000;font-weight:bold">],</span> <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">4</span><span style="color:#000;font-weight:bold">],</span> <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">5</span><span style="color:#000;font-weight:bold">]),</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">syscall_regfunc</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">syscall_unregfunc</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p>It has args as <code>args[0]</code> -&gt; points to <code>pt_regs</code> structure and <code>args[1]</code> is the syscall number.</p>
+<p>To access the target syscalls&rsquo; parameters, you can either cast <code>ctx-&gt;args[0]</code> to a pointer to a <code>struct pt_regs</code> and use it directly, or copy its contents into a local variable of type <code>struct pt_regs</code> (e.g., <code>struct pt_regs regs;</code>). Then, you can extract the syscall parameters using the <code>PT_REGS_PARM</code> macros (such as <code>PT_REGS_PARM1</code>, <code>PT_REGS_PARM2</code>, etc.).</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define __TARGET_ARCH_x86
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;vmlinux.h&#34;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_tracing.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_core_read.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">16</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">filename</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">256</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_RINGBUF</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">4096</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">events</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">LICENSE</span><span style="color:#000;font-weight:bold">[]</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;license&#34;</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;GPL&#34;</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;raw_tracepoint/sys_enter&#34;</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">trace_unlinkat_raw</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_raw_tracepoint_args</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">pt_regs</span> <span style="color:#000">regs</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">bpf_probe_read</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">])</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#8f5902;font-style:italic">// The syscall number is stored in ctx-&gt;args[1]
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">long</span> <span style="color:#000">syscall_id</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">syscall_id</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#0000cf;font-weight:bold">263</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">pathname</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">PT_REGS_PARM2</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">evt</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_ringbuf_reserve</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">events</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">evt</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_get_current_pid_tgid</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#ce5c00;font-weight:bold">&gt;&gt;</span> <span style="color:#0000cf;font-weight:bold">32</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_get_current_comm</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">ret</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_probe_read_user_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000">pathname</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">ret</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">evt</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">]</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#39;\0&#39;</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_ringbuf_submit</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">evt</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>User-space code</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdio.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;signal.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdlib.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;rtp_unlinkat.skel.h&#34;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">static</span> <span style="color:#204a87;font-weight:bold">volatile</span> <span style="color:#204a87;font-weight:bold">bool</span> <span style="color:#000">exiting</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#204a87">false</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">static</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#000">sig_handler</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">signo</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">exiting</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#204a87">true</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">16</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">filename</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">256</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">static</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">handle_event</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">data</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">size_t</span> <span style="color:#000">data_sz</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">e</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">data</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;PID: %u, COMM: %s, FILENAME: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">filename</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">argc</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">**</span><span style="color:#000">argv</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">rtp_unlinkat</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">ring_buffer</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">rb</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">libbpf_set_strict_mode</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">LIBBPF_STRICT_ALL</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">skel</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">rtp_unlinkat__open</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to open BPF skeleton</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">rtp_unlinkat__load</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">err</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to load BPF skeleton: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">rtp_unlinkat__attach</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">err</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to attach BPF skeleton: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">rb</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">ring_buffer__new</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">bpf_map__fd</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">maps</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">events</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000">handle_event</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">rb</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to create ring buffer</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">signal</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">SIGINT</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">sig_handler</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Waiting for events... Press Ctrl+C to exit.</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">while</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">exiting</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">ring_buffer__poll</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">rb</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">100</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Error polling ring buffer: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">break</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f57900">cleanup</span><span style="color:#000;font-weight:bold">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">ring_buffer__free</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">rb</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">rtp_unlinkat__destroy</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#ce5c00;font-weight:bold">?</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#f57900">err</span> <span style="color:#000;font-weight:bold">:</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>The output:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>PID: 3440, COMM: rm, FILENAME: test1
+</span></span><span style="display:flex;"><span>PID: 3442, COMM: rm, FILENAME: test2
+</span></span></code></pre></div><p>Let&rsquo;s explore another example other than <code>sys_enter</code>. The following is raw tracepoint  <code>task_rename</code> which is triggered when a process change its command name. Detecting such activity is crucial in security field such as malware try to hide its true identity or mimic a trusted process such as using <code>prctl(PR_SET_NAME)</code> to change the name of comm.
+By examining task_rename tracing event source code located in <code>include/trace/events/task.h</code>,we can see how the tracing mechanism is implemented:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">TRACE_EVENT</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">task_rename</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_PROTO</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">task_struct</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">task</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_ARGS</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">task</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">comm</span><span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_STRUCT__entry</span><span style="color:#000;font-weight:bold">(</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__field</span><span style="color:#000;font-weight:bold">(</span>	<span style="color:#204a87;font-weight:bold">pid_t</span><span style="color:#000;font-weight:bold">,</span>	<span style="color:#000">pid</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__array</span><span style="color:#000;font-weight:bold">(</span>	<span style="color:#204a87;font-weight:bold">char</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">oldcomm</span><span style="color:#000;font-weight:bold">,</span>  <span style="color:#000">TASK_COMM_LEN</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__array</span><span style="color:#000;font-weight:bold">(</span>	<span style="color:#204a87;font-weight:bold">char</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">newcomm</span><span style="color:#000;font-weight:bold">,</span>  <span style="color:#000">TASK_COMM_LEN</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__field</span><span style="color:#000;font-weight:bold">(</span>	<span style="color:#204a87;font-weight:bold">short</span><span style="color:#000;font-weight:bold">,</span>	<span style="color:#000">oom_score_adj</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_fast_assign</span><span style="color:#000;font-weight:bold">(</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">task</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">memcpy</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">oldcomm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">task</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">TASK_COMM_LEN</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">strscpy</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">newcomm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">TASK_COMM_LEN</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">oom_score_adj</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">task</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">signal</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">oom_score_adj</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">TP_printk</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;pid=%d oldcomm=%s newcomm=%s oom_score_adj=%hd&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">oldcomm</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">newcomm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__entry</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">oom_score_adj</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p>From <code>TP_PTORO</code>, we can see that the first argument <code>ctx-&gt;args[0]</code> is pointing to <code>struct task_struct *task</code> and the second <code>ctx-&gt;args[1]</code> argument is pointing to <code>const char *comm</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">TP_PROTO</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">task_struct</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">task</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">)</span>
+</span></span></code></pre></div><p><code>struct task_struct</code> data structure is defined in <code>include/linux/sched.h</code>. Let&rsquo;s see the following code:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define __TARGET_ARCH_x86
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;vmlinux.h&#34;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_tracing.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_core_read.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#ifndef TASK_COMM_LEN
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define TASK_COMM_LEN 16
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">u32</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">u32</span> <span style="color:#000">parent_pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">new_comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">TASK_COMM_LEN</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">old_comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">TASK_COMM_LEN</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_RINGBUF</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1</span> <span style="color:#ce5c00;font-weight:bold">&lt;&lt;</span> <span style="color:#0000cf;font-weight:bold">12</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">events</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">LICENSE</span><span style="color:#000;font-weight:bold">[]</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;license&#34;</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;GPL&#34;</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;raw_tracepoint/task_rename&#34;</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">raw_tracepoint_task_rename</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_raw_tracepoint_args</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">task_struct</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">task</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">task_struct</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">new_comm_ptr</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">e</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_ringbuf_reserve</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">events</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">e</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">e</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">BPF_CORE_READ</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">task</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">task_struct</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">parent</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">BPF_CORE_READ</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">task</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">real_parent</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">parent_pid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">BPF_CORE_READ</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">parent</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_probe_read_kernel_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">old_comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">old_comm</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000">task</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">comm</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_probe_read_kernel_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">new_comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">new_comm</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000">new_comm_ptr</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_ringbuf_submit</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">e</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>The first argument <code>ctx-&gt;args[0]</code> is pointing to <code>struct task_struct *task</code> and the second <code>ctx-&gt;args[1]</code> argument is pointing to <code>const char *comm</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">task_struct</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">task</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">task_struct</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">new_comm_ptr</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">];</span>
+</span></span></code></pre></div><p>User-space code:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdio.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdlib.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;signal.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;task_rename_ringbuf.skel.h&#34;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">parent_pid</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">new_comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">16</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">old_comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">16</span><span style="color:#000;font-weight:bold">];</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">static</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">handle_event</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">data</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">size_t</span> <span style="color:#000">data_sz</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">event</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">e</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">data</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;pid=%u, parent_pid=%u, new_comm=%s, old_comm=%s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>           <span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">parent_pid</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">new_comm</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">e</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">old_comm</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">argc</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">**</span><span style="color:#000">argv</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">task_rename_ringbuf_bpf</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">ring_buffer</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">rb</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">skel</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">task_rename_ringbuf_bpf__open</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;ERROR: failed to open BPF skeleton</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">task_rename_ringbuf_bpf__load</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">err</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;ERROR: failed to load BPF skeleton: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">task_rename_ringbuf_bpf__attach</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">err</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;ERROR: failed to attach BPF skeleton: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">rb</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">ring_buffer__new</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">bpf_map__fd</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">maps</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">events</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000">handle_event</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">rb</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#000">errno</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;ERROR: failed to create ring buffer: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Waiting for task_rename events... Press Ctrl+C to exit.</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">while</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">ring_buffer__poll</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">rb</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">100</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span> <span style="color:#ce5c00;font-weight:bold">&amp;&amp;</span> <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#000">EINTR</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;ERROR: polling ring buffer failed: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#204a87;font-weight:bold">break</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f57900">cleanup</span><span style="color:#000;font-weight:bold">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">ring_buffer__free</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">rb</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">task_rename_ringbuf_bpf__destroy</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#000">err</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>Now let&rsquo;s create a simple code to use <code>prctl(PR_SET_NAME)</code> to change comm name:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdio.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;sys/prctl.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;string.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">current_name</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">16</span><span style="color:#000;font-weight:bold">]</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">{</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">};</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">prctl</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">PR_GET_NAME</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">unsigned</span> <span style="color:#204a87;font-weight:bold">long</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">current_name</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">perror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;prctl(PR_GET_NAME)&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Current process name: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">current_name</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">fake_name</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;systemd&#34;</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">prctl</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">PR_SET_NAME</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">unsigned</span> <span style="color:#204a87;font-weight:bold">long</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">fake_name</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">perror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;prctl(PR_SET_NAME)&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">memset</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">current_name</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">current_name</span><span style="color:#000;font-weight:bold">));</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">prctl</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">PR_GET_NAME</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">unsigned</span> <span style="color:#204a87;font-weight:bold">long</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">current_name</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">perror</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;prctl(PR_GET_NAME)&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Process name changed to: %s</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">current_name</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">sleep</span><span style="color:#000;font-weight:bold">(</span><span style="color:#0000cf;font-weight:bold">120</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>Compile it using <code>gcc fake.c -o fake</code> then run it <code>./fake</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>Waiting <span style="color:#204a87;font-weight:bold">for</span> task_rename events... Press Ctrl+C to exit.
+</span></span><span style="display:flex;"><span><span style="color:#000">pid</span><span style="color:#ce5c00;font-weight:bold">=</span>7839, <span style="color:#000">parent_pid</span><span style="color:#ce5c00;font-weight:bold">=</span>7478, <span style="color:#000">new_comm</span><span style="color:#ce5c00;font-weight:bold">=</span>fake, <span style="color:#000">old_comm</span><span style="color:#ce5c00;font-weight:bold">=</span>bash
+</span></span><span style="display:flex;"><span><span style="color:#000">pid</span><span style="color:#ce5c00;font-weight:bold">=</span>7839, <span style="color:#000">parent_pid</span><span style="color:#ce5c00;font-weight:bold">=</span>7478, <span style="color:#000">new_comm</span><span style="color:#ce5c00;font-weight:bold">=</span>systemd, <span style="color:#000">old_comm</span><span style="color:#ce5c00;font-weight:bold">=</span>fake
+</span></span></code></pre></div><p>Then process changed it&rsquo;s comm from fake to systemd. We can confirm by <code>cat /proc/&lt;pid&gt;/comm</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>cat /proc/7839/comm
+</span></span><span style="display:flex;"><span>systemd
+</span></span></code></pre></div><p>Or using <code>top</code> command, <code>top --pid 7839</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>top - 04:57:06 up  4:42,  <span style="color:#0000cf;font-weight:bold">6</span> users,  load average: 0.02, 0.01, 0.00
+</span></span><span style="display:flex;"><span>Tasks:   <span style="color:#0000cf;font-weight:bold">1</span> total,   <span style="color:#0000cf;font-weight:bold">0</span> running,   <span style="color:#0000cf;font-weight:bold">1</span> sleeping,   <span style="color:#0000cf;font-weight:bold">0</span> stopped,   <span style="color:#0000cf;font-weight:bold">0</span> zombie
+</span></span><span style="display:flex;"><span>%Cpu<span style="color:#ce5c00;font-weight:bold">(</span>s<span style="color:#ce5c00;font-weight:bold">)</span>:  0.1 us,  0.1 sy,  0.0 ni, 99.8 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st 
+</span></span><span style="display:flex;"><span>MiB Mem :   3921.3 total,   1481.0 free,   1199.2 used,   1534.0 buff/cache     
+</span></span><span style="display:flex;"><span>MiB Swap:   3169.0 total,   3169.0 free,      0.0 used.   2722.1 avail Mem 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                       
+</span></span><span style="display:flex;"><span>   <span style="color:#0000cf;font-weight:bold">7839</span> ebpf      <span style="color:#0000cf;font-weight:bold">20</span>   <span style="color:#0000cf;font-weight:bold">0</span>    <span style="color:#0000cf;font-weight:bold">2560</span>   <span style="color:#0000cf;font-weight:bold">1616</span>   <span style="color:#0000cf;font-weight:bold">1616</span> S   0.0   0.0   0:00.00 systemd
+</span></span></code></pre></div>
+	
+</div>
+
+
+          </main>
+        </div>
+      </div>
+      <footer class="td-footer row d-print-none">
+  <div class="container-fluid">
+    <div class="row mx-md-2">
+      <div class="td-footer__left col-6 col-sm-4 order-sm-1">
+        
+      </div><div class="td-footer__right col-6 col-sm-4 order-sm-3">
+        <ul class="td-footer__links-list">
+  
+  <li class="td-footer__links-item" data-bs-toggle="tooltip" title="GitHub" aria-label="GitHub">
+    <a target="_blank" rel="noopener" href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF" aria-label="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+      </div><div class="td-footer__center col-12 col-sm-4 py-2 order-sm-2">
+        <span class="td-footer__copyright">&copy;
+    2025
+    <span class="td-footer__authors">Hamza Megahed | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a> |</span></span><span class="td-footer__all_rights_reserved">All Rights Reserved</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script src="/js/main.min.69e2c1ae9320465ab10236d9ef752c6a4442c54b48b883b17c497b7c7d96a796.js" integrity="sha256-aeLBrpMgRlqxAjbZ73UsakRCxUtIuIOxfEl7fH2Wp5Y=" crossorigin="anonymous"></script>
+<script defer src="/js/click-to-copy.min.73478a7d4807698aed7e355eb23f9890ca18fea3158604c8471746d046702bad.js" integrity="sha256-c0eKfUgHaYrtfjVesj&#43;YkMoY/qMVhgTIRxdG0EZwK60=" crossorigin="anonymous"></script>
+<script src='/js/tabpane-persist.js'></script>
+
+  </body>
+</html>

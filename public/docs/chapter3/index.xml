@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>eBPF Probes on Engineering Everything with eBPF</title>
+    <link>https://ebpf.hamza-megahed.com/docs/chapter3/</link>
+    <description>Recent content in eBPF Probes on Engineering Everything with eBPF</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <atom:link href="https://ebpf.hamza-megahed.com/docs/chapter3/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kprobe and Kretprobe</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter3/1-kprobe-kretprobe/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter3/1-kprobe-kretprobe/</guid>
+      <description>Writing eBPF Code When writing eBPF code, you typically need to write two separate parts: one for kernel-space and the other for user-space.&#xA;Kernel Space Code:&#xA;The kernel-space code is responsible for performing specific tasks, such as tracing, monitoring network packets, filtering system calls, or attaching to kprobes, tracepoints, etc. This code interacts directly with the kernel and can access kernel data structures or events. The kernel space is highly sensitive, so the code running there must be safe and efficient.</description>
+    </item>
+    <item>
+      <title>Uprobes and Uretprobes</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter3/2-uprobe-uretprobe/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter3/2-uprobe-uretprobe/</guid>
+      <description>Uprobes and uretprobes enable instrumentation of user-space applications in a manner similar to how kprobes and kretprobes instrument kernel functions. Instead of tracing kernel-level routines, uprobes and uretprobes attach to functions (or instructions) within user-space executables and shared libraries. This allows system-wide dynamic instrumentation of user applications, including libraries that are shared among many processes.&#xA;Unlike the kprobe interface—where the kernel knows the symbol addresses of kernel functions—uprobes require the user to specify the file path and offset of the instruction(s) or function(s) to probe.</description>
+    </item>
+    <item>
+      <title>Tracepoints</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter3/3-tracepoints/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter3/3-tracepoints/</guid>
+      <description>Tracepoints are static instrumentation points compiled into the kernel at code locations chosen by kernel developers. They are placed in meaningful logical places in the code—such as the allocation of memory, the scheduling of tasks, or network packet events—so that when enabled, they can provide consistent and stable data about kernel events. Unlike kprobes, which dynamically instrument arbitrary functions at runtime, tracepoints are predefined by the kernel and remain stable across kernel versions.</description>
+    </item>
+    <item>
+      <title>Raw Tracepoints</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter3/4-raw_tracepoints/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter3/4-raw_tracepoints/</guid>
+      <description>Raw tracepoints provide a lower-level interface to the same static instrumentation points used by regular tracepoints, but without the overhead of argument type casting and stable ABI guarantees. Introduced in Linux 4.17 by Alexei Starovoitov. Whereas normal tracepoints provide a stable set of arguments, often cast into well-defined data structures, raw tracepoints give direct access to the arguments in the form used by the kernel’s tracepoint handler. This means there’s no guarantee about the argument layout staying consistent across kernel versions—if the kernel’s internal definition of the tracepoint changes, your raw tracepoint program must adapt.</description>
+    </item>
+    <item>
+      <title>Fentry and Fexit</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter3/5-fentry-fexit/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter3/5-fentry-fexit/</guid>
+      <description>Fentry An fentry eBPF program is attached precisely at the entry point of a kernel function. Introduced in Linux kernel 5.5 , fentry uses a BPF trampoline to patch function entry points to invoke eBPF code. This results in minimal overhead compared to traditional kprobe.&#xA;When a function is compiled with tracing support (CONFIG_FUNCTION_TRACER), the compiler inserts a call to __fentry__ at the beginning of the function which contains several NOP instructions 0x90.</description>
+    </item>
+  </channel>
+</rss>

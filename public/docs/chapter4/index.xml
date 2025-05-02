@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Networking with eBPF on Engineering Everything with eBPF</title>
+    <link>https://ebpf.hamza-megahed.com/docs/chapter4/</link>
+    <description>Recent content in Networking with eBPF on Engineering Everything with eBPF</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <atom:link href="https://ebpf.hamza-megahed.com/docs/chapter4/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Socket Filter</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter4/1-socket/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter4/1-socket/</guid>
+      <description>We saw socket filter program type definition in previous chapter, a SOCKET_FILTER type program executes whenever a packet arrives at the socket it is attached to give you access to examine all packets passed through the socket and can&amp;rsquo;t give you control to modify packets and believe me, it&amp;rsquo;s easier than you think, all you have to do is to look at the the entire packet structure as we will see.</description>
+    </item>
+    <item>
+      <title>Lightweight Tunnels</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter4/2-lwt/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter4/2-lwt/</guid>
+      <description>Lightweight Tunnels (LWT) in the Linux kernel provides a way to handle network tunneling defined in /net/core/lwtunnel.c. Rather than being standalone protocols like TCP or UDP, these encapsulation types are identifiers used to select a specific method of wrapping packets for tunneling. For example, MPLS encapsulation wraps packets with an MPLS label stack, while SEG6 encapsulation uses an IPv6 Segment Routing header. The code below shows how these encapsulation types are mapped to human‐readable form:</description>
+    </item>
+    <item>
+      <title>Traffic Control</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter4/3-tc/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter4/3-tc/</guid>
+      <description>Traffic Control subsystem is designed to schedule packets using a queuing system which controls the traffic direction and filtering. Traffic control can be used to filter traffic by applying rules and traffic shaping among other functions. The core of traffic control is built around qdiscs which stands for queuing disciplines, qdiscs define the rules for how packets are handled by a queuing system. There are two types of qdiscs, classful and classless.</description>
+    </item>
+    <item>
+      <title>XDP</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter4/4-xdp/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter4/4-xdp/</guid>
+      <description>XDP (eXpress Data Path) is a high-performance packet processing framework integrated directly into the Linux kernel. It leverages eBPF (extended Berkeley Packet Filter) technology to enable customizable packet processing at the earliest possible stage when packets arrive at the network driver (ingress traffic) before the kernel allocates an sk_buff for them. By operating before the kernel&amp;rsquo;s traditional networking stack processes packets, XDP dramatically reduces latency, improves throughput, and minimizes processing overhead.</description>
+    </item>
+    <item>
+      <title>CGroup Socket Address</title>
+      <link>https://ebpf.hamza-megahed.com/docs/chapter4/5-cgroup_sock_addr/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://ebpf.hamza-megahed.com/docs/chapter4/5-cgroup_sock_addr/</guid>
+      <description>BPF_PROG_TYPE_CGROUP_SOCK_ADDR is a BPF program type designed to attach to control groups (cgroups) and intercept socket address operations, such as connect() calls. It enables administrators to enforce network connection policies—like allowing or blocking connections based on destination IPs and ports—at the cgroup level. This makes it a powerful tool for implementing network security controls within containerized or multi-tenant environments. There are many types of BPF_PROG_TYPE_CGROUP_SOCK_ADDR programs or ELF section such as:</description>
+    </item>
+  </channel>
+</rss>

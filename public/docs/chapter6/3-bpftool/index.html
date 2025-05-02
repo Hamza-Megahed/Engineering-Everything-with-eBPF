@@ -1,0 +1,650 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/WebPage" lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+
+
+<link rel="shortcut icon" href="/favicons/favicon.ico" >
+<link rel="apple-touch-icon" href="/favicons/apple-touch-icon-180x180.png" sizes="180x180">
+<link rel="icon" type="image/png" href="/favicons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="/favicons/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/favicons/android-36x36.png" sizes="36x36">
+<link rel="icon" type="image/png" href="/favicons/android-48x48.png" sizes="48x48">
+<link rel="icon" type="image/png" href="/favicons/android-72x72.png" sizes="72x72">
+<link rel="icon" type="image/png" href="/favicons/android-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicons/android-144x144.png" sizes="144x144">
+<link rel="icon" type="image/png" href="/favicons/android-192x192.png" sizes="192x192">
+
+<title>BPFTool | Engineering Everything with eBPF</title>
+<meta name="description" content="The official command-line utility shipped with the kernel source that loads pins inspects and benchmarks eBPF programs and maps from user space.">
+<meta property="og:url" content="https://ebpf.hamza-megahed.com/docs/chapter6/3-bpftool/">
+  <meta property="og:site_name" content="Engineering Everything with eBPF">
+  <meta property="og:title" content="BPFTool">
+  <meta property="og:description" content="The official command-line utility shipped with the kernel source that loads pins inspects and benchmarks eBPF programs and maps from user space.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+
+  <meta itemprop="name" content="BPFTool">
+  <meta itemprop="description" content="The official command-line utility shipped with the kernel source that loads pins inspects and benchmarks eBPF programs and maps from user space.">
+  <meta itemprop="wordCount" content="2036">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="BPFTool">
+  <meta name="twitter:description" content="The official command-line utility shipped with the kernel source that loads pins inspects and benchmarks eBPF programs and maps from user space.">
+<link rel="preload" href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" as="style" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<link href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" rel="stylesheet" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+  crossorigin="anonymous"></script>
+<script defer
+  src="https://unpkg.com/lunr@2.3.9/lunr.min.js"
+  integrity="sha384-203J0SNzyqHby3iU6hzvzltrWi/M41wOP5Gu+BiJMz5nwKykbkUx8Kp7iti0Lpli"
+  crossorigin="anonymous"></script>
+
+  </head>
+  <body class="td-page">
+    <header>
+      <nav class="td-navbar js-navbar-scroll" data-bs-theme="dark">
+<div class="container-fluid flex-column flex-md-row">
+  <a class="navbar-brand" href="/"><span class="navbar-brand__logo navbar-logo"></span><span class="navbar-brand__name">Engineering Everything with eBPF</span></a>
+  <div class="td-navbar-nav-scroll ms-md-auto" id="main_navbar">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="/docs/"><span>Documentation</span></a>
+      </li>
+      </ul>
+  </div>
+  <div class="d-none d-lg-block">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+  </div>
+</div>
+</nav>
+    </header>
+    <div class="container-fluid td-outer">
+      <div class="td-main">
+        <div class="row flex-xl-nowrap">
+          <aside class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+            <div id="td-sidebar-menu" class="td-sidebar__inner">
+  <form class="td-sidebar__search d-flex align-items-center">
+    <div class="td-search td-search--offline">
+  <div class="td-search__icon"></div>
+  <input
+    type="search"
+    class="td-search__input form-control"
+    placeholder="Search this site…"
+    aria-label="Search this site…"
+    autocomplete="off"
+    
+    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-base-href="/"
+    data-offline-search-max-results="10"
+  >
+</div>
+    <button class="btn btn-link td-sidebar__toggle d-md-none p-0 ms-3 fas fa-bars" type="button" data-bs-toggle="collapse" data-bs-target="#td-section-nav" aria-controls="td-section-nav" aria-expanded="false" aria-label="Toggle section navigation">
+    </button>
+  </form>
+  <nav class="td-sidebar-nav collapse" id="td-section-nav">
+    <ul class="td-sidebar-nav__section pe-md-3 ul-0">
+      <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docs-li">
+  <a href="/docs/" title="Engineering Everything with eBPF" class="align-left ps-0 td-sidebar-link td-sidebar-link__section tree-root" id="m-docs"><span class="">Documentation</span></a>
+  <ul class="ul-1">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter0-li">
+  <a href="/docs/chapter0/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter0"><span class="">Before We Begin</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter01-author-li">
+  <a href="/docs/chapter0/1-author/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter01-author"><span class="">Author</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter03-copyright-li">
+  <a href="/docs/chapter0/3-copyright/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter03-copyright"><span class="">Copyright</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter04-preface-li">
+  <a href="/docs/chapter0/4-preface/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter04-preface"><span class="">Preface</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter05-contribution-li">
+  <a href="/docs/chapter0/5-contribution/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter05-contribution"><span class="">Contribution Guidelines</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter02-acknowledgements-li">
+  <a href="/docs/chapter0/2-acknowledgements/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter02-acknowledgements"><span class=""></span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter1-li">
+  <a href="/docs/chapter1/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter1"><span class="">What is eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter11-intro-li">
+  <a href="/docs/chapter1/1-intro/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter11-intro"><span class="">Introduction</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter12-history-li">
+  <a href="/docs/chapter1/2-history/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter12-history"><span class="">History of eBPF</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter13-real-world-li">
+  <a href="/docs/chapter1/3-real-world/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter13-real-world"><span class="">eBPF in the Real World</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter14-why-li">
+  <a href="/docs/chapter1/4-why/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter14-why"><span class="">Why eBPF?</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter15-arch-li">
+  <a href="/docs/chapter1/5-arch/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter15-arch"><span class="">eBPF Architecture</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter2-li">
+  <a href="/docs/chapter2/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter2"><span class="">eBPF Taking off</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter21-bpf_syscall-li">
+  <a href="/docs/chapter2/1-bpf_syscall/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter21-bpf_syscall"><span class="">bpf() syscall</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter22-maps-li">
+  <a href="/docs/chapter2/2-maps/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter22-maps"><span class="">eBPF Maps</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter23-map_operations-li">
+  <a href="/docs/chapter2/3-map_operations/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter23-map_operations"><span class="">eBPF Map Operations</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter24-prog_types-li">
+  <a href="/docs/chapter2/4-prog_types/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter24-prog_types"><span class="">eBPF Program Types</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter3-li">
+  <a href="/docs/chapter3/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter3"><span class="">eBPF Probes</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter31-kprobe-kretprobe-li">
+  <a href="/docs/chapter3/1-kprobe-kretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter31-kprobe-kretprobe"><span class="">Kprobe and Kretprobe</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter32-uprobe-uretprobe-li">
+  <a href="/docs/chapter3/2-uprobe-uretprobe/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter32-uprobe-uretprobe"><span class="">Uprobes and Uretprobes</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter33-tracepoints-li">
+  <a href="/docs/chapter3/3-tracepoints/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter33-tracepoints"><span class="">Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter34-raw_tracepoints-li">
+  <a href="/docs/chapter3/4-raw_tracepoints/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter34-raw_tracepoints"><span class="">Raw Tracepoints</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter35-fentry-fexit-li">
+  <a href="/docs/chapter3/5-fentry-fexit/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter35-fentry-fexit"><span class="">Fentry and Fexit</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter4-li">
+  <a href="/docs/chapter4/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter4"><span class="">Networking with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter41-socket-li">
+  <a href="/docs/chapter4/1-socket/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter41-socket"><span class="">Socket Filter</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter42-lwt-li">
+  <a href="/docs/chapter4/2-lwt/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter42-lwt"><span class="">Lightweight Tunnels</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter43-tc-li">
+  <a href="/docs/chapter4/3-tc/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter43-tc"><span class="">Traffic Control</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter44-xdp-li">
+  <a href="/docs/chapter4/4-xdp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter44-xdp"><span class="">XDP</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter45-cgroup_sock_addr-li">
+  <a href="/docs/chapter4/5-cgroup_sock_addr/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter45-cgroup_sock_addr"><span class="">CGroup Socket Address</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child" id="m-docschapter5-li">
+  <a href="/docs/chapter5/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter5"><span class="">Security with eBPF</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter51-seccomp-li">
+  <a href="/docs/chapter5/1-seccomp/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter51-seccomp"><span class="">Seccomp</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter52-lsm-li">
+  <a href="/docs/chapter5/2-lsm/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter52-lsm"><span class="">Linux Security Module (LSM)</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter53-landlock-li">
+  <a href="/docs/chapter5/3-landlock/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter53-landlock"><span class="">Landlock</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter54-bpf_send_signal-li">
+  <a href="/docs/chapter5/4-bpf_send_signal/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter54-bpf_send_signal"><span class="">bpf_send_signal</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter55-tetragon-li">
+  <a href="/docs/chapter5/5-tetragon/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter55-tetragon"><span class="">Tetragon</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter56-bpfilter-li">
+  <a href="/docs/chapter5/6-bpfilter/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter56-bpfilter"><span class="">Bpfilter</span></a>
+</li>
+  </ul>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section with-child active-path" id="m-docschapter6-li">
+  <a href="/docs/chapter6/" class="align-left ps-0 td-sidebar-link td-sidebar-link__section" id="m-docschapter6"><span class="">Tools and languages</span></a>
+  <ul class="ul-2 foldable">
+    <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter61-bpftrace-li">
+  <a href="/docs/chapter6/1-bpftrace/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter61-bpftrace"><span class="">bpftrace</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter62-bcc-li">
+  <a href="/docs/chapter6/2-bcc/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter62-bcc"><span class="">BCC</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child active-path" id="m-docschapter63-bpftool-li">
+  <a href="/docs/chapter6/3-bpftool/" class="align-left ps-0 active td-sidebar-link td-sidebar-link__page" id="m-docschapter63-bpftool"><span class="td-sidebar-nav-active-item">BPFTool</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docschapter64-tail-call-li">
+  <a href="/docs/chapter6/4-tail-call/" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docschapter64-tail-call"><span class="">Tail call</span></a>
+</li>
+  </ul>
+</li>
+  </ul>
+</li>
+    </ul>
+  </nav>
+</div>
+
+          </aside>
+          <aside class="d-none d-xl-block col-xl-2 td-sidebar-toc d-print-none">
+            <div class="td-page-meta ms-2 pb-1 pt-2 mb-0">
+<a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/tree/main/content/docs/chapter6/3-bpftool.md" class="td-page-meta--view td-page-meta__view" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines fa-fw"></i> View page source</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/edit/main/content/docs/chapter6/3-bpftool.md" class="td-page-meta--edit td-page-meta__edit" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Edit this page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/new/main/content/docs/chapter6?filename=change-me.md&amp;value=---%0Atitle%3A&#43;%22Long&#43;Page&#43;Title%22%0AlinkTitle%3A&#43;%22Short&#43;Nav&#43;Title%22%0Aweight%3A&#43;100%0Adescription%3A&#43;%3E-%0A&#43;&#43;&#43;&#43;&#43;Page&#43;description&#43;for&#43;heading&#43;and&#43;indexes.%0A---%0A%0A%23%23&#43;Heading%0A%0AEdit&#43;this&#43;template&#43;to&#43;create&#43;your&#43;new&#43;page.%0A%0A%2A&#43;Give&#43;it&#43;a&#43;good&#43;name%2C&#43;ending&#43;in&#43;%60.md%60&#43;-&#43;e.g.&#43;%60getting-started.md%60%0A%2A&#43;Edit&#43;the&#43;%22front&#43;matter%22&#43;section&#43;at&#43;the&#43;top&#43;of&#43;the&#43;page&#43;%28weight&#43;controls&#43;how&#43;its&#43;ordered&#43;amongst&#43;other&#43;pages&#43;in&#43;the&#43;same&#43;directory%3B&#43;lowest&#43;number&#43;first%29.%0A%2A&#43;Add&#43;a&#43;good&#43;commit&#43;message&#43;at&#43;the&#43;bottom&#43;of&#43;the&#43;page&#43;%28%3C80&#43;characters%3B&#43;use&#43;the&#43;extended&#43;description&#43;field&#43;for&#43;more&#43;detail%29.%0A%2A&#43;Create&#43;a&#43;new&#43;branch&#43;so&#43;you&#43;can&#43;preview&#43;your&#43;new&#43;file&#43;and&#43;request&#43;a&#43;review&#43;via&#43;Pull&#43;Request.%0A" class="td-page-meta--child td-page-meta__child" target="_blank" rel="noopener"><i class="fa-solid fa-pen-to-square fa-fw"></i> Create child page</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new?title=BPFTool" class="td-page-meta--issue td-page-meta__issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create documentation issue</a>
+  <a href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF/issues/new" class="td-page-meta--project td-page-meta__project-issue" target="_blank" rel="noopener"><i class="fa-solid fa-list-check fa-fw"></i> Create project issue</a>
+  <a id="print" href="/docs/chapter6/_print/"><i class="fa-solid fa-print fa-fw"></i> Print entire section</a>
+
+</div>
+
+            
+            
+	
+          </aside>
+          <main class="col-12 col-md-9 col-xl-8 ps-md-5" role="main">
+            
+  
+
+            <nav aria-label="breadcrumb" class="td-breadcrumbs">
+  <ol class="breadcrumb">
+  <li class="breadcrumb-item">
+    <a href="/docs/">Documentation</a></li>
+  <li class="breadcrumb-item">
+    <a href="/docs/chapter6/">Tools and languages</a></li>
+  <li class="breadcrumb-item active" aria-current="page">
+    BPFTool</li>
+  </ol>
+</nav>
+            
+<div class="td-content">
+	<h1>BPFTool</h1>
+	<div class="lead">The official command-line utility shipped with the kernel source that loads pins inspects and benchmarks eBPF programs and maps from user space.</div>
+	<header class="article-meta">
+		
+  </header>
+	<p><code>BPFTool</code> is a command-line utility for interacting with eBPF programs and maps in the Linux kernel. It provides a comprehensive set of commands for loading, inspecting, and debugging eBPF objects. With <code>bpftool</code>, users can load compiled eBPF programs into the kernel, attach them to various kernel events or network interfaces, and manage eBPF maps used for storing and sharing data between kernel and user space. It also offers powerful introspection capabilities, allowing users to examine the state of running eBPF programs, including their maps, attached probes, and verifier logs, making it an indispensable tool for eBPF developers and system administrators working with modern Linux observability and networking.</p>
+<p>We used many times to generate <code>vmlinux.h</code> header file and the skeleton header files:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c &gt; vmlinux.h
+</span></span><span style="display:flex;"><span>sudo bpftool gen skeleton obj_file.o &gt; obj_file.skel.h
+</span></span></code></pre></div><p>Using <code>sudo bpftool -h</code> to show the program&rsquo;s options:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>Usage: bpftool <span style="color:#ce5c00;font-weight:bold">[</span>OPTIONS<span style="color:#ce5c00;font-weight:bold">]</span> OBJECT <span style="color:#ce5c00;font-weight:bold">{</span> COMMAND <span style="color:#000;font-weight:bold">|</span> <span style="color:#204a87">help</span> <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>       bpftool batch file FILE
+</span></span><span style="display:flex;"><span>       bpftool version
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>       OBJECT :<span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#ce5c00;font-weight:bold">{</span> prog <span style="color:#000;font-weight:bold">|</span> map <span style="color:#000;font-weight:bold">|</span> link <span style="color:#000;font-weight:bold">|</span> cgroup <span style="color:#000;font-weight:bold">|</span> perf <span style="color:#000;font-weight:bold">|</span> net <span style="color:#000;font-weight:bold">|</span> feature <span style="color:#000;font-weight:bold">|</span> btf <span style="color:#000;font-weight:bold">|</span> gen <span style="color:#000;font-weight:bold">|</span> struct_ops <span style="color:#000;font-weight:bold">|</span> iter <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>       OPTIONS :<span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#ce5c00;font-weight:bold">{</span> <span style="color:#ce5c00;font-weight:bold">{</span>-j<span style="color:#000;font-weight:bold">|</span>--json<span style="color:#ce5c00;font-weight:bold">}</span> <span style="color:#ce5c00;font-weight:bold">[{</span>-p<span style="color:#000;font-weight:bold">|</span>--pretty<span style="color:#ce5c00;font-weight:bold">}]</span> <span style="color:#000;font-weight:bold">|</span> <span style="color:#ce5c00;font-weight:bold">{</span>-d<span style="color:#000;font-weight:bold">|</span>--debug<span style="color:#ce5c00;font-weight:bold">}</span> <span style="color:#000;font-weight:bold">|</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#ce5c00;font-weight:bold">{</span>-V<span style="color:#000;font-weight:bold">|</span>--version<span style="color:#ce5c00;font-weight:bold">}</span> <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span></code></pre></div><p>Let&rsquo;s explore some of these options. First, let&rsquo;s try the following simple code which count how many times <code>getpid</code> syscall get invoked:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">type</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">BPF_MAP_TYPE_ARRAY</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__uint</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">count</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">_license</span><span style="color:#000;font-weight:bold">[]</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;license&#34;</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;GPL&#34;</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;tracepoint/syscalls/sys_enter_getpid&#34;</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">count_getpid</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">key</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">value</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map_lookup_elem</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">count</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">)</span><span style="color:#ce5c00;font-weight:bold">++</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>User-space code:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdio.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdlib.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;signal.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;getpid_count.skel.h&#34;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">main</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">argc</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">**</span><span style="color:#000">argv</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">getpid_count</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">skel</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">getpid_count__open</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to open BPF skeleton</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">getpid_count__load</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">err</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to load BPF skeleton: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">getpid_count__attach</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">err</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to attach BPF skeleton: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">map_fd</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map__fd</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">maps</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">count</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">map_fd</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to get map FD</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;BPF program loaded and map updated. Press Ctrl+C to exit.</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">while</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">sleep</span><span style="color:#000;font-weight:bold">(</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">lookup_key</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">count</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_map__lookup_elem</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">maps</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">count</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>                                   <span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">lookup_key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">lookup_key</span><span style="color:#000;font-weight:bold">),</span>
+</span></span><span style="display:flex;"><span>                                   <span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">count</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">count</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">err</span> <span style="color:#ce5c00;font-weight:bold">==</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#000">printf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;getpid call count: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">count</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000;font-weight:bold">}</span> <span style="color:#204a87;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Lookup failed for key %d: %d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">lookup_key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">err</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f57900">cleanup</span><span style="color:#000;font-weight:bold">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000">getpid_count__destroy</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>Before compiling and running the code. Run <code>sudo bpftool prog</code> to list all running eBPF programs:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">[</span>...<span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span><span style="display:flex;"><span>42: cgroup_device  name sd_devices  tag 2705a24f44b96941  gpl
+</span></span><span style="display:flex;"><span>	loaded_at 2025-03-17T23:38:12-0400  uid <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span>	xlated 464B  jited 301B  memlock 4096B
+</span></span><span style="display:flex;"><span>43: cgroup_skb  name sd_fw_egress  tag 6deef7357e7b4530  gpl
+</span></span><span style="display:flex;"><span>	loaded_at 2025-03-17T23:38:12-0400  uid <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span>	xlated 64B  jited 67B  memlock 4096B
+</span></span><span style="display:flex;"><span>44: cgroup_skb  name sd_fw_ingress  tag 6deef7357e7b4530  gpl
+</span></span><span style="display:flex;"><span>	loaded_at 2025-03-17T23:38:12-0400  uid <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span>	xlated 64B  jited 67B  memlock 4096B
+</span></span><span style="display:flex;"><span>46: cgroup_device  name sd_devices  tag 30c3c39a95291292  gpl
+</span></span><span style="display:flex;"><span>	loaded_at 2025-03-18T00:27:21-0400  uid <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span>	xlated 1664B  jited 1027B  memlock 4096B
+</span></span></code></pre></div><p>You will see a list of <code>cgroup</code> programs running by the system. After compiling and running the previous code and then list all running eBPF code <code>sudo bpftool prog</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>46: cgroup_device  name sd_devices  tag 30c3c39a95291292  gpl
+</span></span><span style="display:flex;"><span>	loaded_at 2025-03-18T00:27:21-0400  uid <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span>	xlated 1664B  jited 1027B  memlock 4096B
+</span></span><span style="display:flex;"><span>312: tracepoint  name count_getpid  tag be075f8b6a94de72  gpl
+</span></span><span style="display:flex;"><span>	loaded_at 2025-03-18T05:38:34-0400  uid <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span>	xlated 152B  jited 99B  memlock 4096B  map_ids <span style="color:#0000cf;font-weight:bold">147</span>
+</span></span><span style="display:flex;"><span>	btf_id <span style="color:#0000cf;font-weight:bold">511</span>
+</span></span></code></pre></div><p>Also <code>--pretty</code> option can be used <code>sudo bpftool prog --pretty</code> to display the output in prettified JSON.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">[</span>...<span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;id&#34;</span>: 312,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;type&#34;</span>: <span style="color:#4e9a06">&#34;tracepoint&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;name&#34;</span>: <span style="color:#4e9a06">&#34;count_getpid&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;tag&#34;</span>: <span style="color:#4e9a06">&#34;be075f8b6a94de72&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;gpl_compatible&#34;</span>: true,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;loaded_at&#34;</span>: 1742290714,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;uid&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;orphaned&#34;</span>: false,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;bytes_xlated&#34;</span>: 152,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;jited&#34;</span>: true,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;bytes_jited&#34;</span>: 99,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;bytes_memlock&#34;</span>: 4096,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;map_ids&#34;</span>: <span style="color:#ce5c00;font-weight:bold">[</span>147<span style="color:#ce5c00;font-weight:bold">]</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;btf_id&#34;</span>: <span style="color:#0000cf;font-weight:bold">511</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">[</span>...<span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span></code></pre></div><p>Our code has the following properties:<br>
+id = 312<br>
+Program Type = tracepoint which represents the type of eBPF program<br>
+name = count_getpid which is the name of the function defined in the code<br>
+tag = be075f8b6a94de72 which is a hash of the compiled instructions.<br>
+gpl which is the liscence<br>
+loaded_at = 2025-03-18T05:38:34-0400 timestamp when the program was loaded<br>
+uid = 0 which indicated that loaded by root<br>
+xlated = 152B represents the size of eBPF bytecode<br>
+jited = 99B represents the size of the machine code<br>
+memlock = 4096B represents the size resrved for this program<br>
+map_ids = 147 which is the id of the map loaded in this program<br>
+btf_id = 511 which is a unique identifier that the kernel assigns to that block of BTF metadata and can inspect its details using <code>sudo bpftool btf show id 511</code></p>
+<p>BPFTool can dump eBPF bytecode using <code>sudo bpftool prog dump xlated id 312</code> :</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>int count_getpid<span style="color:#ce5c00;font-weight:bold">(</span>void * ctx<span style="color:#ce5c00;font-weight:bold">)</span>:
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> int count_getpid<span style="color:#ce5c00;font-weight:bold">(</span>void *ctx<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>   0: <span style="color:#ce5c00;font-weight:bold">(</span>b7<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r1</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> int <span style="color:#000">key</span> <span style="color:#ce5c00;font-weight:bold">=</span> 0<span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>   1: <span style="color:#ce5c00;font-weight:bold">(</span>63<span style="color:#ce5c00;font-weight:bold">)</span> *<span style="color:#ce5c00;font-weight:bold">(</span>u32 *<span style="color:#ce5c00;font-weight:bold">)(</span>r10 -4<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> r1
+</span></span><span style="display:flex;"><span>   2: <span style="color:#ce5c00;font-weight:bold">(</span>bf<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r2</span> <span style="color:#ce5c00;font-weight:bold">=</span> r10
+</span></span><span style="display:flex;"><span>   3: <span style="color:#ce5c00;font-weight:bold">(</span>07<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r2</span> <span style="color:#ce5c00;font-weight:bold">+=</span> -4
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> <span style="color:#000">value</span> <span style="color:#ce5c00;font-weight:bold">=</span> bpf_map_lookup_elem<span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000;font-weight:bold">&amp;</span>count, <span style="color:#000;font-weight:bold">&amp;</span>key<span style="color:#ce5c00;font-weight:bold">)</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>   4: <span style="color:#ce5c00;font-weight:bold">(</span>18<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r1</span> <span style="color:#ce5c00;font-weight:bold">=</span> map<span style="color:#ce5c00;font-weight:bold">[</span>id:147<span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span><span style="display:flex;"><span>   6: <span style="color:#ce5c00;font-weight:bold">(</span>07<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r1</span> <span style="color:#ce5c00;font-weight:bold">+=</span> <span style="color:#0000cf;font-weight:bold">264</span>
+</span></span><span style="display:flex;"><span>   7: <span style="color:#ce5c00;font-weight:bold">(</span>61<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r0</span> <span style="color:#ce5c00;font-weight:bold">=</span> *<span style="color:#ce5c00;font-weight:bold">(</span>u32 *<span style="color:#ce5c00;font-weight:bold">)(</span>r2 +0<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>   8: <span style="color:#ce5c00;font-weight:bold">(</span>35<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#204a87;font-weight:bold">if</span> r0 &gt;<span style="color:#ce5c00;font-weight:bold">=</span> 0x1 goto pc+3
+</span></span><span style="display:flex;"><span>   9: <span style="color:#ce5c00;font-weight:bold">(</span>67<span style="color:#ce5c00;font-weight:bold">)</span> r0 &lt;&lt;<span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">3</span>
+</span></span><span style="display:flex;"><span>  10: <span style="color:#ce5c00;font-weight:bold">(</span>0f<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r0</span> <span style="color:#ce5c00;font-weight:bold">+=</span> r1
+</span></span><span style="display:flex;"><span>  11: <span style="color:#ce5c00;font-weight:bold">(</span>05<span style="color:#ce5c00;font-weight:bold">)</span> goto pc+1
+</span></span><span style="display:flex;"><span>  12: <span style="color:#ce5c00;font-weight:bold">(</span>b7<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r0</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#ce5c00;font-weight:bold">(</span>value<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>  13: <span style="color:#ce5c00;font-weight:bold">(</span>15<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">r0</span> <span style="color:#ce5c00;font-weight:bold">==</span> 0x0 goto pc+3
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> <span style="color:#ce5c00;font-weight:bold">(</span>*value<span style="color:#ce5c00;font-weight:bold">)</span>++<span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>  14: <span style="color:#ce5c00;font-weight:bold">(</span>61<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r1</span> <span style="color:#ce5c00;font-weight:bold">=</span> *<span style="color:#ce5c00;font-weight:bold">(</span>u32 *<span style="color:#ce5c00;font-weight:bold">)(</span>r0 +0<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>  15: <span style="color:#ce5c00;font-weight:bold">(</span>07<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r1</span> <span style="color:#ce5c00;font-weight:bold">+=</span> <span style="color:#0000cf;font-weight:bold">1</span>
+</span></span><span style="display:flex;"><span>  16: <span style="color:#ce5c00;font-weight:bold">(</span>63<span style="color:#ce5c00;font-weight:bold">)</span> *<span style="color:#ce5c00;font-weight:bold">(</span>u32 *<span style="color:#ce5c00;font-weight:bold">)(</span>r0 +0<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> r1
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> <span style="color:#204a87;font-weight:bold">return</span> 0<span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>  17: <span style="color:#ce5c00;font-weight:bold">(</span>b7<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#000">r0</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span>  18: <span style="color:#ce5c00;font-weight:bold">(</span>95<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#204a87">exit</span>
+</span></span></code></pre></div><p>We can get visual representation of our code instructions using <code>sudo bpftool prog dump xlated id 312 visual &amp;&gt; vis.out</code> and the output <code>vis.out</code> is a DOT language file which is a graph description language and can be viewed Graphviz. It can be converted to PNG using <code>dot -Tpng viz.out -o viz.png</code> and you can display viz.png file.</p>
+<p style="text-align: center;">
+  <img src="/images/docs/chapter6/graphviz.svg" alt="Centered image" />
+</p>
+<p>BPFTool can also dump jited or the program machine code using <code>sudo bpftool prog dump jited id 312</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>int count_getpid<span style="color:#ce5c00;font-weight:bold">(</span>void * ctx<span style="color:#ce5c00;font-weight:bold">)</span>:
+</span></span><span style="display:flex;"><span>0xffffffffc03735d4:
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> int count_getpid<span style="color:#ce5c00;font-weight:bold">(</span>void *ctx<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>   0:	nopl	<span style="color:#ce5c00;font-weight:bold">(</span>%rax,%rax<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>   5:	nopl	<span style="color:#ce5c00;font-weight:bold">(</span>%rax<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>   8:	pushq	%rbp
+</span></span><span style="display:flex;"><span>   9:	movq	%rsp, %rbp
+</span></span><span style="display:flex;"><span>   c:	subq	<span style="color:#000">$8</span>, %rsp
+</span></span><span style="display:flex;"><span>  13:	xorl	%edi, %edi
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> int <span style="color:#000">key</span> <span style="color:#ce5c00;font-weight:bold">=</span> 0<span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>  15:	movl	%edi, -4<span style="color:#ce5c00;font-weight:bold">(</span>%rbp<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>  18:	movq	%rbp, %rsi
+</span></span><span style="display:flex;"><span>  1b:	addq	<span style="color:#000">$-</span>4, %rsi
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> <span style="color:#000">value</span> <span style="color:#ce5c00;font-weight:bold">=</span> bpf_map_lookup_elem<span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000;font-weight:bold">&amp;</span>count, <span style="color:#000;font-weight:bold">&amp;</span>key<span style="color:#ce5c00;font-weight:bold">)</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>  1f:	movabsq	<span style="color:#000">$-</span>121297335560704, %rdi
+</span></span><span style="display:flex;"><span>  29:	addq	<span style="color:#000">$272</span>, %rdi
+</span></span><span style="display:flex;"><span>  30:	movl	<span style="color:#ce5c00;font-weight:bold">(</span>%rsi<span style="color:#ce5c00;font-weight:bold">)</span>, %eax
+</span></span><span style="display:flex;"><span>  33:	cmpq	<span style="color:#000">$1</span>, %rax
+</span></span><span style="display:flex;"><span>  37:	jae	0xffffffffc0373616
+</span></span><span style="display:flex;"><span>  39:	shlq	<span style="color:#000">$3</span>, %rax
+</span></span><span style="display:flex;"><span>  3d:	addq	%rdi, %rax
+</span></span><span style="display:flex;"><span>  40:	jmp	0xffffffffc0373618
+</span></span><span style="display:flex;"><span>  42:	xorl	%eax, %eax
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#ce5c00;font-weight:bold">(</span>value<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>  44:	testq	%rax, %rax
+</span></span><span style="display:flex;"><span>  47:	je	0xffffffffc0373627
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> <span style="color:#ce5c00;font-weight:bold">(</span>*value<span style="color:#ce5c00;font-weight:bold">)</span>++<span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>  49:	movl	<span style="color:#ce5c00;font-weight:bold">(</span>%rax<span style="color:#ce5c00;font-weight:bold">)</span>, %edi
+</span></span><span style="display:flex;"><span>  4c:	addq	<span style="color:#000">$1</span>, %rdi
+</span></span><span style="display:flex;"><span>  50:	movl	%edi, <span style="color:#ce5c00;font-weight:bold">(</span>%rax<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> <span style="color:#204a87;font-weight:bold">return</span> 0<span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>  53:	xorl	%eax, %eax
+</span></span><span style="display:flex;"><span>  55:	leave
+</span></span><span style="display:flex;"><span>  56:	jmp	0xffffffff85f0410b
+</span></span></code></pre></div>
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    I had to download the source code and compile bpftool to enable JIT disassembly support. I used the command <code>make LLVM_CONFIG=$(which llvm-config) CFLAGS_EXTRA=&quot;-DENABLE_JIT_DISASM=1&quot;</code> to ensure that LLVM was correctly detected and that JIT disassembly support was enabled.
+
+</div>
+
+
+
+<div class="alert alert-primary" role="alert">
+<h4 class="alert-heading">Note</h4>
+
+    <p>You can inspect eBPF instructions for the object file using <code>llvm-objdump -S getpid.o</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>getpid.o:	file format elf64-bpf
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Disassembly of section tracepoint/syscalls/sys_enter_getpid:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#0000cf;font-weight:bold">0000000000000000</span> &lt;count_getpid&gt;:
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span> <span style="color:#ce5c00;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>       0:	b7 <span style="color:#0000cf;font-weight:bold">01</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#000">r1</span> <span style="color:#ce5c00;font-weight:bold">=</span> 0x0
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span>     int <span style="color:#000">key</span> <span style="color:#ce5c00;font-weight:bold">=</span> 0<span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>       1:	<span style="color:#0000cf;font-weight:bold">63</span> 1a <span style="color:#204a87">fc</span> ff <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	*<span style="color:#ce5c00;font-weight:bold">(</span>u32 *<span style="color:#ce5c00;font-weight:bold">)(</span>r10 - 0x4<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> r1
+</span></span><span style="display:flex;"><span>       2:	bf a2 <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#000">r2</span> <span style="color:#ce5c00;font-weight:bold">=</span> r10
+</span></span><span style="display:flex;"><span>       3:	<span style="color:#0000cf;font-weight:bold">07</span> <span style="color:#0000cf;font-weight:bold">02</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#204a87">fc</span> ff ff ff	<span style="color:#000">r2</span> <span style="color:#ce5c00;font-weight:bold">+=</span> -0x4
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span>     <span style="color:#000">value</span> <span style="color:#ce5c00;font-weight:bold">=</span> bpf_map_lookup_elem<span style="color:#ce5c00;font-weight:bold">(</span><span style="color:#000;font-weight:bold">&amp;</span>count, <span style="color:#000;font-weight:bold">&amp;</span>key<span style="color:#ce5c00;font-weight:bold">)</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>       4:	<span style="color:#0000cf;font-weight:bold">18</span> <span style="color:#0000cf;font-weight:bold">01</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#000">r1</span> <span style="color:#ce5c00;font-weight:bold">=</span> 0x0 ll
+</span></span><span style="display:flex;"><span>       6:	<span style="color:#0000cf;font-weight:bold">85</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">01</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	call 0x1
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span>     <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#ce5c00;font-weight:bold">(</span>value<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>       7:	<span style="color:#0000cf;font-weight:bold">15</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">03</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000">r0</span> <span style="color:#ce5c00;font-weight:bold">==</span> 0x0 goto +0x3 &lt;count_getpid+0x58&gt;
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span>         <span style="color:#ce5c00;font-weight:bold">(</span>*value<span style="color:#ce5c00;font-weight:bold">)</span>++<span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>       8:	<span style="color:#0000cf;font-weight:bold">61</span> <span style="color:#0000cf;font-weight:bold">01</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#000">r1</span> <span style="color:#ce5c00;font-weight:bold">=</span> *<span style="color:#ce5c00;font-weight:bold">(</span>u32 *<span style="color:#ce5c00;font-weight:bold">)(</span>r0 + 0x0<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>       9:	<span style="color:#0000cf;font-weight:bold">07</span> <span style="color:#0000cf;font-weight:bold">01</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">01</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#000">r1</span> <span style="color:#ce5c00;font-weight:bold">+=</span> 0x1
+</span></span><span style="display:flex;"><span>      10:	<span style="color:#0000cf;font-weight:bold">63</span> <span style="color:#0000cf;font-weight:bold">10</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	*<span style="color:#ce5c00;font-weight:bold">(</span>u32 *<span style="color:#ce5c00;font-weight:bold">)(</span>r0 + 0x0<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> r1
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span>     <span style="color:#204a87;font-weight:bold">return</span> 0<span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>      11:	b7 <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#000">r0</span> <span style="color:#ce5c00;font-weight:bold">=</span> 0x0
+</span></span><span style="display:flex;"><span>      12:	<span style="color:#0000cf;font-weight:bold">95</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#204a87">exit</span>
+</span></span></code></pre></div><p>You can find a list of eBPF opcodes from kernel documentation <a href="https://docs.kernel.org/bpf/standardization/instruction-set.html">https://docs.kernel.org/bpf/standardization/instruction-set.html</a> or RFC 9669 <a href="https://www.rfc-editor.org/rfc/rfc9669.html">https://www.rfc-editor.org/rfc/rfc9669.html</a>.</p>
+
+
+</div>
+
+<p>BPFTool can display the list of all maps using <code>sudo bpftool map</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>11: hash_of_maps  name cgroup_hash  flags 0x0
+</span></span><span style="display:flex;"><span>	key 8B  value 4B  max_entries <span style="color:#0000cf;font-weight:bold">2048</span>  memlock 165152B
+</span></span><span style="display:flex;"><span>147: array  name count  flags 0x0
+</span></span><span style="display:flex;"><span>	key 4B  value 4B  max_entries <span style="color:#0000cf;font-weight:bold">1</span>  memlock 272B
+</span></span><span style="display:flex;"><span>	btf_id <span style="color:#0000cf;font-weight:bold">511</span>
+</span></span></code></pre></div><p>We can also inspect map content with id 147 using <code>sudo bpftool map dump id 147</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">[{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;key&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;value&#34;</span>: <span style="color:#0000cf;font-weight:bold">22</span> <span style="color:#8f5902;font-style:italic"># count of how many times `getpid` syscall get invoked</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span></code></pre></div><p>Maps can be updated using <code>bpftool</code>. For example, let&rsquo;s change the value to 90 <code>sudo bpftool map update id 147 key 00 00 00 00 value 90 00 00 00</code> and inspect the content again <code>sudo bpftool map dump id 147</code> you might see:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">[{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;key&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;value&#34;</span>: <span style="color:#0000cf;font-weight:bold">98</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span></code></pre></div><p>The extra 8 indicates that between your update and the dump, the <code>getpid</code> syscall was triggered 8 times, and since your eBPF program increments the value each time <code>getpid</code> is called, the counter increased from 90 to 98.</p>
+<p>Maps also can be pinned to eBPF filesystem using <code>sudo bpftool map pin id 147 /sys/fs/bpf/getpid_map</code> and even after termination of our program we can dump the content of the pinned map using <code>sudo bpftool map dump pinned /sys/fs/bpf/getpid_map</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">[{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;key&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;value&#34;</span>: <span style="color:#0000cf;font-weight:bold">122</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span></code></pre></div><p>We can unpin simply by remove the created file <code>sudo rm /sys/fs/bpf/getpid_map</code>.
+BPFTool can also load programs. Let&rsquo;s close our program and load it again using:
+<code>sudo bpftool prog loadall getpid.o /sys/fs/bpf/test autoattach</code> and then run <code>sudo bpftool prog</code> to make sure that the program is loaded:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>741: tracepoint  name count_getpid  tag be075f8b6a94de72  gpl
+</span></span><span style="display:flex;"><span>	loaded_at 2025-03-18T07:03:14-0400  uid <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span>	xlated 152B  jited 99B  memlock 4096B  map_ids <span style="color:#0000cf;font-weight:bold">85</span>
+</span></span><span style="display:flex;"><span>	btf_id <span style="color:#0000cf;font-weight:bold">189</span>
+</span></span></code></pre></div><p><code>autoattach</code> option is to load, attach and pin kprobe, kretprobe, uprobe, uretprobe and tracepoints in a single command.</p>
+<p>We can again dump the content of the program map <code>sudo bpftool map dump id 85</code></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">[{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;key&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>        <span style="color:#4e9a06">&#34;value&#34;</span>: <span style="color:#0000cf;font-weight:bold">24</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span></code></pre></div><p>BPFTool can also load and attach another types of eBPF programs such as XDP. Let&rsquo;s see the following code of XDP which drops ingress traffic to port 8080:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/if_ether.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/ip.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/tcp.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_endian.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/in.h&gt;</span><span style="color:#8f5902;font-style:italic">
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">_license</span><span style="color:#000;font-weight:bold">[]</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;license&#34;</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;GPL&#34;</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;xdp&#34;</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">drop_ingress_port_8080</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">xdp_md</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">data</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)(</span><span style="color:#204a87;font-weight:bold">long</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">data</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">data_end</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)(</span><span style="color:#204a87;font-weight:bold">long</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">data_end</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">ethhdr</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">eth</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">data</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">((</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">eth</span> <span style="color:#ce5c00;font-weight:bold">+</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">eth</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#000">data_end</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">XDP_PASS</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">bpf_ntohs</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">eth</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">h_proto</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#000">ETH_P_IP</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">XDP_PASS</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">iphdr</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">iph</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">data</span> <span style="color:#ce5c00;font-weight:bold">+</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">eth</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">((</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">iph</span> <span style="color:#ce5c00;font-weight:bold">+</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">iph</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#000">data_end</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">XDP_PASS</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">iph</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">protocol</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#000">IPPROTO_TCP</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">XDP_PASS</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">ip_header_length</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">iph</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">ihl</span> <span style="color:#ce5c00;font-weight:bold">*</span> <span style="color:#0000cf;font-weight:bold">4</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">tcphdr</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">tcph</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">data</span> <span style="color:#ce5c00;font-weight:bold">+</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">eth</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">+</span> <span style="color:#000">ip_header_length</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">((</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">tcph</span> <span style="color:#ce5c00;font-weight:bold">+</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">tcph</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">&gt;</span> <span style="color:#000">data_end</span><span style="color:#000;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">XDP_PASS</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">bpf_ntohs</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">tcph</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">dest</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">==</span> <span style="color:#0000cf;font-weight:bold">8080</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000">bpf_printk</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;Dropping XDP egress packet port 8080</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">XDP_DROP</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">XDP_PASS</span><span style="color:#000;font-weight:bold">;</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
+</span></span></code></pre></div><p>We can load this program using <code>sudo bpftool prog load xdp_drop8080.o /sys/fs/bpf/xdp type xdp</code>. Then running <code>sudo bpftool prog list pinned /sys/fs/bpf/xdp</code> to see if the program is loaded successfully:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>835: xdp  name drop_egress_port_8080  tag 7c15f4a6de3ceb0f  gpl
+</span></span><span style="display:flex;"><span>	loaded_at 2025-03-18T07:24:28-0400  uid <span style="color:#0000cf;font-weight:bold">0</span>
+</span></span><span style="display:flex;"><span>	xlated 248B  jited 164B  memlock 4096B  map_ids <span style="color:#0000cf;font-weight:bold">122</span>
+</span></span><span style="display:flex;"><span>	btf_id <span style="color:#0000cf;font-weight:bold">310</span>
+</span></span></code></pre></div><p>Then we can attach this program to an interface <code>sudo bpftool net attach xdp id 835 dev enp1s0</code>. To confirm program is attached use <code>sudo bpftool net list</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>xdp:
+</span></span><span style="display:flex;"><span>enp1s0<span style="color:#ce5c00;font-weight:bold">(</span>2<span style="color:#ce5c00;font-weight:bold">)</span> driver id <span style="color:#0000cf;font-weight:bold">835</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>tc:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>flow_dissector:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>netfilter:
+</span></span></code></pre></div><p>Or by viewing <code>ip a</code>:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>2: enp1s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#0000cf;font-weight:bold">1500</span> xdp/id:835 qdisc fq_codel state UP group default qlen <span style="color:#0000cf;font-weight:bold">1000</span>
+</span></span><span style="display:flex;"><span>    link/ether 52:54:00:f6:fe:bc brd ff:ff:ff:ff:ff:ff
+</span></span><span style="display:flex;"><span>    altname enx525400f6febc
+</span></span><span style="display:flex;"><span>    inet 192.168.1.238/24 brd 192.168.1.255 scope global dynamic noprefixroute enp1s0
+</span></span><span style="display:flex;"><span>       valid_lft 3543sec preferred_lft 3543sec
+</span></span><span style="display:flex;"><span>    inet6 fe80::5054:ff:fef6:febc/64 scope link noprefixroute 
+</span></span><span style="display:flex;"><span>       valid_lft forever preferred_lft forever
+</span></span></code></pre></div><p>We can see <code>xdp/id:835</code> which confirms program with id 835 of type XDP is attached to <code>enp1s0</code> interface. Use <code>sudo bpftool net detach xdp dev enp1s0</code> to detach the XDP program.
+Unloading eBPF program can be done by removing the pinned pseudofile. For example, <code>sudo rm /sys/fs/bpf/xdp</code> to unload the XDP program. We can also use bpftool to load and attached TC programs with <code>tcx_egress</code> for egress traffic and <code>tcx_ingress</code> for ingress traffic. For example, <code>sudo bpftool net attach tcx_egress id 423 dev enp1s0</code>.</p>
+
+	
+</div>
+
+
+          </main>
+        </div>
+      </div>
+      <footer class="td-footer row d-print-none">
+  <div class="container-fluid">
+    <div class="row mx-md-2">
+      <div class="td-footer__left col-6 col-sm-4 order-sm-1">
+        
+      </div><div class="td-footer__right col-6 col-sm-4 order-sm-3">
+        <ul class="td-footer__links-list">
+  
+  <li class="td-footer__links-item" data-bs-toggle="tooltip" title="GitHub" aria-label="GitHub">
+    <a target="_blank" rel="noopener" href="https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF" aria-label="GitHub">
+      <i class="fab fa-github"></i>
+    </a>
+  </li>
+  
+</ul>
+
+      </div><div class="td-footer__center col-12 col-sm-4 py-2 order-sm-2">
+        <span class="td-footer__copyright">&copy;
+    2025
+    <span class="td-footer__authors">Hamza Megahed | <a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a> |</span></span><span class="td-footer__all_rights_reserved">All Rights Reserved</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script src="/js/main.min.69e2c1ae9320465ab10236d9ef752c6a4442c54b48b883b17c497b7c7d96a796.js" integrity="sha256-aeLBrpMgRlqxAjbZ73UsakRCxUtIuIOxfEl7fH2Wp5Y=" crossorigin="anonymous"></script>
+<script defer src="/js/click-to-copy.min.73478a7d4807698aed7e355eb23f9890ca18fea3158604c8471746d046702bad.js" integrity="sha256-c0eKfUgHaYrtfjVesj&#43;YkMoY/qMVhgTIRxdG0EZwK60=" crossorigin="anonymous"></script>
+<script src='/js/tabpane-persist.js'></script>
+
+  </body>
+</html>
