@@ -4,16 +4,14 @@ description: Entry and return probes for user-space functions so you can trace a
 weight: 3
 ---
 
-Uprobes and uretprobes enable instrumentation of user-space applications in a manner similar to how kprobes and kretprobes instrument kernel functions. Instead of tracing kernel-level routines, uprobes and uretprobes attach to functions (or instructions) within user-space executables and shared libraries. This allows system-wide dynamic instrumentation of user applications, including libraries that are shared among many processes.
-
+Uprobes and uretprobes enable instrumentation of user-space applications in a manner similar to how kprobes and kretprobes instrument kernel functions. Instead of tracing kernel-level routines, uprobes and uretprobes attach to functions (or instructions) within user-space executables and shared libraries. This allows system-wide dynamic instrumentation of user applications, including libraries that are shared among many processes.  
 Unlike the kprobe interface—where the kernel knows the symbol addresses of kernel functions—uprobes require the user to specify the file path and offset of the instruction(s) or function(s) to probe. The offset is calculated from the start of the executable or library file. Once attached, any process using that binary (including those that start in the future) is instrumented.
 
 ### Uprobes
 
-**What is a Uprobe?**  
 A uprobe is placed at a specific instruction in a user-space binary (e.g., a function’s entry point in an application or library). When that instruction executes, the CPU hits a breakpoint, and control is transferred to the kernel’s uprobes framework, which then calls the attached eBPF handler. This handler can inspect arguments (readable from user-space memory), task metadata, and more. uprobe eBPF programs are classified under the program type `BPF_PROG_TYPE_KPROBE`.
 
-**How Uprobes Work Under the Hood:**
+#### How Uprobes Work Under the Hood
 
 1. The user identifies the target function or instruction’s offset from the binary’s start. A breakpoint instruction (similar to kprobe’s approach) is inserted into the user-space code at runtime.
 2. When a process executes that instruction, a trap occurs, switching to kernel mode where the uprobes framework runs the attached eBPF program.
@@ -250,7 +248,7 @@ Process ID: 1923, Command: /usr/bin/bash
 Process ID: 1924, Command: /usr/bin/gdb
 ```
 
-Running it with strace `sudo strace -ebpf ./loader` to capture bpf() syscalls shows that the the `prog_type` is `BPF_PROG_TYPE_KPROBE` and the `prog_name` is `uprobe_bash_shell_execve` and `map_type` is `BPF_MAP_TYPE_RINGBUF`.
+Running it with strace `sudo strace -ebpf ./loader` to capture bpf() syscalls shows that the the `prog_type` is indeed `BPF_PROG_TYPE_KPROBE` and the `prog_name` is `uprobe_bash_shell_execve` and `map_type` is `BPF_MAP_TYPE_RINGBUF`.
 
 ```sh
 bpf(BPF_MAP_CREATE, {map_type=BPF_MAP_TYPE_RINGBUF, key_size=0, value_size=0, max_entries=4096, map_flags=0, inner_map_fd=0, map_name="events", map_ifindex=0, btf_fd=4, btf_key_type_id=0, btf_value_type_id=0, btf_vmlinux_value_type_id=0, map_extra=0}, 80) = 5
@@ -296,12 +294,11 @@ Then you will get
 ```sh
             exam-3142    [003] ...11 17712.082503: bpf_trace_printk: PID 3142 
 ```
-### Uretprobes (Return Probes) in Detail
+### Uretprobes
 
-**What is a Uretprobe?**  
 A uretprobe triggers when a user-space function returns. Just like kretprobes, uretprobes replace the function’s return address with a trampoline so that when the function completes, execution hits the trampoline first—invoking the eBPF return handler before returning to the actual caller. uprobe eBPF programs are also classified under the program type `BPF_PROG_TYPE_KPROBE`.
 
-**How Uretprobes Work Under the Hood:**
+#### How Uretprobes Work Under the Hood
 
 1. When you register a uretprobe, a corresponding uprobe is placed at the function’s entry to record the return address and replace it with a trampoline.
 2. At function entry, the uprobe saves the original return address and sets the trampoline address. An optional entry handler can run here, deciding if we should track this particular instance.
@@ -368,9 +365,8 @@ Consider carefully which user-space functions to instrument and apply uprobes se
 {{< /alert >}}
 
 
-Let's walk through some advanced examples: we will demonstrate how to capture the password entered in PAM and how to observe decrypted traffic without needing CA certificates, all using uprobes.
-
-PAM (Pluggable Authentication Modules) is a framework that offers a modular approach to authentication, making it easier to manage and secure the login process. During authentication, the `pam_get_user` function is responsible for obtaining the username from the session, while `pam_get_authtok` retrieves the corresponding password or token, ensuring that each step is handled securely and flexibly.
+Let's walk through some advanced examples: we will demonstrate how to capture the password entered in PAM and how to observe decrypted traffic without needing CA certificates, all using uprobes.  
+PAM (Pluggable Authentication Modules) is a framework that offers a modular approach to authentication, making it easier to manage and secure the login process. During authentication, the `pam_get_user` function is responsible for obtaining the username from the session, while `pam_get_authtok` retrieves the corresponding password or token, ensuring that each step is handled securely and flexibly.  
 The function prototype for pam_get_authtok is:
 
 ```c
@@ -388,7 +384,7 @@ The `pam_get_user` function returns the name of the user specified by the pam_st
 
 {{< alert title="Note" >}}Please note that both `**authtok` in `pam_get_authtok` and `**user` in `pam_get_user` are pointers to pointers.{{< /alert >}}
 
-To capture the password, we need to attach uprobe to libpam `/lib/x86_64-linux-gnu/libpam.so.0:pam_get_authtok` at the entry point and exit point, why entry point and exit point, short answer is that in `pam_get_authtok`  the password pointer (`**authtok`) isn’t fully assigned or valid at the start of the function. Instead, the function fills in that pointer somewhere inside (for example, prompting the user or retrieving from memory), so by the time the function returns, the pointer (and thus the password string) is set. Hence, a uretprobe (return probe) is the only reliable place to grab the final pointer to the password.
+To capture the password, we need to attach uprobe to libpam `/lib/x86_64-linux-gnu/libpam.so.0:pam_get_authtok` at the entry point and exit point, why entry point and exit point, short answer is that in `pam_get_authtok`  the password pointer (`**authtok`) isn’t fully assigned or valid at the start of the function. Instead, the function fills in that pointer somewhere inside (for example, prompting the user or retrieving from memory), so by the time the function returns, the pointer (and thus the password string) is set. Hence, a uretprobe (return probe) is the only reliable place to grab the final pointer to the password.  
 The same goes for capturing the user, we need to attach uprobe to libpam `/lib/x86_64-linux-gnu/libpam.so.0:pam_get_user` at the entry point and exit point.
 
 <p style="text-align: center;">
@@ -626,7 +622,7 @@ int SSL_read(SSL *ssl, void *buf, int num);
 int SSL_write(SSL *ssl, const void *buf, int num);
 ```
 
-Uprobes let you intercept user-space function calls at runtime. By attaching them to libssl's SSL_read and SSL_write, you capture data after it's decrypted (or before it's encrypted) inside the process memory. This means you get the plaintext data directly, without needing to use a CA to decrypt network traffic.
+Uprobes let you intercept user-space function calls at runtime. By attaching them to libssl's SSL_read and SSL_write, you capture data after it's decrypted (or before it's encrypted) inside the process memory. This means you get the plaintext data directly, without needing to use a CA to decrypt network traffic.  
 To capture decrypted traffic for both ways (send and receive ), we need to attach uprobe at the entry point and the exit point for each function. You need to attach a probe at the entry point to capture the buffer pointer (the address of buf) as soon as the function is called, because that pointer is passed as an argument. Then, attaching a probe at the exit point lets you read the final data from that buffer after the function has processed it.
 
 <p style="text-align: center;">

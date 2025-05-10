@@ -145,8 +145,18 @@ The final check is validating if the destination port is 8080 then it will drop 
 {{< alert title="Note" >}}The eBPF verifier requires explicit boundary checks to ensure that any access to packet data is safe. Without these checks, the verifier will reject your program, as it can't guarantee that your memory accesses remain within the valid packet boundaries.{{< /alert >}}
 
 Compile the eBPF program and attach it to your interface or tunnel using something similar to the following:
-`sudo ip route add 10.0.0.3/32 encap bpf out obj drop_egress_8080.o section lwt_out dev tun0` . 
-Next, setup a web server on the remote machine `python3 -m http.server 8080`. Then, from the eBPF machine run `curl http://10.0.0.3:8080/index.html` and you should notice that the connection is dropped and messages in `/sys/kernel/debug/tracing/trace_pipe`
+```sh
+sudo ip route add 10.0.0.3/32 encap bpf out obj drop_egress_8080.o section lwt_out dev tun0
+```
+Next, setup a web server on the remote machine
+```sh
+python3 -m http.server 8080
+```
+Then, from the eBPF machine run
+```sh
+curl http://10.0.0.3:8080/index.html
+```
+You should notice that the connection is dropped and messages in `/sys/kernel/debug/tracing/trace_pipe`
 ```sh
           <idle>-0       [003] b.s21  6747.667466: bpf_trace_printk: Dropping egress packet to port 8080
           <idle>-0       [003] b.s21  6748.729064: bpf_trace_printk: Dropping egress packet to port 8080

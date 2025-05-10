@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -265,7 +265,7 @@
 	<header class="article-meta">
 		
   </header>
-	<p>Tetragon is an open-source tool that uses eBPF to monitor and control Linux systems. It tracks events like process execution, network connections, and file access in real time. You can write custom rules to filter these events, and it runs with very little performance impact. Although it works great with Kubernetes and container setups, it can secure any Linux system that supports eBPF. Its kernel-level enforcement can, for example, kill a process if it violates a rule, adding a strong layer of security. Tetragon can be installed from their website <a href="https://tetragon.io/docs/installation/package/">https://tetragon.io/docs/installation/package/</a>, consider download it to follow this part.
+	<p>Tetragon is an open-source tool that uses eBPF to monitor and control Linux systems. It tracks events like process execution, network connections, and file access in real time. You can write custom rules to filter these events, and it runs with very little performance impact. Although it works great with Kubernetes and container setups, it can secure any Linux system that supports eBPF. Its kernel-level enforcement can, for example, kill a process if it violates a rule, adding a strong layer of security. Tetragon can be installed from their website <a href="https://tetragon.io/docs/installation/package/">https://tetragon.io/docs/installation/package/</a>, consider download it to follow this part.<br>
 Tetragon works by using policies called TracingPolicies. These policies let you define exactly what kernel events to monitor and what actions to take when those events happen. You write rules in a policy that attach probes to kernel functions, filter events based on criteria like arguments or process IDs, and then enforce actions (for example, killing a process) if a rule is matched. This approach gives you fine-grained control over system security in real time. Let&rsquo;s take a glimpse of what Tetragon can do.</p>
 <h2 id="tracingpolicy">TracingPolicy<a class="td-heading-self-link" href="#tracingpolicy" aria-label="Heading self-link"></a></h2>
 <p>A TracingPolicy is a YAML document that follows Kubernetes’ API conventions. Even if you’re running Tetragon on a CLI (non-Kubernetes) installation, the policy structure remains similar. At its simplest, a tracing policy must include:</p>
@@ -425,8 +425,9 @@ In some cases, you want to capture the return value from a function. To do so, s
 </div>
 
 <h3 id="actions">Actions<a class="td-heading-self-link" href="#actions" aria-label="Heading self-link"></a></h3>
-<p><strong>matchActions / matchReturnActions:</strong>  These attach actions to be executed when the selector matches. They also allow you to filter based on the value of return arguments (if needed). Actions are what your policy does when a selector matches. They allow you to enforce decisions right in the kernel. Some common actions include:</p>
-<p><strong>Sigkill / Signal:</strong>  immediately terminates the offending process.</p>
+<p><strong>matchActions / matchReturnActions:</strong>  These attach actions to be executed when the selector matches. They also allow you to filter based on the value of return arguments (if needed).<br>
+Actions are what your policy does when a selector matches. They allow you to enforce decisions right in the kernel. Some common actions include:<br>
+<strong>Sigkill / Signal:</strong>  immediately terminates the offending process.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span><span style="color:#204a87;font-weight:bold">matchActions</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> 
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span>- <span style="color:#204a87;font-weight:bold">action</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">Sigkill</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span></code></pre></div><p>To send a specific signal (e.g., SIGKILL which is signal 9)</p>
@@ -446,7 +447,7 @@ In some cases, you want to capture the return value from a function. To do so, s
 
 </div>
 
-<p><strong>FollowFD / UnfollowFD / CopyFD:</strong>  These actions help track file descriptor usage. For example, you can map a file descriptor to a file name during an open call, so that later calls (e.g., sys_write) that only have an FD can be correlated to a file path. The best example to explain FollowFD / UnfollowFD is from Tetragon documentation. This example is how to prevent write to a specific files for example <code>/etc/passwd</code>. <code>sys_write</code> only takes a file descriptor not a name and location. First we hook to <code>fd_install</code> kernel function.
+<p><strong>FollowFD / UnfollowFD / CopyFD:</strong>  These actions help track file descriptor usage. For example, you can map a file descriptor to a file name during an open call, so that later calls (e.g., sys_write) that only have an FD can be correlated to a file path. The best example to explain FollowFD / UnfollowFD is from Tetragon documentation. This example is how to prevent write to a specific files for example <code>/etc/passwd</code>. <code>sys_write</code> only takes a file descriptor not a name and location. First we hook to <code>fd_install</code> kernel function.<br>
 <code>fd_install</code> is a kernel function that&rsquo;s called when a file descriptor is being added to a process&rsquo;s file descriptor table. In simpler terms, when a process opens a file (or performs a similar operation that creates a file descriptor), <code>fd_install</code> is invoked to associate the new file descriptor (an integer) with the corresponding file object. <code>fd_install</code> has the following prototype:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#000">fd_install</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">unsigned</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">file</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">file</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div>
@@ -618,7 +619,8 @@ Both actions are used to notify external systems when a specific event occurs in
 </span></span><span style="display:flex;"><span><span style="color:#204a87">exit</span>    mac-Standard-PC-Q35-ICH9-2009 /usr/bin/wget https://8.8.8.8 SIGKILL 
 </span></span><span style="display:flex;"><span>process mac-Standard-PC-Q35-ICH9-2009 /usr/bin/curl https://8.8.8.8    
 </span></span><span style="display:flex;"><span><span style="color:#204a87">exit</span>    mac-Standard-PC-Q35-ICH9-2009 /usr/bin/curl https://8.8.8.8 <span style="color:#0000cf;font-weight:bold">0</span> 
-</span></span></code></pre></div><p>Example for monitoring <code>sudo</code> command using <code>__sys_setresuid</code> kernel function. <code>__sys_setresuid</code> is the kernel function that implements the <code>setresuid</code> system call. It changes a process’s user IDs—specifically, the real, effective, and saved user IDs—in one atomic operation and it&rsquo;s used to adjust process privileges.</p>
+</span></span></code></pre></div><p>Example for monitoring <code>sudo</code> command using <code>__sys_setresuid</code> kernel function.<br>
+<code>__sys_setresuid</code> is the kernel function that implements the <code>setresuid</code> system call. It changes a process’s user IDs—specifically, the real, effective, and saved user IDs—in one atomic operation and it&rsquo;s used to adjust process privileges.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">apiVersion</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">cilium.io/v1alpha1</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline"></span><span style="color:#204a87;font-weight:bold">kind</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">TracingPolicy</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline"></span><span style="color:#204a87;font-weight:bold">metadata</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">

@@ -6,7 +6,7 @@ weight: 3
 
 LSM is a framework built into the Linux kernel that provides a set of hooks—well-defined points in the kernel code—where security modules can enforce access control and other security policies. These hooks are statically integrated into the kernel, meaning that a given security module (such as SELinux, AppArmor, or Smack) is selected at build or boot time via configuration options. Once active, the LSM framework directs security-relevant decisions (like permission checks, file access, or process operations) through these hooks so that the chosen security policy is applied consistently throughout the system.
 
-**LSM with eBPF Hooks:**
+### LSM with eBPF Hooks
 
 Traditionally, LSM hooks require the security policy to be built into the kernel, and modifying policies often involves a kernel rebuild or reboot. With the rise of eBPF, it is now possible to attach eBPF programs to certain LSM hooks dynamically starting from kernel version 5.7. This modern approach allows for:
 
@@ -40,8 +40,12 @@ LSM_HOOK(int, 0, path_chown, const struct path *path, kuid_t uid, kgid_t gid)
 LSM_HOOK(int, 0, path_chroot, const struct path *path)
 ```
 
-LSM hooks documentation is located at https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/include/linux/lsm_hooks.h which has descriptive documentation for most of LSM hooks such as:
+LSM hooks documentation is located at
+```html
+https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/include/linux/lsm_hooks.h 
 ```
+which has descriptive documentation for most of LSM hooks such as:
+```html
  * @path_chmod:
  *	  Check for permission to change a mode of the file @path. The new
  *	  mode is specified in @mode.
@@ -65,7 +69,8 @@ LSM hooks documentation is located at https://github.com/torvalds/linux/blob/457
 ```
 
 Let's explore LSM with `path_mkdir` LSM hook which described as the following:
-```
+
+```html
  * @path_mkdir:
  *	  Check permissions to create a new directory in the existing directory
  *	  associated with path structure @path.
@@ -183,7 +188,7 @@ __bpf_kfunc int bpf_path_d_path(struct path *path, char *buf, size_t buf__sz)
 ```
 
 There is a comment in the source code very descriptive about this kernel function which says:
-```
+```html
  * bpf_path_d_path - resolve the pathname for the supplied path
  * @path: path to resolve the pathname for
  * @buf: buffer to return the resolved pathname in
@@ -229,7 +234,7 @@ int main(int argc, char **argv)
 
 	libbpf_set_print(libbpf_print_fn);
 
-	skel = x__open();
+	skel = lsm_mkdir__open();
 	if (!skel) {
 		fprintf(stderr, "Failed to open BPF skeleton\n");
 		return 1;

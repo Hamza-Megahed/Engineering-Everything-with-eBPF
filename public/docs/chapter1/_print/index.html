@@ -20,19 +20,19 @@
 <link rel="icon" type="image/png" href="/favicons/android-192x192.png" sizes="192x192">
 
 <title>What is eBPF | Engineering Everything with eBPF</title>
-<meta name="description" content="AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
+<meta name="description" content="A gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
 <meta property="og:url" content="https://ebpf.hamza-megahed.com/docs/chapter1/">
   <meta property="og:site_name" content="Engineering Everything with eBPF">
   <meta property="og:title" content="What is eBPF">
-  <meta property="og:description" content="AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
+  <meta property="og:description" content="A gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="website">
 
   <meta itemprop="name" content="What is eBPF">
-  <meta itemprop="description" content="AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
+  <meta itemprop="description" content="A gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="What is eBPF">
-  <meta name="twitter:description" content="AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
+  <meta name="twitter:description" content="A gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.">
 <link rel="preload" href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" as="style" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
 <link href="/scss/main.min.48c25d0a5a23a1e8cae94d6c5e7622061e5345cf098171b1d6ee41d8e309e6c8.css" rel="stylesheet" integrity="sha256-SMJdClojoejK6U1sXnYiBh5TRc8JgXGx1u5B2OMJ5sg=" crossorigin="anonymous">
 <script
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -98,7 +98,7 @@ This is the multi-page printable view of this section.
 
 
 <h1 class="title">What is eBPF</h1>
-<div class="lead">AA gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.</div>
+<div class="lead">A gentle warm-up that explains what eBPF does where it came from why companies rely on it and how the architecture fits together.</div>
 
 
 
@@ -240,13 +240,13 @@ This is the multi-page printable view of this section.
 <p>The origins of eBPF (extended Berkeley Packet Filter) trace back to its predecessor, the Berkeley Packet Filter (BPF). BPF was first introduced in 1992 by Steven McCanne and Van Jacobson at the Lawrence Berkeley Laboratory. It was designed to provide a high-performance, user-programmable packet filtering mechanism for network monitoring tools, particularly for capturing packets in real-time.</p>
 <p>Prior to BPF, packet capturing was inefficient due to the need for constant context switching between the kernel and user space. The kernel would pass every network packet to user space, where filtering decisions were made. This approach led to significant overhead. BPF addressed this problem by enabling the execution of filtering programs directly within the kernel, allowing only relevant packets to be passed to user space. This dramatically improved performance and efficiency.</p>
 <h3 id="classic-bpf-and-its-limitations">Classic BPF and Its Limitations<a class="td-heading-self-link" href="#classic-bpf-and-its-limitations" aria-label="Heading self-link"></a></h3>
-<p>Classic BPF, often referred to as &ldquo;cBPF,&rdquo; worked by allowing users to write simple programs to filter network traffic based on specific patterns. These programs were expressed as sequences of low-level instructions that the BPF virtual machine (VM) running in the kernel could interpret and execute. The most notable tool that leveraged cBPF was <code>tcpdump</code>, which allowed network administrators to capture and analyze network packets effectively.</p>
+<p>Classic BPF, often referred to as <strong>cBPF</strong> worked by allowing users to write simple programs to filter network traffic based on specific patterns. These programs were expressed as sequences of low-level instructions that the BPF virtual machine (VM) running in the kernel could interpret and execute. The most notable tool that leveraged cBPF was <code>tcpdump</code>, which allowed network administrators to capture and analyze network packets effectively.</p>
 <p>Despite its efficiency, cBPF had several limitations:</p>
 <ol>
-<li><strong>Limited Instruction Set</strong>: The instruction set of classic BPF was restricted to basic filtering operations, making it unsuitable for more complex use cases.</li>
-<li><strong>Single-Purpose</strong>: cBPF was designed primarily for packet filtering. It lacked the flexibility to perform tasks beyond network monitoring.</li>
-<li><strong>32-bit Architecture</strong>: Classic BPF programs operated on 32-bit registers, which limited performance and data processing capabilities.</li>
-<li><strong>Lack of Extensibility</strong>: There was no straightforward way to extend the functionality of cBPF beyond packet filtering.</li>
+<li>Limited Instruction Set: The instruction set of classic BPF was restricted to basic filtering operations, making it unsuitable for more complex use cases.</li>
+<li>Single-Purpose: cBPF was designed primarily for packet filtering. It lacked the flexibility to perform tasks beyond network monitoring.</li>
+<li>32-bit Architecture: Classic BPF programs operated on 32-bit registers, which limited performance and data processing capabilities.</li>
+<li>Lack of Extensibility: There was no straightforward way to extend the functionality of cBPF beyond packet filtering.</li>
 </ol>
 <h3 id="integration-of-bpf-into-the-linux-kernel">Integration of BPF into the Linux Kernel<a class="td-heading-self-link" href="#integration-of-bpf-into-the-linux-kernel" aria-label="Heading self-link"></a></h3>
 <p>BPF was first integrated into the Linux kernel in 1997, starting from version 2.1. This integration allowed kernel-level packet filtering for tools like <code>tcpdump</code> and <code>iptables</code>. Over time, the BPF VM became a reliable mechanism for filtering network traffic efficiently within the kernel space.</p>
@@ -254,11 +254,11 @@ This is the multi-page printable view of this section.
 <h3 id="introduction-and-evolution-of-ebpf-2014-present">Introduction and Evolution of eBPF (2014-Present)<a class="td-heading-self-link" href="#introduction-and-evolution-of-ebpf-2014-present" aria-label="Heading self-link"></a></h3>
 <p>In 2014, the Linux kernel version 3.18 introduced &ldquo;extended BPF&rdquo; (eBPF). eBPF was a significant enhancement over classic BPF, providing a modern, flexible, and powerful framework for executing user-defined programs within the kernel. The key improvements introduced by eBPF include:</p>
 <ol>
-<li><strong>64-bit Registers</strong>: eBPF uses a 64-bit architecture, which improves performance and data-handling capabilities.</li>
-<li><strong>General-Purpose</strong>: eBPF is no longer limited to packet filtering; it can be used for various tasks, including tracing, performance monitoring, security enforcement, and more.</li>
-<li><strong>Extensible and Safe</strong>: eBPF programs are verified by an in-kernel verifier to ensure safety, preventing programs from crashing the kernel or causing security vulnerabilities.</li>
-<li><strong>Just-In-Time (JIT) Compilation</strong>: eBPF programs can be compiled into native machine code at runtime, which significantly improves execution speed.</li>
-<li><strong>Maps and Helpers</strong>: eBPF supports maps (key-value storage) and helper functions that provide interaction between eBPF programs and the kernel.</li>
+<li>64-bit Registers: eBPF uses a 64-bit architecture, which improves performance and data-handling capabilities.</li>
+<li>General-Purpose: eBPF is no longer limited to packet filtering; it can be used for various tasks, including tracing, performance monitoring, security enforcement, and more.</li>
+<li>Extensible and Safe: eBPF programs are verified by an in-kernel verifier to ensure safety, preventing programs from crashing the kernel or causing security vulnerabilities.</li>
+<li>Just-In-Time (JIT) Compilation: eBPF programs can be compiled into native machine code at runtime, which significantly improves execution speed.</li>
+<li>Maps and Helpers: eBPF supports maps (key-value storage) and helper functions that provide interaction between eBPF programs and the kernel.</li>
 </ol>
 <p>Since its introduction, eBPF has evolved rapidly, with continuous enhancements to its feature set and performance. Projects like <code>bcc</code> (BPF Compiler Collection), <code>bpftool</code>, and <code>libbpf</code> have made writing and deploying eBPF programs more accessible. eBPF is now used extensively for networking, observability, and security tasks in major projects like Cilium, Falco, and the Kubernetes ecosystem.</p>
 <h3 id="naming-confusion">Naming Confusion<a class="td-heading-self-link" href="#naming-confusion" aria-label="Heading self-link"></a></h3>
@@ -271,20 +271,20 @@ This is the multi-page printable view of this section.
 </span></span></code></pre></div><p>This command filters packets to capture only those that are TCP-based and are using port 80. The underlying BPF bytecode generated by this command can be viewed using the <code>-d</code> flag:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tcpdump -i eth0 -d <span style="color:#4e9a06">&#39;ip and tcp port 80 tcp port 80&#39;</span>
 </span></span></code></pre></div><p>The output might look like this:</p>
-<pre tabindex="0"><code>(000) ldh      [12]
-(001) jeq      #0x800           jt 2    jf 12
-(002) ldb      [23]
-(003) jeq      #0x6             jt 4    jf 12
-(004) ldh      [20]
-(005) jset     #0x1fff          jt 12   jf 6
-(006) ldxb     4*([14]&amp;0xf)
-(007) ldh      [x + 14]
-(008) jeq      #0x50            jt 11   jf 9
-(009) ldh      [x + 16]
-(010) jeq      #0x50            jt 11   jf 12
-(011) ret      #262144
-(012) ret      #0
-</code></pre><h3 id="explanation-of-the-generated-bpf-bytecode">Explanation of the Generated BPF Bytecode<a class="td-heading-self-link" href="#explanation-of-the-generated-bpf-bytecode" aria-label="Heading self-link"></a></h3>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>000<span style="color:#ce5c00;font-weight:bold">)</span> ldh      <span style="color:#ce5c00;font-weight:bold">[</span>12<span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>001<span style="color:#ce5c00;font-weight:bold">)</span> jeq      <span style="color:#8f5902;font-style:italic">#0x800           jt 2    jf 12</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>002<span style="color:#ce5c00;font-weight:bold">)</span> ldb      <span style="color:#ce5c00;font-weight:bold">[</span>23<span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>003<span style="color:#ce5c00;font-weight:bold">)</span> jeq      <span style="color:#8f5902;font-style:italic">#0x6             jt 4    jf 12</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>004<span style="color:#ce5c00;font-weight:bold">)</span> ldh      <span style="color:#ce5c00;font-weight:bold">[</span>20<span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>005<span style="color:#ce5c00;font-weight:bold">)</span> jset     <span style="color:#8f5902;font-style:italic">#0x1fff          jt 12   jf 6</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>006<span style="color:#ce5c00;font-weight:bold">)</span> ldxb     4*<span style="color:#ce5c00;font-weight:bold">([</span>14<span style="color:#ce5c00;font-weight:bold">]</span><span style="color:#000;font-weight:bold">&amp;</span>0xf<span style="color:#ce5c00;font-weight:bold">)</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>007<span style="color:#ce5c00;font-weight:bold">)</span> ldh      <span style="color:#ce5c00;font-weight:bold">[</span>x + 14<span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>008<span style="color:#ce5c00;font-weight:bold">)</span> jeq      <span style="color:#8f5902;font-style:italic">#0x50            jt 11   jf 9</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>009<span style="color:#ce5c00;font-weight:bold">)</span> ldh      <span style="color:#ce5c00;font-weight:bold">[</span>x + 16<span style="color:#ce5c00;font-weight:bold">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>010<span style="color:#ce5c00;font-weight:bold">)</span> jeq      <span style="color:#8f5902;font-style:italic">#0x50            jt 11   jf 12</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>011<span style="color:#ce5c00;font-weight:bold">)</span> ret      <span style="color:#8f5902;font-style:italic">#262144</span>
+</span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>012<span style="color:#ce5c00;font-weight:bold">)</span> ret      <span style="color:#8f5902;font-style:italic">#0</span>
+</span></span></code></pre></div><h3 id="explanation-of-the-generated-bpf-bytecode">Explanation of the Generated BPF Bytecode<a class="td-heading-self-link" href="#explanation-of-the-generated-bpf-bytecode" aria-label="Heading self-link"></a></h3>
 <p>Before diving into the example, take a moment to review the following diagram of the Ethernet, IP, and TCP headers. This will help you visualize how the packet is structured, making it easier to follow along with each step in the BPF bytecode. Keep this scheme in mind as we go through the example to understand how each instruction maps to specific parts of the packet.</p>
 <p style="text-align: center;">
   <img src="/images/docs/chapter1/network-structure.png" alt="Centered image" />
@@ -348,7 +348,7 @@ This is the multi-page printable view of this section.
 <h3 id="classic-bpf-vs-ebpf">Classic BPF vs. eBPF<a class="td-heading-self-link" href="#classic-bpf-vs-ebpf" aria-label="Heading self-link"></a></h3>
 <p>As mentioned, Berkeley Packet Filter (BPF) was originally developed to filter network packets efficiently. It enabled in-kernel filtering of packets based on simple criteria. However, as the need for more versatile and performant filtering and monitoring grew, extended BPF (eBPF) emerged as a powerful evolution. eBPF transforms BPF into a general-purpose execution engine within the kernel, providing significantly more flexibility and efficiency.</p>
 <p>The following 6 points explores the key differences between eBPF and classic BPF, based on Kernel Documentation <a href="https://docs.kernel.org/bpf/classic_vs_extended.html">https://docs.kernel.org/bpf/classic_vs_extended.html</a>.</p>
-<p><strong>1. Use Cases</strong></p>
+<h4 id="use-cases">Use Cases<a class="td-heading-self-link" href="#use-cases" aria-label="Heading self-link"></a></h4>
 <p><strong>Classic BPF</strong> is primarily used for packet filtering. Its primary use case is in network monitoring tools like <code>tcpdump</code>, where it allows users to specify packet filtering rules directly within the kernel.</p>
 <p>eBPF, however, has vastly expanded use cases. eBPF is used in:</p>
 <ul>
@@ -357,8 +357,7 @@ This is the multi-page printable view of this section.
 <li><strong>Security</strong>: Tools like seccomp (Secure Computing Mode) use eBPF to filter system calls, enforcing security policies directly at the kernel level.</li>
 <li><strong>Tracing</strong>: Tracing the execution of kernel functions and user programs, providing insights into system behavior.</li>
 </ul>
-<hr>
-<p><strong>2. Instruction Set and Operations</strong></p>
+<h4 id="instruction-set-and-operations">Instruction Set and Operations<a class="td-heading-self-link" href="#instruction-set-and-operations" aria-label="Heading self-link"></a></h4>
 <p>Classic BPF has a very limited instruction set, primarily designed for basic operations like loading data, performing simple arithmetic, jumping, and returning values.</p>
 <p>eBPF, in contrast, expands the instruction set significantly. It introduces new operations like:</p>
 <ul>
@@ -367,13 +366,13 @@ This is the multi-page printable view of this section.
 <li><strong>BPF_CALL</strong> for calling helper functions (which will be explained in more details later).</li>
 </ul>
 <p>Additionally, eBPF supports 64-bit operations (via <code>BPF_ALU64</code>) and atomic operations like BPF_XADD, enabling more sophisticated processing directly in the kernel.</p>
-<p><strong>3. Registers and Data Handling</strong></p>
+<h4 id="registers-and-data-handling">Registers and Data Handling<a class="td-heading-self-link" href="#registers-and-data-handling" aria-label="Heading self-link"></a></h4>
 <p>Classic BPF only has two registers (A and X), with limited memory and stack space. The operations on data are simple and restricted to 32-bit width, and these registers are manipulated with specific instructions that limit flexibility.</p>
 <p>eBPF greatly improves on this by expanding the number of registers from 2 to 10. eBPF&rsquo;s calling conventions are designed for high efficiency, utilizing registers (R1-R5) to pass arguments directly into the kernel functions. After the function call, registers R1-R5 are reset, and R0 holds the return value.This allows for more complex operations and handling of more data. Registers in eBPF are also 64-bit wide, which enables direct mapping to hardware registers on modern 64-bit processors. This wider register set and the introduction of a read-only frame pointer (R10) allow eBPF to handle more complex operations like function calls with multiple arguments and results.</p>
-<p><strong>4. JIT Compilation and Performance</strong></p>
+<h4 id="jit-compilation-and-performance">JIT Compilation and Performance<a class="td-heading-self-link" href="#jit-compilation-and-performance" aria-label="Heading self-link"></a></h4>
 <p>Classic BPF is interpreted by the kernel, This means the kernel would read and execute each instruction one by one which adds overhead to the execution of each instruction. This can be a limiting factor when performing more complex operations or filtering on high-throughput systems.</p>
 <p>eBPF is designed with Just-In-Time (JIT) compilation in mind, meaning that eBPF programs can be translated into optimized native machine code at runtime. The JIT compiler can convert eBPF bytecode to highly efficient machine instructions, reducing the overhead significantly. This allows eBPF programs to perform at speeds comparable to native code execution, even for complex tasks like system call filtering and network traffic analysis.</p>
-<p><strong>5. Safety and Verifier</strong></p>
+<h4 id="safety-and-verifier">Safety and Verifier<a class="td-heading-self-link" href="#safety-and-verifier" aria-label="Heading self-link"></a></h4>
 <p>Classic BPF uses a simple verifier that checks for program safety by ensuring there are no errors like out-of-bounds memory access.</p>
 <p>eBPF, on the other hand, includes a more sophisticated verifier that ensures the program complies to a set of strict rules before execution. The verifier checks for issues like:</p>
 <ul>
@@ -382,7 +381,7 @@ This is the multi-page printable view of this section.
 <li>Verifying that all function calls are made with valid arguments.</li>
 </ul>
 <p>This makes eBPF programs much safer, even when they are running with elevated privileges or performing sensitive tasks in the kernel.</p>
-<p><strong>6. Program Size and Restrictions</strong></p>
+<h4 id="program-size-and-restrictions">Program Size and Restrictions<a class="td-heading-self-link" href="#program-size-and-restrictions" aria-label="Heading self-link"></a></h4>
 <p>Classic BPF: The original BPF format had a program size limit of 4096 instructions, and programs had to be very efficient to avoid exceeding this limit. The limited number of registers and operations meant that programs were usually simple and short.</p>
 <p>eBPF: While eBPF still retains a 4096 instruction limit for kernels before 5.2 and one million instructions for kernel starting from 5.2, its expanded instruction set and register size allow for significantly more complex programs. Additionally, the eBPF verifier ensures that programs are safe, loop-free, and deterministic. Furthermore, there are restrictions on the number of arguments that can be passed to kernel functions (currently up to five), although these can be relaxed in future versions of eBPF. Tail calls also allow chaining multiple eBPF programs together, effectively extending the overall execution beyond the single-program instruction limit.</p>
 <p>Now, let&rsquo;s dive into real-world examples to see how eBPF is applied in action and understand its practical benefits.</p>

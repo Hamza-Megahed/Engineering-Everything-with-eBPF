@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="Preface">
   <meta itemprop="description" content="Welcome message explaining what you will learn and how to use the book.">
-  <meta itemprop="wordCount" content="413">
+  <meta itemprop="wordCount" content="425">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Preface">
   <meta name="twitter:description" content="Welcome message explaining what you will learn and how to use the book.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -257,8 +257,10 @@ When I began learning eBPF, I kept bouncing between blog posts and mailing-list 
 <p><strong>Plain language, lots of examples</strong><br>
 I use short sentences, clear words, and plenty of code. Each new term—<em>map</em>, <em>verifier</em>, <em>tail call</em>—appears next to a tiny program you can copy, run, and explore. After you run the code, the explanation will make more sense. If something still feels cloudy, keep reading; later chapters revisit the idea from a different angle.</p>
 <p><strong>Tested environment</strong><br>
-All code listings were compiled and executed on Linux kernel 6.12.22, with Clang/LLVM 17 and libbpf 1.5. If you use this kernel (or a newer one) the examples should work exactly as printed. When newer kernels add handy helpers or map types, I point them out and tell you whether you need to adjust your code.</p>
-<p><strong>What you need</strong></p>
+All code listings were compiled and executed on Linux kernel 6.12.22, with Clang/LLVM 17 and libbpf 1.5. If you use this kernel (or a newer one) the examples should work exactly as printed. When newer kernels add handy helpers or map types, I point them out and tell you whether you need to adjust your code.<br>
+Every example used in this book lives in the public repository</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF-Code
+</span></span></code></pre></div><p><strong>What you need</strong></p>
 <ul>
 <li>A Linux box or virtual machine with kernel 6.12.22+</li>
 <li><code>clang</code>, <code>lld</code>, <code>make</code>, and typical build tools</li>

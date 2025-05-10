@@ -5,6 +5,7 @@ weight: 5
 ---
 
 Raw tracepoints provide a lower-level interface to the same static instrumentation points used by regular tracepoints, but without the overhead of argument type casting and stable ABI guarantees. Introduced in Linux 4.17 by Alexei Starovoitov. Whereas normal tracepoints provide a stable set of arguments, often cast into well-defined data structures, raw tracepoints give direct access to the arguments in the form used by the kernel’s tracepoint handler. This means there’s no guarantee about the argument layout staying consistent across kernel versions—if the kernel’s internal definition of the tracepoint changes, your raw tracepoint program must adapt. Raw tracepoints attach to the same kernel tracepoints as normal tracepoint-based BPF programs. You specify a raw tracepoint by name, just as you would a regular tracepoint, but you load the BPF program with a type that indicates you want raw access, such as `BPF_PROG_TYPE_TRACING` with a section prefix like `raw_tp/` or `tp_btf/`.
+
 ### How Raw Tracepoints Work Under the Hood
 
 Raw tracepoints use the same static jump patching mechanism as regular tracepoints, they differ in that they pass unformatted, low-level event data directly to the attached program.
@@ -24,7 +25,7 @@ struct bpf_raw_tracepoint_args {
 };
 ```
 
-To get what args points to in case of `sys_enter` is by examining `include/trace/events/syscalls.h`
+To get what args points to in case of `sys_enter` is by examining include/trace/events/syscalls.h
 ```c
 TRACE_EVENT_SYSCALL(sys_enter,
 	TP_PROTO(struct pt_regs *regs, long id),
@@ -392,7 +393,7 @@ Waiting for task_rename events... Press Ctrl+C to exit.
 pid=7839, parent_pid=7478, new_comm=fake, old_comm=bash
 pid=7839, parent_pid=7478, new_comm=systemd, old_comm=fake
 ```
-Then process changed it's comm from fake to systemd. We can confirm by ``cat /proc/<pid>/comm``
+Then process changed it's comm from fake to systemd. We can confirm by
 
 ```sh
 cat /proc/7839/comm

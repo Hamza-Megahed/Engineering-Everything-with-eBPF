@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="Raw Tracepoints">
   <meta itemprop="description" content="Lower level access when you need every byte of the event payload.">
-  <meta itemprop="wordCount" content="1434">
+  <meta itemprop="wordCount" content="1432">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Raw Tracepoints">
   <meta name="twitter:description" content="Lower level access when you need every byte of the event payload.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -274,7 +274,7 @@
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_raw_tracepoint_args</span> <span style="color:#000;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">__u64</span> <span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">];</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
-</span></span></code></pre></div><p>To get what args points to in case of <code>sys_enter</code> is by examining <code>include/trace/events/syscalls.h</code></p>
+</span></span></code></pre></div><p>To get what args points to in case of <code>sys_enter</code> is by examining include/trace/events/syscalls.h</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">TRACE_EVENT_SYSCALL</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">sys_enter</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">TP_PROTO</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">pt_regs</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">long</span> <span style="color:#000">id</span><span style="color:#000;font-weight:bold">),</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">TP_ARGS</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">id</span><span style="color:#000;font-weight:bold">),</span>
@@ -606,7 +606,7 @@ By examining task_rename tracing event source code located in <code>include/trac
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>Waiting <span style="color:#204a87;font-weight:bold">for</span> task_rename events... Press Ctrl+C to exit.
 </span></span><span style="display:flex;"><span><span style="color:#000">pid</span><span style="color:#ce5c00;font-weight:bold">=</span>7839, <span style="color:#000">parent_pid</span><span style="color:#ce5c00;font-weight:bold">=</span>7478, <span style="color:#000">new_comm</span><span style="color:#ce5c00;font-weight:bold">=</span>fake, <span style="color:#000">old_comm</span><span style="color:#ce5c00;font-weight:bold">=</span>bash
 </span></span><span style="display:flex;"><span><span style="color:#000">pid</span><span style="color:#ce5c00;font-weight:bold">=</span>7839, <span style="color:#000">parent_pid</span><span style="color:#ce5c00;font-weight:bold">=</span>7478, <span style="color:#000">new_comm</span><span style="color:#ce5c00;font-weight:bold">=</span>systemd, <span style="color:#000">old_comm</span><span style="color:#ce5c00;font-weight:bold">=</span>fake
-</span></span></code></pre></div><p>Then process changed it&rsquo;s comm from fake to systemd. We can confirm by <code>cat /proc/&lt;pid&gt;/comm</code></p>
+</span></span></code></pre></div><p>Then process changed it&rsquo;s comm from fake to systemd. We can confirm by</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>cat /proc/7839/comm
 </span></span><span style="display:flex;"><span>systemd
 </span></span></code></pre></div><p>Or using <code>top</code> command, <code>top --pid 7839</code></p>

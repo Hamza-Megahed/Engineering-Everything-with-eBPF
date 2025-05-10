@@ -7,13 +7,14 @@ weight: 3
 BCC in short  is a toolkit that makes eBPF development easier by providing a higher-level interface. It compiles your eBPF C code at runtime to match the target kernel’s data structures. BCC works with languages like Python, Lua, and C++, and includes helpful macros and shortcuts for simpler programming. Essentially, BCC takes your eBPF program as a C string, preprocesses it, and then compiles it using clang.
 
 The following is a crash course on BCC. I strongly recommend reading the BCC manual as well—it’s incredibly detailed and covers topics that are too extensive for this chapter.
-## Probes Definition:
-1. kprobe: `kprobe__` followed by the name of kernel function name. For example, `int kprobe__do_mkdirat(struct pt_regs *ctx)`. `struct pt_regs *ctx` as a context for kprobe. Arguments can be extracted using `PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), ...` macros.
+## Probes Definition
+1. kprobe: `kprobe__` followed by the name of kernel function name. For example, int kprobe__do_mkdirat(struct pt_regs *ctx). struct pt_regs *ctx as a context for kprobe. Arguments can be extracted using PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), ... macros.
 2. kretprobe: `kretprobe__` followed by the name of kernel function name. For example, `int kretprobe__do_mkdirat(struct pt_regs *ctx)`. Return value can be extracted using `PT_REGS_RC(ctx)` macro.
-3. uprobes: Can be declared as regular C function. For example, `int function(struct pt_regs *ctx)`. Arguments can be extracted using `PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), ...` macros.
+3. uprobes: Can be declared as regular C function. For example, `int function(struct pt_regs *ctx)`. Arguments can be extracted using PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), ... macros.
 4. uretprobes: Can be declared as regular C function`int function(struct pt_regs *ctx)`. Return value can be extracted using `PT_REGS_RC(ctx)` macro.
 5. Tracepoints: `TRACEPOINT_PROBE` followed by `(category, event)` . For example,  `TRACEPOINT_PROBE(sched,sched_process_exit)`. Arguments are available in an `args` struct and you can list of argument from the `format` file. Foe example, `args->pathname` in case of `TRACEPOINT_PROBE(syscalls, sys_enter_unlinkat)`.
-6. Raw Tracepoints: `RAW_TRACEPOINT_PROBE(event)`. For example, `RAW_TRACEPOINT_PROBE(sys_enter)`. As stated before, raw tracepoint uses `bpf_raw_tracepoint_args` as context and it has args as `args[0]` -> points to `pt_regs` structure and `args[1]` is the syscall number. To access the target functions' parameters, you can either cast `ctx->args[0]` to a pointer to a `struct pt_regs` and use it directly, or copy its contents into a local variable of type `struct pt_regs` (e.g., `struct pt_regs regs;`). Then, you can extract the syscall parameters using the `PT_REGS_PARM` macros (such as `PT_REGS_PARM1`, `PT_REGS_PARM2`, etc.).
+6. Raw Tracepoints: `RAW_TRACEPOINT_PROBE(event)`.  
+For example, `RAW_TRACEPOINT_PROBE(sys_enter)`. As stated before, raw tracepoint uses `bpf_raw_tracepoint_args` as context and it has args as `args[0]` -> points to `pt_regs` structure and `args[1]` is the syscall number. To access the target functions' parameters, you can either cast `ctx->args[0]` to a pointer to a `struct pt_regs` and use it directly, or copy its contents into a local variable of type `struct pt_regs` (e.g., `struct pt_regs regs;`). Then, you can extract the syscall parameters using the `PT_REGS_PARM` macros (such as `PT_REGS_PARM1`, `PT_REGS_PARM2`, etc.).
 
 ```c
     // Copy the pt_regs structure from the raw tracepoint args.
@@ -33,16 +34,36 @@ LSM_PROBE(path_mkdir, const struct path *dir, struct dentry *dentry, umode_t mod
 }
 ```
 
-## Data handling:
+## Data handling
 
-1. `bpf_probe_read_kernel` helper function with the following prototype:`int bpf_probe_read_kernel(void *dst, int size, const void *src)`. `bpf_probe_read_kernel` is used for copying arbitrary data (e.g., structures, buffers) from kernel space and returns 0 on success.
-2. `bpf_probe_read_kernel_str` helper function with the following prototype: `int bpf_probe_read_kernel_str(void *dst, int size, const void *src)`. `bpf_probe_read_kernel_str` is used for reading null-terminated strings from kernel space and returns the length of the string including the trailing NULL on success.
-3. `bpf_probe_read_user` helper function with the following prototype: `int bpf_probe_read_user(void *dst, int size, const void *src)`. `bpf_probe_read_user` is used for copying arbitrary data (e.g., structures, buffers) from user space and returns 0 on success
-4. `bpf_probe_read_user_str` helper function with the following prototype: `int bpf_probe_read_user_str(void *dst, int size, const void *src)`. `bpf_probe_read_user_str` is used for reading null-terminated strings from user space and returns the length of the string including the trailing NULL on success.
-5. `bpf_ktime_get_ns`: returns `u64` time elapsed since system boot in nanoseconds.
-6. `bpf_get_current_pid_tgid`: returns `u64` current tgid and pid.
-7. `bpf_get_current_uid_gid`: returns `u64` current pid and gid.
-8. `bpf_get_current_comm(void *buf, __u32 size_of_buf)`:  copy current process name into pointer`buf` and sizeof at least 16 bytes.
+1. **bpf_probe_read_kernel** helper function with the following prototype:  
+```c
+int bpf_probe_read_kernel(void *dst, int size, const void *src)
+```
+`bpf_probe_read_kernel` is used for copying arbitrary data (e.g., structures, buffers) from kernel space and returns 0 on success.
+
+2. **bpf_probe_read_kernel_str** helper function with the following prototype:  
+```c
+int bpf_probe_read_kernel_str(void *dst, int size, const void *src)
+```
+`bpf_probe_read_kernel_str` is used for reading null-terminated strings from kernel space and returns the length of the string including the trailing NULL on success.
+
+3. **bpf_probe_read_user** helper function with the following prototype:  
+```c
+int bpf_probe_read_user(void *dst, int size, const void *src)
+```
+`bpf_probe_read_user` is used for copying arbitrary data (e.g., structures, buffers) from user space and returns 0 on success.
+
+4. **bpf_probe_read_user_str** helper function with the following prototype:  
+```c
+int bpf_probe_read_user_str(void *dst, int size, const void *src)  
+```
+`bpf_probe_read_user_str` is used for reading null-terminated strings from user space and returns the length of the string including the trailing NULL on success.
+
+5. **bpf_ktime_get_ns**: returns `u64` time elapsed since system boot in nanoseconds.
+6. **bpf_get_current_pid_tgid**: returns `u64` current tgid and pid.
+7. **bpf_get_current_uid_gid**: returns `u64` current pid and gid.
+8. **bpf_get_current_comm(void *buf, __u32 size_of_buf)**:  copy current process name into pointer`buf` and sizeof at least 16 bytes.
 For example:
 ```c
     char comm[TASK_COMM_LEN]; // TASK_COMM_LEN = 16, defined in include/linux/sched.h

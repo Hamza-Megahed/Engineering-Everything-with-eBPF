@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="XDP">
   <meta itemprop="description" content="Ultra fast packet processing that runs in the NIC driver perfect for DDoS defense.">
-  <meta itemprop="wordCount" content="3869">
+  <meta itemprop="wordCount" content="3866">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="XDP">
   <meta name="twitter:description" content="Ultra fast packet processing that runs in the NIC driver perfect for DDoS defense.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -890,9 +890,10 @@ XDP can also be used to extract metadata from packets which can then be sent to 
 </span></span><span style="display:flex;"><span>        <span style="color:#204a87;font-weight:bold">goto</span> <span style="color:#000">cleanup</span><span style="color:#000;font-weight:bold">;</span>
 </span></span></code></pre></div><p><code>bpf_xdp_attach</code> is a user-space API function (typically provided by libbpf) that attaches an XDP program to a network interface. defined in <code>tools/lib/bpf/libbpf.h</code> with the following prototype:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_xdp_attach</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">ifindex</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">prog_fd</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u32</span> <span style="color:#000">flags</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_xdp_attach_opts</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
-</span></span></code></pre></div><p><code>ifindex</code>: Represents the interface ID and <code>ifindex</code> is obtained by <code>ifindex = if_nametoindex(argv[1]);</code>.
-<code>prog_fd</code>: Represents the program file descriptor.
-<code>flags</code>: Cat take one of three values: XDP_FLAGS_SKB_MODE, XDP_FLAGS_DRV_MODE or XDP_FLAGS_HW_MODE. They are defined in <code>include/uapi/linux/if_link.h</code> as the following:</p>
+</span></span></code></pre></div><p><code>ifindex</code>: Represents the interface ID and <code>ifindex</code> is obtained by</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">ifindex</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">if_nametoindex</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">argv</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">]);</span>
+</span></span></code></pre></div><p><code>prog_fd</code>: Represents the program file descriptor.<br>
+<code>flags</code>: Can take one of three values and they are defined in <code>include/uapi/linux/if_link.h</code> as the following:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define XDP_FLAGS_SKB_MODE		(1U &lt;&lt; 1)
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define XDP_FLAGS_DRV_MODE		(1U &lt;&lt; 2)
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define XDP_FLAGS_HW_MODE		(1U &lt;&lt; 3)

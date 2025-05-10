@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="eBPF Maps">
   <meta itemprop="description" content="Kernel-resident hash tables arrays LRU caches and ring buffers that store data shared between eBPF programs and user processes making stateful tasks possible.">
-  <meta itemprop="wordCount" content="3881">
+  <meta itemprop="wordCount" content="3880">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="eBPF Maps">
   <meta name="twitter:description" content="Kernel-resident hash tables arrays LRU caches and ring buffers that store data shared between eBPF programs and user processes making stateful tasks possible.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -275,54 +275,53 @@
 		
   </header>
 	<h3 id="introduction-to-ebpf-maps">Introduction to eBPF Maps<a class="td-heading-self-link" href="#introduction-to-ebpf-maps" aria-label="Heading self-link"></a></h3>
-<p>One of the key design elements that make eBPF so flexible and powerful is the concept of maps. An eBPF map is a data structure residing in the kernel, accessible both by eBPF programs and user space applications. Maps provide a stable way to share state, pass configuration or lookup data, store metrics, and build more complex logic around kernel events.</p>
-<p>Unlike traditional kernel data structures, eBPF maps are created, managed, and destroyed via well-defined syscalls and helper functions. They offer a form of persistent kernel memory to eBPF programs, ensuring that data can outlast a single function call or event. This allows administrators and developers to build sophisticated tools for tracing, networking, security, performance monitoring, and more—without modifying or recompiling the kernel.</p>
-<p>The Linux kernel defines numerous map types (more than 30 as of this writing), each optimized for different use cases. Some store generic key-value pairs, others store arrays or are used specifically for attaching events, referencing other maps, or implementing special data structures like tries. Choosing the right map type depends on the data and the operations you need to perform.</p>
-<p>Before we start with explaining eBPF maps, we need to install either <code>gcc</code> or <code>clang</code>, along with <code>libbpf-dev</code>, to compile our examples. These tools are essential for building and linking the necessary components for eBPF programs. On Debian and Ubuntu, you can install them using the following command:
-<code>sudo apt install gcc libbpf-dev</code></p>
-<p>Below, we explore ten commonly used eBPF map types, detailing their conceptual purpose, common use cases, and providing code snippets demonstrating their creation using the <code>bpf_create_map()</code> API.</p>
-<hr>
-<p>From the large collection defined in the kernel’s <code>/include/uapi/linux/bpf.h</code>,</p>
-<pre tabindex="0"><code>enum bpf_map_type {
-	BPF_MAP_TYPE_UNSPEC,
-	BPF_MAP_TYPE_HASH,
-	BPF_MAP_TYPE_ARRAY,
-	BPF_MAP_TYPE_PROG_ARRAY,
-	BPF_MAP_TYPE_PERF_EVENT_ARRAY,
-	BPF_MAP_TYPE_PERCPU_HASH,
-	BPF_MAP_TYPE_PERCPU_ARRAY,
-	BPF_MAP_TYPE_STACK_TRACE,
-	BPF_MAP_TYPE_CGROUP_ARRAY,
-	BPF_MAP_TYPE_LRU_HASH,
-	BPF_MAP_TYPE_LRU_PERCPU_HASH,
-	BPF_MAP_TYPE_LPM_TRIE,
-	BPF_MAP_TYPE_ARRAY_OF_MAPS,
-	BPF_MAP_TYPE_HASH_OF_MAPS,
-	BPF_MAP_TYPE_DEVMAP,
-	BPF_MAP_TYPE_SOCKMAP,
-	BPF_MAP_TYPE_CPUMAP,
-	BPF_MAP_TYPE_XSKMAP,
-	BPF_MAP_TYPE_SOCKHASH,
-	BPF_MAP_TYPE_CGROUP_STORAGE_DEPRECATED,
-	BPF_MAP_TYPE_CGROUP_STORAGE = BPF_MAP_TYPE_CGROUP_STORAGE_DEPRECATED,
-	BPF_MAP_TYPE_REUSEPORT_SOCKARRAY,
-	BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE_DEPRECATED,
-	BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE = BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE_DEPRECATED,
-	BPF_MAP_TYPE_QUEUE,
-	BPF_MAP_TYPE_STACK,
-	BPF_MAP_TYPE_SK_STORAGE,
-	BPF_MAP_TYPE_DEVMAP_HASH,
-	BPF_MAP_TYPE_STRUCT_OPS,
-	BPF_MAP_TYPE_RINGBUF,
-	BPF_MAP_TYPE_INODE_STORAGE,
-	BPF_MAP_TYPE_TASK_STORAGE,
-	BPF_MAP_TYPE_BLOOM_FILTER,
-	BPF_MAP_TYPE_USER_RINGBUF,
-	BPF_MAP_TYPE_CGRP_STORAGE,
-	BPF_MAP_TYPE_ARENA,
-	__MAX_BPF_MAP_TYPE
-};
-</code></pre><p>we’ll focus on these ten map types:</p>
+<p>One of the key design elements that make eBPF so flexible and powerful is the concept of maps. An eBPF map is a data structure residing in the kernel, accessible both by eBPF programs and user space applications. Maps provide a stable way to share state, pass configuration or lookup data, store metrics, and build more complex logic around kernel events.<br>
+Unlike traditional kernel data structures, eBPF maps are created, managed, and destroyed via well-defined syscalls and helper functions. They offer a form of persistent kernel memory to eBPF programs, ensuring that data can outlast a single function call or event. This allows administrators and developers to build sophisticated tools for tracing, networking, security, performance monitoring, and more—without modifying or recompiling the kernel.</p>
+<p>The Linux kernel defines numerous map types (more than 30 as of this writing), each optimized for different use cases. Some store generic key-value pairs, others store arrays or are used specifically for attaching events, referencing other maps, or implementing special data structures like tries. Choosing the right map type depends on the data and the operations you need to perform.<br>
+Before we start with explaining eBPF maps, we need to install either <code>gcc</code> or <code>clang</code>, along with <code>libbpf-dev</code>, to compile our examples. These tools are essential for building and linking the necessary components for eBPF programs. On Debian and Ubuntu, you can install them using the following command:
+<code>sudo apt install gcc libbpf-dev</code><br>
+Below, we explore ten commonly used eBPF map types, detailing their conceptual purpose, common use cases, and providing code snippets demonstrating their creation using the <code>bpf_create_map()</code> API.<br>
+From the large collection defined in the kernel’s <code>/include/uapi/linux/bpf.h</code>,</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">enum</span> <span style="color:#000">bpf_map_type</span> <span style="color:#000;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_UNSPEC</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_HASH</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_ARRAY</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_PROG_ARRAY</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_PERF_EVENT_ARRAY</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_PERCPU_HASH</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_PERCPU_ARRAY</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_STACK_TRACE</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_CGROUP_ARRAY</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_LRU_HASH</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_LRU_PERCPU_HASH</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_LPM_TRIE</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_ARRAY_OF_MAPS</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_HASH_OF_MAPS</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_DEVMAP</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_SOCKMAP</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_CPUMAP</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_XSKMAP</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_SOCKHASH</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_CGROUP_STORAGE_DEPRECATED</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_CGROUP_STORAGE</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">BPF_MAP_TYPE_CGROUP_STORAGE_DEPRECATED</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_REUSEPORT_SOCKARRAY</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE_DEPRECATED</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">BPF_MAP_TYPE_PERCPU_CGROUP_STORAGE_DEPRECATED</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_QUEUE</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_STACK</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_SK_STORAGE</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_DEVMAP_HASH</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_STRUCT_OPS</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_RINGBUF</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_INODE_STORAGE</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_TASK_STORAGE</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_BLOOM_FILTER</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_USER_RINGBUF</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_CGRP_STORAGE</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">BPF_MAP_TYPE_ARENA</span><span style="color:#000;font-weight:bold">,</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">__MAX_BPF_MAP_TYPE</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
+</span></span></code></pre></div><p>we’ll focus on these ten map types:</p>
 <ol>
 <li>BPF_MAP_TYPE_HASH</li>
 <li>BPF_MAP_TYPE_ARRAY</li>
@@ -337,9 +336,9 @@
 </ol>
 <p>These map types are either widely used or particularly illustrative of eBPF’s capabilities. Together, they represent a broad spectrum of data structures and functionalities.</p>
 <h3 id="maps-in-ebpf-program">Maps in eBPF program<a class="td-heading-self-link" href="#maps-in-ebpf-program" aria-label="Heading self-link"></a></h3>
-<p>In eBPF, there are two main components: the eBPF program (which runs in the kernel) and the user-space code (both components will be explained later). It is common to define maps in the eBPF program, but maps are actually created and managed in user-space using the <code>bpf()</code> syscall.
-The eBPF program (kernel-side) defines how the map should look and how it will be used by the program. This definition specifies the map&rsquo;s type, key size, value size, and other parameters. However, the actual creation of the map (allocating memory for it in the kernel and linking it to the eBPF program) occurs in user-space. This process involves invoking the <code>bpf()</code> syscall with the <code>BPF_MAP_CREATE</code> command.
-In practice, BTF (BPF Type Format) style maps are the preferred method for defining maps in eBPF programs. Using BTF provides a more flexible, type-safe way to define maps and makes it easier to manage complex data structures. We will explain BTF (BPF Type Format) later in details. When a user-space process issues a BPF_MAP_CREATE command, the kernel invokes the map_create(&amp;attr) function which look like the following:</p>
+<p>In eBPF, there are two main components: the eBPF program (which runs in the kernel) and the user-space code (both components will be explained later). It is common to define maps in the eBPF program, but maps are actually created and managed in user-space using the <code>bpf()</code> syscall.<br>
+The eBPF program (kernel-side) defines how the map should look and how it will be used by the program. This definition specifies the map&rsquo;s type, key size, value size, and other parameters. However, the actual creation of the map (allocating memory for it in the kernel and linking it to the eBPF program) occurs in user-space. This process involves invoking the <code>bpf()</code> syscall with the <code>BPF_MAP_CREATE</code> command.<br>
+In practice, BTF (BPF Type Format) style maps are the preferred method for defining maps in eBPF programs. Using BTF provides a more flexible, type-safe way to define maps and makes it easier to manage complex data structures. We will explain BTF (BPF Type Format) later in details. When a user-space process issues a BPF_MAP_CREATE command, the kernel invokes the <code>map_create(&amp;attr)</code> function which look like the following:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">static</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">union</span> <span style="color:#000">bpf_attr</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">attr</span><span style="color:#000;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_ops</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ops</span><span style="color:#000;font-weight:bold">;</span>
@@ -350,9 +349,8 @@ In practice, BTF (BPF Type Format) style maps are the preferred method for defin
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">bool</span> <span style="color:#000">token_flag</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">f_flags</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000;font-weight:bold">[...]</span>
-</span></span></code></pre></div><p><strong>libbpf Wrapper for <code>BPF_MAP_CREATE</code> Command:</strong></p>
-<p>The <code>bpf_map_create()</code> function is part of the libbpf library, which provides a user-space interface for interacting with eBPF in Linux. Internally, <code>bpf_map_create()</code> sets up the necessary parameters for creating an eBPF map and then makes a call to the <code>bpf()</code> syscall with the <code>BPF_MAP_CREATE</code> command. This function simplifies the process for the user by abstracting away the complexities of directly using the <code>bpf()</code> syscall. It configures the map, including its type, key size, value size, and the number of entries, and once these parameters are prepared, <code>bpf_map_create()</code> invokes the <code>bpf()</code> syscall with the <code>BPF_MAP_CREATE</code> command, instructing the kernel to create the eBPF map. In essence, <code>bpf_map_create()</code> serves as a user-friendly wrapper around the <code>bpf()</code> syscall&rsquo;s <code>BPF_MAP_CREATE</code> command or <code>map_create</code> function, making it easier for user-space programs to create eBPF maps.</p>
-<p><code>bpf_map_create()</code> wrapper function is defined in the Kernel source code under <code>tools/lib/bpf/bpf.c</code>. The function prototype is as follows:</p>
+</span></span></code></pre></div><p>The <code>bpf_map_create()</code> function is part of the libbpf library, which provides a user-space interface for interacting with eBPF in Linux. Internally, <code>bpf_map_create()</code> sets up the necessary parameters for creating an eBPF map and then makes a call to the <code>bpf()</code> syscall with the <code>BPF_MAP_CREATE</code> command. This function simplifies the process for the user by abstracting away the complexities of directly using the <code>bpf()</code> syscall. It configures the map, including its type, key size, value size, and the number of entries, and once these parameters are prepared, <code>bpf_map_create()</code> invokes the <code>bpf()</code> syscall with the <code>BPF_MAP_CREATE</code> command, instructing the kernel to create the eBPF map. In essence, <code>bpf_map_create()</code> serves as a user-friendly wrapper around the <code>bpf()</code> syscall&rsquo;s <code>BPF_MAP_CREATE</code> command or <code>map_create</code> function, making it easier for user-space programs to create eBPF maps.<br>
+<code>bpf_map_create()</code> wrapper function is defined in the Kernel source code under <code>tools/lib/bpf/bpf.c</code>. The function prototype is as follows:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_create</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">enum</span> <span style="color:#000">bpf_map_type</span> <span style="color:#000">map_type</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>                   <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">map_name</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>                   <span style="color:#000">__u32</span> <span style="color:#000">key_size</span><span style="color:#000;font-weight:bold">,</span>
@@ -360,14 +358,14 @@ In practice, BTF (BPF Type Format) style maps are the preferred method for defin
 </span></span><span style="display:flex;"><span>                   <span style="color:#000">__u32</span> <span style="color:#000">max_entries</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>                   <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_create_opts</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div><ul>
-<li><strong><code>map_type</code></strong>: Specifies the type of the map (e.g., <code>BPF_MAP_TYPE_HASH</code>).</li>
-<li><strong><code>map_name</code></strong>: The name of the map.</li>
-<li><strong><code>key_size</code></strong>: Size of the key in the map.</li>
-<li><strong><code>value_size</code></strong>: Size of the value in the map.</li>
-<li><strong><code>max_entries</code></strong>: Maximum number of entries the map can hold.</li>
-<li><strong><code>opts</code></strong>: A pointer to the <code>bpf_map_create_opts</code> structure, which contains additional options for map creation (such as flags, BTF information, etc.).</li>
+<li><strong>map_type</strong>: Specifies the type of the map (e.g., <code>BPF_MAP_TYPE_HASH</code>).</li>
+<li><strong>map_name</strong>: The name of the map.</li>
+<li><strong>key_size</strong>: Size of the key in the map.</li>
+<li><strong>value_size</strong>: Size of the value in the map.</li>
+<li><strong>max_entries</strong>: Maximum number of entries the map can hold.</li>
+<li><strong>opts</strong>: A pointer to the <code>bpf_map_create_opts</code> structure, which contains additional options for map creation (such as flags, BTF information, etc.).</li>
 </ul>
-<p>The <strong><code>bpf_map_create_opts</code></strong> structure in <strong>libbpf</strong> is defined as follows in <strong><code>/tools/lib/bpf/bpf.h</code></strong>:</p>
+<p>The <code>bpf_map_create_opts</code> structure in <strong>libbpf</strong> is defined as follows in <code>/tools/lib/bpf/bpf.h</code>:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_create_opts</span> <span style="color:#000;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">size_t</span> <span style="color:#000">sz</span><span style="color:#000;font-weight:bold">;</span>                     <span style="color:#8f5902;font-style:italic">/* Size of this struct for forward/backward compatibility */</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">__u32</span> <span style="color:#000">btf_fd</span><span style="color:#000;font-weight:bold">;</span>                  <span style="color:#8f5902;font-style:italic">/* BTF (BPF Type Format) file descriptor for type information */</span>
@@ -384,15 +382,15 @@ In practice, BTF (BPF Type Format) style maps are the preferred method for defin
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">size_t</span> <span style="color:#ce5c00;font-weight:bold">:</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>                      <span style="color:#8f5902;font-style:italic">/* Reserved for future compatibility (bitfield) */</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
 </span></span></code></pre></div><ul>
-<li><strong><code>sz</code></strong>: Size of the structure, ensuring forward/backward compatibility.</li>
-<li><strong><code>btf_fd</code>, <code>btf_key_type_id</code>, <code>btf_value_type_id</code>, <code>btf_vmlinux_value_type_id</code></strong>: These fields are related to the <strong>BPF Type Format</strong> (BTF), which provides type information for the map’s key and value types.</li>
-<li><strong><code>inner_map_fd</code></strong>: The file descriptor of an inner map if the map is being used as part of a nested structure.</li>
-<li><strong><code>map_flags</code></strong>: Flags that modify the behavior of the map, such as setting the map to read-only or enabling special features (e.g., memory-mapping).</li>
-<li><strong><code>map_extra</code></strong>: Reserved for future extensions to the structure or additional configuration.</li>
-<li><strong><code>numa_node</code></strong>: Specifies the NUMA node for memory locality when creating the map (used for NUMA-aware systems).</li>
-<li><strong><code>map_ifindex</code></strong>: Specifies the network interface index for associating the map with a specific network interface.</li>
-<li><strong><code>value_type_btf_obj_fd</code></strong>: A file descriptor pointing to the BTF object representing the map’s value type.</li>
-<li><strong><code>token_fd</code></strong>: A token FD for passing file descriptors across different BPF operations.</li>
+<li><strong>sz</strong>: Size of the structure, ensuring forward/backward compatibility.</li>
+<li><strong>btf_fd</strong>, <strong>btf_key_type_id</strong>, <strong>btf_value_type_id</strong>, <strong>btf_vmlinux_value_type_id</strong>: These fields are related to the <strong>BPF Type Format</strong> (BTF), which provides type information for the map’s key and value types</li>
+<li><strong>inner_map_fd</strong>: The file descriptor of an inner map if the map is being used as part of a nested structure.</li>
+<li><strong>map_flags</strong>: Flags that modify the behavior of the map, such as setting the map to read-only or enabling special features (e.g., memory-mapping).</li>
+<li><strong>map_extra</strong>: Reserved for future extensions to the structure or additional configuration.</li>
+<li><strong>numa_node</strong>: Specifies the NUMA node for memory locality when creating the map (used for NUMA-aware systems).</li>
+<li><strong>map_ifindex</strong>: Specifies the network interface index for associating the map with a specific network interface.</li>
+<li><strong>value_type_btf_obj_fd</strong>: A file descriptor pointing to the BTF object representing the map’s value type.</li>
+<li><strong>token_fd</strong>: A token FD for passing file descriptors across different BPF operations.</li>
 </ul>
 <p>These fields allow for fine-grained control over how the eBPF map behaves, including its memory allocation, access permissions, and type information. Don&rsquo;t worry about these details now, as some of them will be used shortly when we dive into more examples.</p>
 <p>Now that we&rsquo;ve covered the basics of map creation, let’s start exploring some of the most commonly used eBPF map types.
@@ -932,7 +930,7 @@ If you have a known, fixed number of entries indexed by integer keys, <code>BPF_
 <li><strong>Performance and Concurrency</strong>:<br>
 Under heavy load, where multiple CPUs frequently update shared data, per-CPU maps (<code>BPF_MAP_TYPE_PERCPU_HASH</code> or <code>BPF_MAP_TYPE_PERCPU_ARRAY</code>) can reduce contention. Similarly, <code>BPF_MAP_TYPE_RINGBUF</code> is the perfect fit for high-throughput streaming scenarios.</li>
 <li><strong>Complexity and Modularity</strong>:<br>
-If you need to dynamically chain programs or manage multiple maps at runtime, <code>BPF_MAP_TYPE_PROG_ARRAY</code>, <code>BPF_MAP_TYPE_ARRAY_OF_MAPS</code>, or <code>BPF_MAP_TYPE_HASH_OF_MAPS</code> facilitate more sophisticated architectures.</li>
+If you need to dynamically chain programs or manage multiple maps at runtime, you could use <code>BPF_MAP_TYPE_PROG_ARRAY</code>, <code>BPF_MAP_TYPE_ARRAY_OF_MAPS</code>, or <code>BPF_MAP_TYPE_HASH_OF_MAPS</code> to facilitate more sophisticated architectures.</li>
 <li><strong>Networking and Prefix Matching</strong>:<br>
 For IP-based lookups, <code>BPF_MAP_TYPE_LPM_TRIE</code> offers a specialized structure optimized for network prefixes and routing logic.</li>
 <li><strong>Observability and Tracing</strong>:<br>

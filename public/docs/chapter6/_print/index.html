@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -1106,14 +1106,15 @@ This code is much smaller and simpler than eBPF kernel code, and no need for use
     <div class="lead">BPF Compiler Collection a Python and Lua toolkit that wraps Clang so you can embed small eBPF snippets in scripts and run them with just a few lines of loader code.</div>
 	<p>BCC in short  is a toolkit that makes eBPF development easier by providing a higher-level interface. It compiles your eBPF C code at runtime to match the target kernel’s data structures. BCC works with languages like Python, Lua, and C++, and includes helpful macros and shortcuts for simpler programming. Essentially, BCC takes your eBPF program as a C string, preprocesses it, and then compiles it using clang.</p>
 <p>The following is a crash course on BCC. I strongly recommend reading the BCC manual as well—it’s incredibly detailed and covers topics that are too extensive for this chapter.</p>
-<h2 id="probes-definition">Probes Definition:<a class="td-heading-self-link" href="#probes-definition" aria-label="Heading self-link"></a></h2>
+<h2 id="probes-definition">Probes Definition<a class="td-heading-self-link" href="#probes-definition" aria-label="Heading self-link"></a></h2>
 <ol>
-<li>kprobe: <code>kprobe__</code> followed by the name of kernel function name. For example, <code>int kprobe__do_mkdirat(struct pt_regs *ctx)</code>. <code>struct pt_regs *ctx</code> as a context for kprobe. Arguments can be extracted using <code>PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), ...</code> macros.</li>
+<li>kprobe: <code>kprobe__</code> followed by the name of kernel function name. For example, int kprobe__do_mkdirat(struct pt_regs *ctx). struct pt_regs *ctx as a context for kprobe. Arguments can be extracted using PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), &hellip; macros.</li>
 <li>kretprobe: <code>kretprobe__</code> followed by the name of kernel function name. For example, <code>int kretprobe__do_mkdirat(struct pt_regs *ctx)</code>. Return value can be extracted using <code>PT_REGS_RC(ctx)</code> macro.</li>
-<li>uprobes: Can be declared as regular C function. For example, <code>int function(struct pt_regs *ctx)</code>. Arguments can be extracted using <code>PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), ...</code> macros.</li>
+<li>uprobes: Can be declared as regular C function. For example, <code>int function(struct pt_regs *ctx)</code>. Arguments can be extracted using PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), &hellip; macros.</li>
 <li>uretprobes: Can be declared as regular C function<code>int function(struct pt_regs *ctx)</code>. Return value can be extracted using <code>PT_REGS_RC(ctx)</code> macro.</li>
 <li>Tracepoints: <code>TRACEPOINT_PROBE</code> followed by <code>(category, event)</code> . For example,  <code>TRACEPOINT_PROBE(sched,sched_process_exit)</code>. Arguments are available in an <code>args</code> struct and you can list of argument from the <code>format</code> file. Foe example, <code>args-&gt;pathname</code> in case of <code>TRACEPOINT_PROBE(syscalls, sys_enter_unlinkat)</code>.</li>
-<li>Raw Tracepoints: <code>RAW_TRACEPOINT_PROBE(event)</code>. For example, <code>RAW_TRACEPOINT_PROBE(sys_enter)</code>. As stated before, raw tracepoint uses <code>bpf_raw_tracepoint_args</code> as context and it has args as <code>args[0]</code> -&gt; points to <code>pt_regs</code> structure and <code>args[1]</code> is the syscall number. To access the target functions&rsquo; parameters, you can either cast <code>ctx-&gt;args[0]</code> to a pointer to a <code>struct pt_regs</code> and use it directly, or copy its contents into a local variable of type <code>struct pt_regs</code> (e.g., <code>struct pt_regs regs;</code>). Then, you can extract the syscall parameters using the <code>PT_REGS_PARM</code> macros (such as <code>PT_REGS_PARM1</code>, <code>PT_REGS_PARM2</code>, etc.).</li>
+<li>Raw Tracepoints: <code>RAW_TRACEPOINT_PROBE(event)</code>.<br>
+For example, <code>RAW_TRACEPOINT_PROBE(sys_enter)</code>. As stated before, raw tracepoint uses <code>bpf_raw_tracepoint_args</code> as context and it has args as <code>args[0]</code> -&gt; points to <code>pt_regs</code> structure and <code>args[1]</code> is the syscall number. To access the target functions&rsquo; parameters, you can either cast <code>ctx-&gt;args[0]</code> to a pointer to a <code>struct pt_regs</code> and use it directly, or copy its contents into a local variable of type <code>struct pt_regs</code> (e.g., <code>struct pt_regs regs;</code>). Then, you can extract the syscall parameters using the <code>PT_REGS_PARM</code> macros (such as <code>PT_REGS_PARM1</code>, <code>PT_REGS_PARM2</code>, etc.).</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>    <span style="color:#8f5902;font-style:italic">// Copy the pt_regs structure from the raw tracepoint args.
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"></span>    <span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">bpf_probe_read</span><span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">sizeof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">),</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">ctx</span><span style="color:#ce5c00;font-weight:bold">-&gt;</span><span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">])</span> <span style="color:#ce5c00;font-weight:bold">!=</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span>
@@ -1129,16 +1130,32 @@ This code is much smaller and simpler than eBPF kernel code, and no need for use
 </span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_trace_printk</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;LSM path_mkdir: mode=%d, ret=%d</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">mode</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">ret</span><span style="color:#000;font-weight:bold">);</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span></code></pre></div><h2 id="data-handling">Data handling:<a class="td-heading-self-link" href="#data-handling" aria-label="Heading self-link"></a></h2>
+</span></span></code></pre></div><h2 id="data-handling">Data handling<a class="td-heading-self-link" href="#data-handling" aria-label="Heading self-link"></a></h2>
 <ol>
-<li><code>bpf_probe_read_kernel</code> helper function with the following prototype:<code>int bpf_probe_read_kernel(void *dst, int size, const void *src)</code>. <code>bpf_probe_read_kernel</code> is used for copying arbitrary data (e.g., structures, buffers) from kernel space and returns 0 on success.</li>
-<li><code>bpf_probe_read_kernel_str</code> helper function with the following prototype: <code>int bpf_probe_read_kernel_str(void *dst, int size, const void *src)</code>. <code>bpf_probe_read_kernel_str</code> is used for reading null-terminated strings from kernel space and returns the length of the string including the trailing NULL on success.</li>
-<li><code>bpf_probe_read_user</code> helper function with the following prototype: <code>int bpf_probe_read_user(void *dst, int size, const void *src)</code>. <code>bpf_probe_read_user</code> is used for copying arbitrary data (e.g., structures, buffers) from user space and returns 0 on success</li>
-<li><code>bpf_probe_read_user_str</code> helper function with the following prototype: <code>int bpf_probe_read_user_str(void *dst, int size, const void *src)</code>. <code>bpf_probe_read_user_str</code> is used for reading null-terminated strings from user space and returns the length of the string including the trailing NULL on success.</li>
-<li><code>bpf_ktime_get_ns</code>: returns <code>u64</code> time elapsed since system boot in nanoseconds.</li>
-<li><code>bpf_get_current_pid_tgid</code>: returns <code>u64</code> current tgid and pid.</li>
-<li><code>bpf_get_current_uid_gid</code>: returns <code>u64</code> current pid and gid.</li>
-<li><code>bpf_get_current_comm(void *buf, __u32 size_of_buf)</code>:  copy current process name into pointer<code>buf</code> and sizeof at least 16 bytes.
+<li><strong>bpf_probe_read_kernel</strong> helper function with the following prototype:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_probe_read_kernel</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dst</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">src</span><span style="color:#000;font-weight:bold">)</span>
+</span></span></code></pre></div><p><code>bpf_probe_read_kernel</code> is used for copying arbitrary data (e.g., structures, buffers) from kernel space and returns 0 on success.</p>
+<ol start="2">
+<li><strong>bpf_probe_read_kernel_str</strong> helper function with the following prototype:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_probe_read_kernel_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dst</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">src</span><span style="color:#000;font-weight:bold">)</span>
+</span></span></code></pre></div><p><code>bpf_probe_read_kernel_str</code> is used for reading null-terminated strings from kernel space and returns the length of the string including the trailing NULL on success.</p>
+<ol start="3">
+<li><strong>bpf_probe_read_user</strong> helper function with the following prototype:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_probe_read_user</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dst</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">src</span><span style="color:#000;font-weight:bold">)</span>
+</span></span></code></pre></div><p><code>bpf_probe_read_user</code> is used for copying arbitrary data (e.g., structures, buffers) from user space and returns 0 on success.</p>
+<ol start="4">
+<li><strong>bpf_probe_read_user_str</strong> helper function with the following prototype:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_probe_read_user_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dst</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">src</span><span style="color:#000;font-weight:bold">)</span>  
+</span></span></code></pre></div><p><code>bpf_probe_read_user_str</code> is used for reading null-terminated strings from user space and returns the length of the string including the trailing NULL on success.</p>
+<ol start="5">
+<li><strong>bpf_ktime_get_ns</strong>: returns <code>u64</code> time elapsed since system boot in nanoseconds.</li>
+<li><strong>bpf_get_current_pid_tgid</strong>: returns <code>u64</code> current tgid and pid.</li>
+<li><strong>bpf_get_current_uid_gid</strong>: returns <code>u64</code> current pid and gid.</li>
+<li><strong>bpf_get_current_comm(void *buf, __u32 size_of_buf)</strong>:  copy current process name into pointer<code>buf</code> and sizeof at least 16 bytes.
 For example:</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">TASK_COMM_LEN</span><span style="color:#000;font-weight:bold">];</span> <span style="color:#8f5902;font-style:italic">// TASK_COMM_LEN = 16, defined in include/linux/sched.h
@@ -2051,7 +2068,7 @@ btf_id = 511 which is a unique identifier that the kernel assigns to that block 
 </span></span><span style="display:flex;"><span>  18: <span style="color:#ce5c00;font-weight:bold">(</span>95<span style="color:#ce5c00;font-weight:bold">)</span> <span style="color:#204a87">exit</span>
 </span></span></code></pre></div><p>We can get visual representation of our code instructions using <code>sudo bpftool prog dump xlated id 312 visual &amp;&gt; vis.out</code> and the output <code>vis.out</code> is a DOT language file which is a graph description language and can be viewed Graphviz. It can be converted to PNG using <code>dot -Tpng viz.out -o viz.png</code> and you can display viz.png file.</p>
 <p style="text-align: center;">
-  <img src="/images/docs/chapter6/graphviz.svg" alt="Centered image" />
+  <img src="/images/docs/chapter6/graphviz.png" alt="Centered image" />
 </p>
 <p>BPFTool can also dump jited or the program machine code using <code>sudo bpftool prog dump jited id 312</code>:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>int count_getpid<span style="color:#ce5c00;font-weight:bold">(</span>void * ctx<span style="color:#ce5c00;font-weight:bold">)</span>:
@@ -2102,7 +2119,10 @@ btf_id = 511 which is a unique identifier that the kernel assigns to that block 
 <div class="alert alert-primary" role="alert">
 <h4 class="alert-heading">Note</h4>
 
-    <p>You can inspect eBPF instructions for the object file using <code>llvm-objdump -S getpid.o</code></p>
+    You can inspect eBPF instructions for the object file using <code>llvm-objdump -S getpid.o</code>
+
+</div>
+
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>getpid.o:	file format elf64-bpf
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Disassembly of section tracepoint/syscalls/sys_enter_getpid:
@@ -2126,11 +2146,8 @@ btf_id = 511 which is a unique identifier that the kernel assigns to that block 
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">;</span>     <span style="color:#204a87;font-weight:bold">return</span> 0<span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>      11:	b7 <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#000">r0</span> <span style="color:#ce5c00;font-weight:bold">=</span> 0x0
 </span></span><span style="display:flex;"><span>      12:	<span style="color:#0000cf;font-weight:bold">95</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> <span style="color:#0000cf;font-weight:bold">00</span> 00	<span style="color:#204a87">exit</span>
-</span></span></code></pre></div><p>You can find a list of eBPF opcodes from kernel documentation <a href="https://docs.kernel.org/bpf/standardization/instruction-set.html">https://docs.kernel.org/bpf/standardization/instruction-set.html</a> or RFC 9669 <a href="https://www.rfc-editor.org/rfc/rfc9669.html">https://www.rfc-editor.org/rfc/rfc9669.html</a>.</p>
-
-
-</div>
-
+</span></span></code></pre></div><p>You can find a list of eBPF opcodes from kernel documentation<br>
+<a href="https://docs.kernel.org/bpf/standardization/instruction-set.html">https://docs.kernel.org/bpf/standardization/instruction-set.html</a> or RFC 9669 <a href="https://www.rfc-editor.org/rfc/rfc9669.html">https://www.rfc-editor.org/rfc/rfc9669.html</a>.</p>
 <p>BPFTool can display the list of all maps using <code>sudo bpftool map</code></p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>11: hash_of_maps  name cgroup_hash  flags 0x0
 </span></span><span style="display:flex;"><span>	key 8B  value 4B  max_entries <span style="color:#0000cf;font-weight:bold">2048</span>  memlock 165152B

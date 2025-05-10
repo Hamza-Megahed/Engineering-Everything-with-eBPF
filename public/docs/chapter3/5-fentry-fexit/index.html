@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -262,7 +262,7 @@
 	<h2 id="fentry">Fentry<a class="td-heading-self-link" href="#fentry" aria-label="Heading self-link"></a></h2>
 <p>An fentry eBPF program is attached precisely at the entry point of a kernel function. Introduced in Linux kernel 5.5 , fentry uses a BPF trampoline to patch function entry points to invoke eBPF code. This results in minimal overhead compared to traditional <code>kprobe</code>.</p>
 <ul>
-<li>When a function is compiled with tracing support (CONFIG_FUNCTION_TRACER), the compiler inserts a call to <code>__fentry__</code> at the beginning of the function which contains several <code>NOP</code> instructions <code>0x90</code>.</li>
+<li>When a function is compiled with tracing support CONFIG_FUNCTION_TRACER, the compiler inserts a call to <code>__fentry__</code> at the beginning of the function which contains several <code>NOP</code> instructions <code>0x90</code>.</li>
 <li>When an fentry eBPF program is attached, the kernel patches the NOPs dynamically—replacing it with a jump to a BPF trampoline.</li>
 <li>The trampoline then efficiently invokes fentry handler (without the overhead of breakpoints or interrupts) and, after executing, returns control to the original function so that normal execution continues.
 Fentry-based and fexit-based eBPF programs are classified under the program type <code>BPF_PROG_TYPE_TRACING</code>.

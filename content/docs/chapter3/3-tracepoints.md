@@ -30,7 +30,7 @@ However, there are exceptions. For instance, in the libbpf-bootstrap example (ht
 SEC("tp/sched/sched_process_exit")
 int handle_exit(struct trace_event_raw_sched_process_template *ctx)
 ```
-Here, based on the naming convention, the context should be trace_event_raw_sched_process_exit rather than trace_event_raw_sched_process_template. You can verify the correct context by checking the `vmlinux.h` file.
+Here, based on the naming convention explained previously, the context name should be trace_event_raw_sched_process_exit rather than trace_event_raw_sched_process_template. You can verify the correct context by checking the `vmlinux.h` file.
 
 Let's explore one of the defined tracepoints from the kernel source code `include/trace/events/net.h`:
 ```c
@@ -93,7 +93,7 @@ static int netif_rx_internal(struct sk_buff *skb)
 
 	[...]
 ```
-You can see `trace_netif_rx(skb);`. This call triggers the tracepoint event for packet reception which logs the event if tracing is enabled.
+You can see `trace_netif_rx(skb);`. This call triggers the tracepoint event for packet reception which logs the event if tracing is enabled.  
 Then by running `gdb /usr/lib/debug/boot/vmlinux-$(uname -r)`
 ```sh
 (gdb) disassemble netif_rx_internal
@@ -115,8 +115,7 @@ Dump of assembler code for function netif_rx_internal:
 [...]
 ```
 
-The disassembly confirms that at address <+29> you see a reserved 5-byte NOP (shown as `nopl 0x0(%rax,%rax,1)`). This placeholder is exactly what the kernel uses for its dynamic patching mechanism—when the tracepoint (or static call) is enabled, that NOP will be patched into a jump to the corresponding trampoline (and ultimately to the tracepoint handler).
-
+The disassembly confirms that at address <+29> you see a reserved 5-byte NOP (shown as `nopl 0x0(%rax,%rax,1)`). This placeholder is exactly what the kernel uses for its dynamic patching mechanism—when the tracepoint (or static call) is enabled, that NOP will be patched into a jump to the corresponding trampoline (and ultimately to the tracepoint handler).  
 In the next example, we will examine `unlinkat` syscall entry point (which removes a directory entry relative to a directory file descriptor) with context `trace_event_raw_sys_enter` , but what exactly is the content of `struct trace_event_raw_sys_enter`. We can get the content by searching the `vmlinux.h` 
 ```c
 struct trace_event_raw_sys_enter {

@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="Lightweight Tunnels">
   <meta itemprop="description" content="LWT IN OUT and XMIT hooks in the routing stack where eBPF can add or strip headers perform NAT or steer packets into overlays with minimal extra latency.">
-  <meta itemprop="wordCount" content="1088">
+  <meta itemprop="wordCount" content="1086">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Lightweight Tunnels">
   <meta name="twitter:description" content="LWT IN OUT and XMIT hooks in the routing stack where eBPF can add or strip headers perform NAT or steer packets into overlays with minimal extra latency.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -392,9 +392,13 @@
 
 </div>
 
-<p>Compile the eBPF program and attach it to your interface or tunnel using something similar to the following:
-<code>sudo ip route add 10.0.0.3/32 encap bpf out obj drop_egress_8080.o section lwt_out dev tun0</code> .
-Next, setup a web server on the remote machine <code>python3 -m http.server 8080</code>. Then, from the eBPF machine run <code>curl http://10.0.0.3:8080/index.html</code> and you should notice that the connection is dropped and messages in <code>/sys/kernel/debug/tracing/trace_pipe</code></p>
+<p>Compile the eBPF program and attach it to your interface or tunnel using something similar to the following:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo ip route add 10.0.0.3/32 encap bpf out obj drop_egress_8080.o section lwt_out dev tun0
+</span></span></code></pre></div><p>Next, setup a web server on the remote machine</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>python3 -m http.server <span style="color:#0000cf;font-weight:bold">8080</span>
+</span></span></code></pre></div><p>Then, from the eBPF machine run</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>curl http://10.0.0.3:8080/index.html
+</span></span></code></pre></div><p>You should notice that the connection is dropped and messages in <code>/sys/kernel/debug/tracing/trace_pipe</code></p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>          &lt;idle&gt;-0       <span style="color:#ce5c00;font-weight:bold">[</span>003<span style="color:#ce5c00;font-weight:bold">]</span> b.s21  6747.667466: bpf_trace_printk: Dropping egress packet to port <span style="color:#0000cf;font-weight:bold">8080</span>
 </span></span><span style="display:flex;"><span>          &lt;idle&gt;-0       <span style="color:#ce5c00;font-weight:bold">[</span>003<span style="color:#ce5c00;font-weight:bold">]</span> b.s21  6748.729064: bpf_trace_printk: Dropping egress packet to port <span style="color:#0000cf;font-weight:bold">8080</span>
 </span></span><span style="display:flex;"><span>          &lt;idle&gt;-0       <span style="color:#ce5c00;font-weight:bold">[</span>003<span style="color:#ce5c00;font-weight:bold">]</span> b.s21  6749.753690: bpf_trace_printk: Dropping egress packet to port <span style="color:#0000cf;font-weight:bold">8080</span>

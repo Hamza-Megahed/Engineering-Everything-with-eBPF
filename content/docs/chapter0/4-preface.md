@@ -13,7 +13,11 @@ When I began learning eBPF, I kept bouncing between blog posts and mailing-list 
 I use short sentences, clear words, and plenty of code. Each new term—_map_, _verifier_, _tail call_—appears next to a tiny program you can copy, run, and explore. After you run the code, the explanation will make more sense. If something still feels cloudy, keep reading; later chapters revisit the idea from a different angle.
 
 **Tested environment**  
-All code listings were compiled and executed on Linux kernel 6.12.22, with Clang/LLVM 17 and libbpf 1.5. If you use this kernel (or a newer one) the examples should work exactly as printed. When newer kernels add handy helpers or map types, I point them out and tell you whether you need to adjust your code.
+All code listings were compiled and executed on Linux kernel 6.12.22, with Clang/LLVM 17 and libbpf 1.5. If you use this kernel (or a newer one) the examples should work exactly as printed. When newer kernels add handy helpers or map types, I point them out and tell you whether you need to adjust your code.  
+Every example used in this book lives in the public repository  
+```html
+https://github.com/Hamza-Megahed/Engineering-Everything-with-eBPF-Code
+```
 
 **What you need**
 

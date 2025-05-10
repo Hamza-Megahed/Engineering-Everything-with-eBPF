@@ -8,8 +8,8 @@ weight: 6
 
 - cgroup/bind4: Attaches to IPv4 bind operations. Programs in this section intercept bind() calls on IPv4 sockets, allowing you to control or modify how sockets bind to local addresses.
 - cgroup/connect4: Attaches to IPv4 connect operations. This section is used to filter or modify outgoing connect() attempts on IPv4 sockets—for example, to allow only connections to certain destination addresses or ports.
-- cgroup/recvmsg4: Attaches to IPv4 UDP receive message operations (`BPF_CGROUP_UDP4_RECVMSG`). Programs in this section can intervene in recvmsg() calls on UDP sockets, enabling inspection or filtering of incoming datagrams.
-- cgroup/sendmsg4: Attaches to IPv4 UDP send message operations (`BPF_CGROUP_UDP4_SENDMSG`). This section lets you apply filters or modifications to sendmsg() calls on UDP sockets, potentially controlling which messages are sent.
+- cgroup/recvmsg4: Attaches to IPv4 UDP receive message operations with eBPF attache type of `BPF_CGROUP_UDP4_RECVMSG`. Programs in this section can intervene in recvmsg() calls on UDP sockets, enabling inspection or filtering of incoming datagrams.
+- cgroup/sendmsg4: Attaches to IPv4 UDP send message operations with eBPF attache type of `BPF_CGROUP_UDP4_SENDMSG`. This section lets you apply filters or modifications to sendmsg() calls on UDP sockets, potentially controlling which messages are sent.
 
 BPF_PROG_TYPE_CGROUP_SOCK_ADDR programs receive a pointer to a `struct bpf_sock_addr` as their context. This structure contains the socket's address information (such as the destination IP and port, along with other details), which the BPF program can inspect or modify during operations like connect() or bind().
 `struct bpf_sock_addr` is defined in `include/uapi/linux/bpf.h`:
@@ -28,7 +28,8 @@ struct bpf_sock_addr {
 };
 ```
 
-If we have a container connected to the internet without any policy. `BPF_PROG_TYPE_CGROUP_SOCK_ADDR` eBPF can be used to make a policy and enforce it. For example, to only port 80 and attach it cgroup associated with that container.
+If we have a container connected to the internet without any policy.  
+`BPF_PROG_TYPE_CGROUP_SOCK_ADDR` eBPF can be used to make a policy and enforce it. For example, to only port 80 and attach it cgroup associated with that container.
 <p style="text-align: center;">
   <img src="/images/docs/chapter4/cgroup-after.png" alt="Centered image" />
 </p>

@@ -688,9 +688,12 @@ Then the code uses a new approach by opening the object file directly instead of
 ```c
 int bpf_xdp_attach(int ifindex, int prog_fd, __u32 flags, const struct bpf_xdp_attach_opts *opts);
 ```
-`ifindex`: Represents the interface ID and `ifindex` is obtained by `ifindex = if_nametoindex(argv[1]);`.
-`prog_fd`: Represents the program file descriptor.
-`flags`: Cat take one of three values: XDP_FLAGS_SKB_MODE, XDP_FLAGS_DRV_MODE or XDP_FLAGS_HW_MODE. They are defined in `include/uapi/linux/if_link.h` as the following:
+`ifindex`: Represents the interface ID and `ifindex` is obtained by
+```c
+ifindex = if_nametoindex(argv[1]);
+```
+`prog_fd`: Represents the program file descriptor.  
+`flags`: Can take one of three values and they are defined in `include/uapi/linux/if_link.h` as the following:
 ```c
 #define XDP_FLAGS_SKB_MODE		(1U << 1)
 #define XDP_FLAGS_DRV_MODE		(1U << 2)

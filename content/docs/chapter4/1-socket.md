@@ -422,7 +422,98 @@ Calculating TCP header size is important because we need to know where TCP paylo
 ```
 {{< alert title="Note" >}}IP header has options too but in most cases the IP header size is 20 bytes, parsing IHL in IP header will give the exact size of IP header size.{{< /alert >}}
 
-The first 4 bits of `Offset/Flags` field in TCP header contains the size of the TCP header ` tcp_hdr_len >>= 4` then multiplies the value by 4 to convert the header length from 32-bit words to bytes. Compile and start the program then start HTTP server on your machine on port 8080 or change  `HTTP_PORT` from the code, you can use python `python3 -m http.server 8080`, then curl from another box `curl http://192.168.1.2:8080/index.html?id=l33t` and you will get similar results because we entered the magic word which is `l33t` in our request.
+Let's move to user-space code
+
+```c
+#include <arpa/inet.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <net/ethernet.h>
+#include <bpf/libbpf.h>
+#include <bpf/bpf.h>
+
+
+static const char *BPF_OBJ_FILE = "http_extract.o";
+
+int main(void)
+{
+    struct bpf_object *obj = NULL;
+    struct bpf_program *prog;
+    int sock_fd = -1, prog_fd = -1, err;
+
+    obj = bpf_object__open_file(BPF_OBJ_FILE, NULL);
+    if (!obj) {
+        fprintf(stderr, "Error opening BPF object file\n");
+        return 1;
+    }
+
+    err = bpf_object__load(obj);
+    if (err) {
+        fprintf(stderr, "Error loading BPF object: %d\n", err);
+        bpf_object__close(obj);
+        return 1;
+    }
+
+    prog = bpf_object__find_program_by_name(obj, "http_filter_prog");
+    if (!prog) {
+        fprintf(stderr, "Error finding BPF program by name.\n");
+        bpf_object__close(obj);
+        return 1;
+    }
+
+    prog_fd = bpf_program__fd(prog);
+    if (prog_fd < 0) {
+        fprintf(stderr, "Error getting program FD.\n");
+        bpf_object__close(obj);
+        return 1;
+    }
+
+    sock_fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    if (sock_fd < 0) {
+        fprintf(stderr, "Error creating raw socket: %d\n", errno);
+        bpf_object__close(obj);
+        return 1;
+    }
+
+    err = setsockopt(sock_fd, SOL_SOCKET, SO_ATTACH_BPF, &prog_fd, sizeof(prog_fd));
+    if (err) {
+        fprintf(stderr, "setsockopt(SO_ATTACH_BPF) failed: %d\n", errno);
+        close(sock_fd);
+        bpf_object__close(obj);
+        return 1;
+    }
+
+    printf("BPF socket filter attached. It will detect HTTP methods on port 80.\n");
+
+    while (1) {
+        unsigned char buf[2048];
+        ssize_t n = read(sock_fd, buf, sizeof(buf));
+        if (n < 0) {
+            perror("read");
+            break;
+        }
+
+        printf("Received %zd bytes on this socket\n", n);
+    }
+
+    close(sock_fd);
+    bpf_object__close(obj);
+    return 0;
+}
+```
+
+The first 4 bits of `Offset/Flags` field in TCP header contains the size of the TCP header ` tcp_hdr_len >>= 4` then multiplies the value by 4 to convert the header length from 32-bit words to bytes. Compile and start the program then start HTTP server on your machine on port 8080 or change  `HTTP_PORT` from the code, you can use python 
+```sh
+python3 -m http.server 8080
+```
+Then curl from another box 
+```sh
+curl http://192.168.1.2:8080/index.html?id=l33t
+```
+And you will get similar results because we entered the magic word which is `l33t` in our request.
 ```sh
 GET /index.html?id=l33t HTTP/1.1
 Host: 192.168.1.2:8080

@@ -4,7 +4,7 @@ description: CNCF project using eBPF to monitor and enforce runtime security pol
 weight: 6
 ---
 
-Tetragon is an open-source tool that uses eBPF to monitor and control Linux systems. It tracks events like process execution, network connections, and file access in real time. You can write custom rules to filter these events, and it runs with very little performance impact. Although it works great with Kubernetes and container setups, it can secure any Linux system that supports eBPF. Its kernel-level enforcement can, for example, kill a process if it violates a rule, adding a strong layer of security. Tetragon can be installed from their website https://tetragon.io/docs/installation/package/, consider download it to follow this part.
+Tetragon is an open-source tool that uses eBPF to monitor and control Linux systems. It tracks events like process execution, network connections, and file access in real time. You can write custom rules to filter these events, and it runs with very little performance impact. Although it works great with Kubernetes and container setups, it can secure any Linux system that supports eBPF. Its kernel-level enforcement can, for example, kill a process if it violates a rule, adding a strong layer of security. Tetragon can be installed from their website https://tetragon.io/docs/installation/package/, consider download it to follow this part.  
 Tetragon works by using policies called TracingPolicies. These policies let you define exactly what kernel events to monitor and what actions to take when those events happen. You write rules in a policy that attach probes to kernel functions, filter events based on criteria like arguments or process IDs, and then enforce actions (for example, killing a process) if a rule is matched. This approach gives you fine-grained control over system security in real time. Let's take a glimpse of what Tetragon can do.
 
 ## TracingPolicy
@@ -142,8 +142,8 @@ First, filter on the second parameter (index=1), then match it with (/etc/passwd
 
 ### Actions 
 
-**matchActions / matchReturnActions:**  These attach actions to be executed when the selector matches. They also allow you to filter based on the value of return arguments (if needed). Actions are what your policy does when a selector matches. They allow you to enforce decisions right in the kernel. Some common actions include:
-
+**matchActions / matchReturnActions:**  These attach actions to be executed when the selector matches. They also allow you to filter based on the value of return arguments (if needed).  
+Actions are what your policy does when a selector matches. They allow you to enforce decisions right in the kernel. Some common actions include:  
 **Sigkill / Signal:**  immediately terminates the offending process.
 ```yaml
     matchActions: 
@@ -166,7 +166,7 @@ To send a specific signal (e.g., SIGKILL which is signal 9)
 
 {{< alert title="Note" >}}Override function used for error injection. Due to security implications, override function is available only if the kernel was compiled with `CONFIG_BPF_KPROBE_OVERRIDE` option. There is a list of all function that support override and they are tagged with `ALLOW_ERROR_INJECTION` and they are located at `/sys/kernel/debug/error_injection/list`.{{< /alert >}}
 
-**FollowFD / UnfollowFD / CopyFD:**  These actions help track file descriptor usage. For example, you can map a file descriptor to a file name during an open call, so that later calls (e.g., sys_write) that only have an FD can be correlated to a file path. The best example to explain FollowFD / UnfollowFD is from Tetragon documentation. This example is how to prevent write to a specific files for example `/etc/passwd`. `sys_write` only takes a file descriptor not a name and location. First we hook to `fd_install` kernel function.
+**FollowFD / UnfollowFD / CopyFD:**  These actions help track file descriptor usage. For example, you can map a file descriptor to a file name during an open call, so that later calls (e.g., sys_write) that only have an FD can be correlated to a file path. The best example to explain FollowFD / UnfollowFD is from Tetragon documentation. This example is how to prevent write to a specific files for example `/etc/passwd`. `sys_write` only takes a file descriptor not a name and location. First we hook to `fd_install` kernel function.  
 `fd_install` is a kernel function that's called when a file descriptor is being added to a process's file descriptor table. In simpler terms, when a process opens a file (or performs a similar operation that creates a file descriptor), `fd_install` is invoked to associate the new file descriptor (an integer) with the corresponding file object. `fd_install` has the following prototype:
 ```c
 void fd_install(unsigned int fd, struct file *file);
@@ -372,7 +372,8 @@ process mac-Standard-PC-Q35-ICH9-2009 /usr/bin/curl https://8.8.8.8
 exit    mac-Standard-PC-Q35-ICH9-2009 /usr/bin/curl https://8.8.8.8 0 
 ```
 
-Example for monitoring `sudo` command using `__sys_setresuid` kernel function. `__sys_setresuid` is the kernel function that implements the `setresuid` system call. It changes a process’s user IDs—specifically, the real, effective, and saved user IDs—in one atomic operation and it's used to adjust process privileges.
+Example for monitoring `sudo` command using `__sys_setresuid` kernel function.  
+`__sys_setresuid` is the kernel function that implements the `setresuid` system call. It changes a process’s user IDs—specifically, the real, effective, and saved user IDs—in one atomic operation and it's used to adjust process privileges.
 ```yaml
 apiVersion: cilium.io/v1alpha1
 kind: TracingPolicy

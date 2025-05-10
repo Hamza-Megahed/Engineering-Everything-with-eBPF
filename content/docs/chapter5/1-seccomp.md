@@ -4,10 +4,8 @@ description: Restrict system calls with flexible logic beyond static tables.
 weight: 2
 ---
 
-Seccomp, short for Secure Computing Mode, is a powerful kernel feature that limits the system calls a process can make, thereby reducing the exposed kernel surface and mitigating potential attacks. Seccomp is a security facility in the Linux kernel designed to be a tool for sandboxing processes by restricting the set of system calls they can use. to minimizes the kernel’s exposed interface, allowing developers to reduce the risk of kernel-level exploits. The filtering mechanism is implemented using Berkeley Packet Filter (cBPF) programs which inspect system call numbers and arguments before the system call is executed.
-
-User-space security agents are vulnerable to TOCTOU attacks, tampering, and resource exhaustion because they depend on kernel communication to make security decisions. Seccomp addresses these issues by moving filtering into the kernel. Using a cBPF program, seccomp evaluates system call metadata atomically, eliminating the window for TOCTOU exploits and preventing tampering—since filters, once installed, become immutable and are inherited by child processes. This kernel-level enforcement ensures robust protection even if the user-space agent is compromised. Seccomp filtering is implemented as follows:
-
+Seccomp, short for Secure Computing Mode, is a powerful kernel feature that limits the system calls a process can make, thereby reducing the exposed kernel surface and mitigating potential attacks. Seccomp is a security facility in the Linux kernel designed to be a tool for sandboxing processes by restricting the set of system calls they can use. to minimizes the kernel’s exposed interface, allowing developers to reduce the risk of kernel-level exploits. The filtering mechanism is implemented using Berkeley Packet Filter (cBPF) programs which inspect system call numbers and arguments before the system call is executed.  
+User-space security agents are vulnerable to TOCTOU attacks, tampering, and resource exhaustion because they depend on kernel communication to make security decisions. Seccomp addresses these issues by moving filtering into the kernel. Using a cBPF program, seccomp evaluates system call metadata atomically, eliminating the window for TOCTOU exploits and preventing tampering—since filters, once installed, become immutable and are inherited by child processes. This kernel-level enforcement ensures robust protection even if the user-space agent is compromised. Seccomp filtering is implemented as follows:  
 1- The filter is defined as a cBPF program that evaluates each system call based on its number and its arguments. Since cBPF programs cannot dereference pointers, they operate only on the provided system call metadata, preventing time-of-check-time-of-use (TOCTOU) vulnerabilities.  
 2- Once a process installs a seccomp filter using either the prctl() or seccomp() system call, every system call is intercepted and evaluated by the BPF program within the kernel. This means that even if the application logic is compromised, the kernel remains protected by the filter rules.  
 
@@ -46,19 +44,18 @@ Here, `prog` is a pointer to a `struct sock_fprog` (defined in `include/uapi/lin
 
 ### Seccomp Return Values
 
-When a system call is intercepted, the BPF program returns one of several possible values. Each return value directs the kernel on how to handle the intercepted call. The actions are prioritized, meaning that if multiple filters are in place, the one with the highest precedence takes effect. The primary return values are:
-
-SECCOMP_RET_KILL_PROCESS: Immediately terminates the entire process. The exit status indicates a SIGSYS signal.  
-SECCOMP_RET_KILL_THREAD: Terminates only the current thread, again with a SIGSYS signal.  
-SECCOMP_RET_TRAP: Sends a SIGSYS signal to the process, allowing the kernel to pass metadata about the blocked call (like the system call number and address) to a signal handler.  
-SECCOMP_RET_ERRNO: Prevents execution of the system call and returns a predefined errno to the calling process.  
-SECCOMP_RET_USER_NOTIF:  Routes the system call to a user space notification handler, allowing external processes (like container managers) to decide how to handle the call.  
-SECCOMP_RET_TRACE: If a tracer is attached (via `ptrace`), the tracer is notified, giving it an opportunity to modify or skip the system call.  
-SECCOMP_RET_LOG: Logs the system call, then allows its execution. This is useful for development and debugging.  
-SECCOMP_RET_ALLOW:  Simply allows the system call to execute.  
+When a system call is intercepted, the BPF program returns one of several possible values. Each return value directs the kernel on how to handle the intercepted call. The actions are prioritized, meaning that if multiple filters are in place, the one with the highest precedence takes effect. The primary return values are:  
+1. SECCOMP_RET_KILL_PROCESS: Immediately terminates the entire process. The exit status indicates a SIGSYS signal.  
+2. SECCOMP_RET_KILL_THREAD: Terminates only the current thread, again with a SIGSYS signal.  
+3. SECCOMP_RET_TRAP: Sends a SIGSYS signal to the process, allowing the kernel to pass metadata about the blocked call (like the system call number and address) to a signal handler.  
+4. SECCOMP_RET_ERRNO: Prevents execution of the system call and returns a predefined errno to the calling process.  
+5. SECCOMP_RET_USER_NOTIF:  Routes the system call to a user space notification handler, allowing external processes (like container managers) to decide how to handle the call.  
+6. SECCOMP_RET_TRACE: If a tracer is attached (via `ptrace`), the tracer is notified, giving it an opportunity to modify or skip the system call.  
+7. SECCOMP_RET_LOG: Logs the system call, then allows its execution. This is useful for development and debugging.  
+8. SECCOMP_RET_ALLOW:  Simply allows the system call to execute.
 
 Seccomp return values are defined in `include/linux/seccomp.h` Kernel source code as the following:
-```java
+```c
 #define SECCOMP_RET_KILL_PROCESS 0x80000000U /* kill the process */
 #define SECCOMP_RET_KILL_THREAD	 0x00000000U /* kill the thread */
 #define SECCOMP_RET_KILL	 SECCOMP_RET_KILL_THREAD
@@ -72,20 +69,19 @@ Seccomp return values are defined in `include/linux/seccomp.h` Kernel source cod
 
 ### BPF Macros
 
-Seccomp filters consist of a set of BPF macros. We will explain the most used ones:
-
-1- `BPF_STMT`(code, k): A macro used to define a basic cBPF instruction that does not involve conditional branching. The `code` parameter specifies the operation, and `k` is an immediate constant value used by the instruction.  
-2- `BPF_JUMP`(code, k, jt, jf): A macro to define a conditional jump instruction.  
+Seccomp filters consist of a set of BPF macros. We will explain the most used ones:  
+1. **BPF_STMT** (code, k): A macro used to define a basic cBPF instruction that does not involve conditional branching. The `code` parameter specifies the operation, and `k` is an immediate constant value used by the instruction.  
+2. **BPF_JUMP** (code, k, jt, jf): A macro to define a conditional jump instruction.  
     code: Specifies the jump operation along with condition flags.  
 	k: The constant value to compare against.  
 	jt (jump true): The number of instructions to skip if the condition is met.  
 	jf (jump false): The number of instructions to skip if the condition is not met.  
-3- `BPF_LD`: This flag indicates a load instruction, which reads data into the accumulator.  
-4- `BPF_W`: Specifies that the data to load is a word (typically 32 bits).  
-5- `BPF_ABS`: Instructs the load operation to use absolute addressing—that is, load data from a fixed offset within the data structure (in this case, the `seccomp_data` structure).  
-6- `BPF_K`: Denotes that the operand (`k`) is an immediate constant.  
-7- `BPF_JMP`: Indicates that the instruction is a jump (conditional or unconditional) type.  
-8- `BPF_JEQ`: A condition flag used with jump instructions that causes a jump if the accumulator equals the constant `k`.  
+3. **BPF_LD**: This flag indicates a load instruction, which reads data into the accumulator.  
+4. **BPF_W**: Specifies that the data to load is a word (typically 32 bits).  
+5. **BPF_ABS**: Instructs the load operation to use absolute addressing—that is, load data from a fixed offset within the data structure (in this case, the `seccomp_data` structure).  
+6. **BPF_K**: Denotes that the operand (`k`) is an immediate constant.  
+7. **BPF_JMP**: Indicates that the instruction is a jump (conditional or unconditional) type.  
+8. **BPF_JEQ**: A condition flag used with jump instructions that causes a jump if the accumulator equals the constant `k`.   
     
 
 Let's explore a simplified C code example demonstrating how to set up a seccomp filter to block `socket` syscall to prevent a process from initiating new network connections.
@@ -146,18 +142,18 @@ BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, nr)),
 - **BPF_LD:** Instructs the program to load data.
 - **BPF_W:** Specifies that a 32-bit word should be loaded.
 - **BPF_ABS:** Indicates that the data is located at an absolute offset from the beginning of the `seccomp_data` structure.
-- **`offsetof(struct seccomp_data, nr)`:** Computes the offset of the `nr` field (which holds the system call number) within the `seccomp_data` structure.
+- **offsetof(struct seccomp_data, nr)**: Computes the offset of the `nr` field (which holds the system call number) within the `seccomp_data` structure.
 
 Second, compare the syscall Number with `socket`. If the syscall is `socket`, the next instruction (which blocks the syscall) is executed. Otherwise,  the filter skips over the block action and moves on.
 ```c
 BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, SYSCALL_SOCKET, 0, 1),
 ```
-- **BPF_JMP:** Specifies that this is a jump instruction.
-- **BPF_JEQ:** Adds the condition "jump if equal" to the operation.
-- **BPF_K:** Indicates that the comparison value is an immediate constant.
-- **`SYSCALL_SOCKET`:** The constant to compare against (i.e., the syscall number for `socket`).
-- **`0`:** If the condition is true (the syscall number equals `SYSCALL_SOCKET`), do not skip any instructions (i.e., continue with the next instruction).
-- **`1`:** If the condition is false (the syscall number does not equal `SYSCALL_SOCKET`), skip one instruction.
+- **BPF_JMP**: Specifies that this is a jump instruction.
+- **BPF_JEQ**: Adds the condition "jump if equal" to the operation.
+- **BPF_K**: Indicates that the comparison value is an immediate constant.
+- **SYSCALL_SOCKET**: The constant to compare against (i.e., the syscall number for `socket`).
+    - **0**: If the condition is true (the syscall number equals `SYSCALL_SOCKET`), do not skip any instructions (i.e., continue with the next instruction).
+    - **1**: If the condition is false (the syscall number does not equal `SYSCALL_SOCKET`), skip one instruction.
 
 Third, Block the socket() syscall and return error code (e.g., EPERM).
 ```c
@@ -421,7 +417,9 @@ int main(int argc, char *argv[]) {
 }
 
 ```
+
 Compile it `gcc -O2 -Wall seccomp.c -o seccomp`, then `chmod +x seccomp` and finally `./seccomp ./syscalls` and choose 3
+
 ```sh
 Syscall Menu:
 1. Execve /usr/bin/ls
@@ -447,6 +445,7 @@ Segmentation fault (core dumped)
 ```
 
 Notice that we have `Segmentation fault (core dumped)` . Simply because we have a blocked a syscall `exit_group` , run `strace ./seccomp ./syscalls` then choose 3:
+
 ```sh
 [...]
 fstat(0, {st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0x2), ...}) = 0
@@ -462,7 +461,9 @@ exit_group(0)                           = -1 EPERM (Operation not permitted)
 +++ killed by SIGSEGV (core dumped) +++
 Segmentation fault (core dumped)
 ```
+
 We need to whitelist `exit_group` too in our code. Strace couldn't record `exit_group` syscall first because syscall such as `exit_group` syscall terminates the process immediately, so there’s no “return” value for strace to capture. Fixing our code is just by adding `exit_group` to the whitelist:
+
 ```c
 #include <stdio.h>
 #include <stdlib.h>

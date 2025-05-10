@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="bpf_send_signal">
   <meta itemprop="description" content="Helper that can raise signals in misbehaving tasks from inside BPF code.">
-  <meta itemprop="wordCount" content="741">
+  <meta itemprop="wordCount" content="740">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="bpf_send_signal">
   <meta name="twitter:description" content="Helper that can raise signals in misbehaving tasks from inside BPF code.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -372,8 +372,11 @@
 </span></span><span style="display:flex;"><span>  <span style="color:#000;font-weight:bold">;</span> <span style="color:#000">Child</span> <span style="color:#000">process</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#000">xor</span> <span style="color:#000">eax</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">eax</span>
 </span></span><span style="display:flex;"><span>  <span style="color:#000">ret</span>
-</span></span></code></pre></div><p>First, we compile it using <code>nasm -f elf64 -o privilege_escalation.o privilege_escalation.asm</code> , then link it <code>ld -o privilege_escalation privilege_escalation.o</code></p>
-<p>We build an eBPF program that uses <code>bpf_send_signal</code> to monitor for a suspicious sequence of syscalls. If the program detects that a process has <code>forked</code>, then called <code>setuid(0)</code>, and finally executed <code>execve</code> to run <code>/bin/bash</code> (spawning a root shell), it will immediately fire a signal to terminate that process.</p>
+</span></span></code></pre></div><p>First, we compile it using</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>nasm -f elf64 -o privilege_escalation.o privilege_escalation.asm
+</span></span></code></pre></div><p>Then link it</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>ld -o privilege_escalation privilege_escalation.o<span style="color:#4e9a06">`</span>
+</span></span></code></pre></div><p>We build an eBPF program that uses <code>bpf_send_signal</code> to monitor for a suspicious sequence of syscalls. If the program detects that a process has <code>forked</code>, then called <code>setuid(0)</code>, and finally executed <code>execve</code> to run <code>/bin/bash</code> (spawning a root shell), it will immediately fire a signal to terminate that process.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;vmlinux.h&#34;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_helpers.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_core_read.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -391,6 +394,8 @@
 </span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">u32</span><span style="color:#000;font-weight:bold">);</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000">__type</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">u8</span><span style="color:#000;font-weight:bold">);</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span> <span style="color:#000">setuid</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;.maps&#34;</span><span style="color:#000;font-weight:bold">);</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">LICENSE</span><span style="color:#000;font-weight:bold">[]</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;license&#34;</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;GPL&#34;</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;tracepoint/syscalls/sys_enter_fork&#34;</span><span style="color:#000;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">trace_fork</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">trace_event_raw_sys_enter</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">)</span>
@@ -429,8 +434,6 @@
 </span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">LICENSE</span><span style="color:#000;font-weight:bold">[]</span> <span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;license&#34;</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#4e9a06">&#34;GPL&#34;</span><span style="color:#000;font-weight:bold">;</span>
 </span></span></code></pre></div><p><code>sudo ./privilege_escalation</code></p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>priv-3654 <span style="color:#ce5c00;font-weight:bold">[</span>...<span style="color:#ce5c00;font-weight:bold">]</span> Fork detected: PID <span style="color:#0000cf;font-weight:bold">3654</span>
 </span></span><span style="display:flex;"><span>priv-3654 <span style="color:#ce5c00;font-weight:bold">[</span>...<span style="color:#ce5c00;font-weight:bold">]</span> Setuid detected: PID <span style="color:#0000cf;font-weight:bold">3654</span>

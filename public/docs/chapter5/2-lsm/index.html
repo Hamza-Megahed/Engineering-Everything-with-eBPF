@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -226,7 +226,18 @@
 
 </div>
 
-            
+            <div class="td-toc">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#lsm-with-ebpf-hooks">LSM with eBPF Hooks</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </div>
+    
             
 	
           </aside>
@@ -252,7 +263,7 @@
 		
   </header>
 	<p>LSM is a framework built into the Linux kernel that provides a set of hooks—well-defined points in the kernel code—where security modules can enforce access control and other security policies. These hooks are statically integrated into the kernel, meaning that a given security module (such as SELinux, AppArmor, or Smack) is selected at build or boot time via configuration options. Once active, the LSM framework directs security-relevant decisions (like permission checks, file access, or process operations) through these hooks so that the chosen security policy is applied consistently throughout the system.</p>
-<p><strong>LSM with eBPF Hooks:</strong></p>
+<h3 id="lsm-with-ebpf-hooks">LSM with eBPF Hooks<a class="td-heading-self-link" href="#lsm-with-ebpf-hooks" aria-label="Heading self-link"></a></h3>
 <p>Traditionally, LSM hooks require the security policy to be built into the kernel, and modifying policies often involves a kernel rebuild or reboot. With the rise of eBPF, it is now possible to attach eBPF programs to certain LSM hooks dynamically starting from kernel version 5.7. This modern approach allows for:</p>
 <ul>
 <li><strong>Dynamic Policy Updates:</strong> eBPF programs can be loaded, updated, or removed at runtime without rebooting the system.</li>
@@ -272,36 +283,38 @@
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">LSM_HOOK</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">path_chmod</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">path</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">path</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">umode_t</span> <span style="color:#000">mode</span><span style="color:#000;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span><span style="color:#000">LSM_HOOK</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">path_chown</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">path</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">path</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">kuid_t</span> <span style="color:#000">uid</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">kgid_t</span> <span style="color:#000">gid</span><span style="color:#000;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span><span style="color:#000">LSM_HOOK</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">path_chroot</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">path</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">path</span><span style="color:#000;font-weight:bold">)</span>
-</span></span></code></pre></div><p>LSM hooks documentation is located at <a href="https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/include/linux/lsm_hooks.h">https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/include/linux/lsm_hooks.h</a> which has descriptive documentation for most of LSM hooks such as:</p>
-<pre tabindex="0"><code> * @path_chmod:
- *	  Check for permission to change a mode of the file @path. The new
- *	  mode is specified in @mode.
- *	  @path contains the path structure of the file to change the mode.
- *	  @mode contains the new DAC&#39;s permission, which is a bitmask of
- *	  constants from &lt;include/uapi/linux/stat.h&gt;.
- *	  Return 0 if permission is granted.
- 
- * @path_chown:
- *	  Check for permission to change owner/group of a file or directory.
- *	  @path contains the path structure.
- *	  @uid contains new owner&#39;s ID.
- *	  @gid contains new group&#39;s ID.
- *	  Return 0 if permission is granted.
-
- * @path_chroot:
- *	  Check for permission to change root directory.
- *	  @path contains the path structure.
- *	  Return 0 if permission is granted.
-</code></pre><p>Let&rsquo;s explore LSM with <code>path_mkdir</code> LSM hook which described as the following:</p>
-<pre tabindex="0"><code> * @path_mkdir:
- *	  Check permissions to create a new directory in the existing directory
- *	  associated with path structure @path.
- *	  @dir contains the path structure of parent of the directory
- *	  to be created.
- *	  @dentry contains the dentry structure of new directory.
- *	  @mode contains the mode of new directory.
- *	  Return 0 if permission is granted.
-</code></pre><p><code>path_mkdir</code> is defined in LSM as the following:</p>
+</span></span></code></pre></div><p>LSM hooks documentation is located at</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/include/linux/lsm_hooks.h 
+</span></span></code></pre></div><p>which has descriptive documentation for most of LSM hooks such as:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span> * @path_chmod:
+</span></span><span style="display:flex;"><span> *	  Check for permission to change a mode of the file @path. The new
+</span></span><span style="display:flex;"><span> *	  mode is specified in @mode.
+</span></span><span style="display:flex;"><span> *	  @path contains the path structure of the file to change the mode.
+</span></span><span style="display:flex;"><span> *	  @mode contains the new DAC&#39;s permission, which is a bitmask of
+</span></span><span style="display:flex;"><span> *	  constants from <span style="color:#000;font-weight:bold">&lt;</span><span style="color:#204a87;font-weight:bold">include</span><span style="color:#a40000">/</span><span style="color:#c4a000">uapi</span><span style="color:#a40000">/</span><span style="color:#c4a000">linux</span><span style="color:#a40000">/</span><span style="color:#c4a000">stat</span><span style="color:#a40000">.</span><span style="color:#c4a000">h</span><span style="color:#000;font-weight:bold">&gt;</span>.
+</span></span><span style="display:flex;"><span> *	  Return 0 if permission is granted.
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> * @path_chown:
+</span></span><span style="display:flex;"><span> *	  Check for permission to change owner/group of a file or directory.
+</span></span><span style="display:flex;"><span> *	  @path contains the path structure.
+</span></span><span style="display:flex;"><span> *	  @uid contains new owner&#39;s ID.
+</span></span><span style="display:flex;"><span> *	  @gid contains new group&#39;s ID.
+</span></span><span style="display:flex;"><span> *	  Return 0 if permission is granted.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> * @path_chroot:
+</span></span><span style="display:flex;"><span> *	  Check for permission to change root directory.
+</span></span><span style="display:flex;"><span> *	  @path contains the path structure.
+</span></span><span style="display:flex;"><span> *	  Return 0 if permission is granted.
+</span></span></code></pre></div><p>Let&rsquo;s explore LSM with <code>path_mkdir</code> LSM hook which described as the following:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span> * @path_mkdir:
+</span></span><span style="display:flex;"><span> *	  Check permissions to create a new directory in the existing directory
+</span></span><span style="display:flex;"><span> *	  associated with path structure @path.
+</span></span><span style="display:flex;"><span> *	  @dir contains the path structure of parent of the directory
+</span></span><span style="display:flex;"><span> *	  to be created.
+</span></span><span style="display:flex;"><span> *	  @dentry contains the dentry structure of new directory.
+</span></span><span style="display:flex;"><span> *	  @mode contains the mode of new directory.
+</span></span><span style="display:flex;"><span> *	  Return 0 if permission is granted.
+</span></span></code></pre></div><p><code>path_mkdir</code> is defined in LSM as the following:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">LSM_HOOK</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">path_mkdir</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">path</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dir</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">dentry</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dentry</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">umode_t</span> <span style="color:#000">mode</span><span style="color:#000;font-weight:bold">)</span>
 </span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;vmlinux.h&#34;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf_core_read.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -387,24 +400,24 @@
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">len</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
 </span></span></code></pre></div><p>There is a comment in the source code very descriptive about this kernel function which says:</p>
-<pre tabindex="0"><code> * bpf_path_d_path - resolve the pathname for the supplied path
- * @path: path to resolve the pathname for
- * @buf: buffer to return the resolved pathname in
- * @buf__sz: length of the supplied buffer
- *
- * Resolve the pathname for the supplied *path* and store it in *buf*. This BPF
- * kfunc is the safer variant of the legacy bpf_d_path() helper and should be
- * used in place of bpf_d_path() whenever possible. It enforces KF_TRUSTED_ARGS
- * semantics, meaning that the supplied *path* must itself hold a valid
- * reference, or else the BPF program will be outright rejected by the BPF
- * verifier.
- *
- * This BPF kfunc may only be called from BPF LSM programs.
- *
- * Return: A positive integer corresponding to the length of the resolved
- * pathname in *buf*, including the NUL termination character. On error, a
- * negative integer is returned.
-</code></pre><p><code>bpf_get_current_uid_gid</code> helper function to get the current UID and GID.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span> * bpf_path_d_path - resolve the pathname for the supplied path
+</span></span><span style="display:flex;"><span> * @path: path to resolve the pathname for
+</span></span><span style="display:flex;"><span> * @buf: buffer to return the resolved pathname in
+</span></span><span style="display:flex;"><span> * @buf__sz: length of the supplied buffer
+</span></span><span style="display:flex;"><span> *
+</span></span><span style="display:flex;"><span> * Resolve the pathname for the supplied *path* and store it in *buf*. This BPF
+</span></span><span style="display:flex;"><span> * kfunc is the safer variant of the legacy bpf_d_path() helper and should be
+</span></span><span style="display:flex;"><span> * used in place of bpf_d_path() whenever possible. It enforces KF_TRUSTED_ARGS
+</span></span><span style="display:flex;"><span> * semantics, meaning that the supplied *path* must itself hold a valid
+</span></span><span style="display:flex;"><span> * reference, or else the BPF program will be outright rejected by the BPF
+</span></span><span style="display:flex;"><span> * verifier.
+</span></span><span style="display:flex;"><span> *
+</span></span><span style="display:flex;"><span> * This BPF kfunc may only be called from BPF LSM programs.
+</span></span><span style="display:flex;"><span> *
+</span></span><span style="display:flex;"><span> * Return: A positive integer corresponding to the length of the resolved
+</span></span><span style="display:flex;"><span> * pathname in *buf*, including the NUL termination character. On error, a
+</span></span><span style="display:flex;"><span> * negative integer is returned.
+</span></span></code></pre></div><p><code>bpf_get_current_uid_gid</code> helper function to get the current UID and GID.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>    <span style="color:#000">u64</span> <span style="color:#000">uid_gid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">bpf_get_current_uid_gid</span><span style="color:#000;font-weight:bold">();</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">u32</span> <span style="color:#000">uid</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">u32</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000">uid_gid</span><span style="color:#000;font-weight:bold">;</span> <span style="color:#8f5902;font-style:italic">// the lower 32 bits are the UID
 </span></span></span></code></pre></div><p>The user-space code is like the following:</p>
@@ -426,7 +439,7 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">libbpf_set_print</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">libbpf_print_fn</span><span style="color:#000;font-weight:bold">);</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>	<span style="color:#000">skel</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">x__open</span><span style="color:#000;font-weight:bold">();</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#000">skel</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000">lsm_mkdir__open</span><span style="color:#000;font-weight:bold">();</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">!</span><span style="color:#000">skel</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>		<span style="color:#000">fprintf</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">stderr</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#4e9a06">&#34;Failed to open BPF skeleton</span><span style="color:#4e9a06">\n</span><span style="color:#4e9a06">&#34;</span><span style="color:#000;font-weight:bold">);</span>
 </span></span><span style="display:flex;"><span>		<span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>

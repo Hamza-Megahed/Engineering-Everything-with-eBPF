@@ -12,14 +12,14 @@ Prior to BPF, packet capturing was inefficient due to the need for constant cont
 
 ### Classic BPF and Its Limitations
 
-Classic BPF, often referred to as "cBPF," worked by allowing users to write simple programs to filter network traffic based on specific patterns. These programs were expressed as sequences of low-level instructions that the BPF virtual machine (VM) running in the kernel could interpret and execute. The most notable tool that leveraged cBPF was `tcpdump`, which allowed network administrators to capture and analyze network packets effectively.
+Classic BPF, often referred to as **cBPF** worked by allowing users to write simple programs to filter network traffic based on specific patterns. These programs were expressed as sequences of low-level instructions that the BPF virtual machine (VM) running in the kernel could interpret and execute. The most notable tool that leveraged cBPF was `tcpdump`, which allowed network administrators to capture and analyze network packets effectively.
 
 Despite its efficiency, cBPF had several limitations:
 
-1. **Limited Instruction Set**: The instruction set of classic BPF was restricted to basic filtering operations, making it unsuitable for more complex use cases.
-2. **Single-Purpose**: cBPF was designed primarily for packet filtering. It lacked the flexibility to perform tasks beyond network monitoring.
-3. **32-bit Architecture**: Classic BPF programs operated on 32-bit registers, which limited performance and data processing capabilities.
-4. **Lack of Extensibility**: There was no straightforward way to extend the functionality of cBPF beyond packet filtering.
+1. Limited Instruction Set: The instruction set of classic BPF was restricted to basic filtering operations, making it unsuitable for more complex use cases.
+2. Single-Purpose: cBPF was designed primarily for packet filtering. It lacked the flexibility to perform tasks beyond network monitoring.
+3. 32-bit Architecture: Classic BPF programs operated on 32-bit registers, which limited performance and data processing capabilities.
+4. Lack of Extensibility: There was no straightforward way to extend the functionality of cBPF beyond packet filtering.
 
 ### Integration of BPF into the Linux Kernel
 
@@ -31,11 +31,11 @@ However, as system and network performance demands grew, the limitations of clas
 
 In 2014, the Linux kernel version 3.18 introduced "extended BPF" (eBPF). eBPF was a significant enhancement over classic BPF, providing a modern, flexible, and powerful framework for executing user-defined programs within the kernel. The key improvements introduced by eBPF include:
 
-1. **64-bit Registers**: eBPF uses a 64-bit architecture, which improves performance and data-handling capabilities.
-2. **General-Purpose**: eBPF is no longer limited to packet filtering; it can be used for various tasks, including tracing, performance monitoring, security enforcement, and more.
-3. **Extensible and Safe**: eBPF programs are verified by an in-kernel verifier to ensure safety, preventing programs from crashing the kernel or causing security vulnerabilities.
-4. **Just-In-Time (JIT) Compilation**: eBPF programs can be compiled into native machine code at runtime, which significantly improves execution speed.
-5. **Maps and Helpers**: eBPF supports maps (key-value storage) and helper functions that provide interaction between eBPF programs and the kernel.
+1. 64-bit Registers: eBPF uses a 64-bit architecture, which improves performance and data-handling capabilities.
+2. General-Purpose: eBPF is no longer limited to packet filtering; it can be used for various tasks, including tracing, performance monitoring, security enforcement, and more.
+3. Extensible and Safe: eBPF programs are verified by an in-kernel verifier to ensure safety, preventing programs from crashing the kernel or causing security vulnerabilities.
+4. Just-In-Time (JIT) Compilation: eBPF programs can be compiled into native machine code at runtime, which significantly improves execution speed.
+5. Maps and Helpers: eBPF supports maps (key-value storage) and helper functions that provide interaction between eBPF programs and the kernel.
 
 Since its introduction, eBPF has evolved rapidly, with continuous enhancements to its feature set and performance. Projects like `bcc` (BPF Compiler Collection), `bpftool`, and `libbpf` have made writing and deploying eBPF programs more accessible. eBPF is now used extensively for networking, observability, and security tasks in major projects like Cilium, Falco, and the Kubernetes ecosystem.
 
@@ -63,7 +63,7 @@ tcpdump -i eth0 -d 'ip and tcp port 80 tcp port 80'
 
 The output might look like this:
 
-```
+```bash
 (000) ldh      [12]
 (001) jeq      #0x800           jt 2    jf 12
 (002) ldb      [23]
@@ -129,7 +129,7 @@ As mentioned, Berkeley Packet Filter (BPF) was originally developed to filter ne
 The following 6 points explores the key differences between eBPF and classic BPF, based on Kernel Documentation https://docs.kernel.org/bpf/classic_vs_extended.html.
 
 
-**1. Use Cases**
+#### Use Cases
 
 **Classic BPF** is primarily used for packet filtering. Its primary use case is in network monitoring tools like `tcpdump`, where it allows users to specify packet filtering rules directly within the kernel.
 
@@ -140,9 +140,8 @@ eBPF, however, has vastly expanded use cases. eBPF is used in:
 - **Security**: Tools like seccomp (Secure Computing Mode) use eBPF to filter system calls, enforcing security policies directly at the kernel level.
 - **Tracing**: Tracing the execution of kernel functions and user programs, providing insights into system behavior.
 
----
 
-**2. Instruction Set and Operations**
+#### Instruction Set and Operations
 
 Classic BPF has a very limited instruction set, primarily designed for basic operations like loading data, performing simple arithmetic, jumping, and returning values.
 
@@ -155,21 +154,21 @@ eBPF, in contrast, expands the instruction set significantly. It introduces new 
 Additionally, eBPF supports 64-bit operations (via `BPF_ALU64`) and atomic operations like BPF_XADD, enabling more sophisticated processing directly in the kernel.
 
 
-**3. Registers and Data Handling**
+#### Registers and Data Handling
 
 Classic BPF only has two registers (A and X), with limited memory and stack space. The operations on data are simple and restricted to 32-bit width, and these registers are manipulated with specific instructions that limit flexibility.
 
 eBPF greatly improves on this by expanding the number of registers from 2 to 10. eBPF's calling conventions are designed for high efficiency, utilizing registers (R1-R5) to pass arguments directly into the kernel functions. After the function call, registers R1-R5 are reset, and R0 holds the return value.This allows for more complex operations and handling of more data. Registers in eBPF are also 64-bit wide, which enables direct mapping to hardware registers on modern 64-bit processors. This wider register set and the introduction of a read-only frame pointer (R10) allow eBPF to handle more complex operations like function calls with multiple arguments and results.
 
 
-**4. JIT Compilation and Performance**
+#### JIT Compilation and Performance
 
 Classic BPF is interpreted by the kernel, This means the kernel would read and execute each instruction one by one which adds overhead to the execution of each instruction. This can be a limiting factor when performing more complex operations or filtering on high-throughput systems.
 
 eBPF is designed with Just-In-Time (JIT) compilation in mind, meaning that eBPF programs can be translated into optimized native machine code at runtime. The JIT compiler can convert eBPF bytecode to highly efficient machine instructions, reducing the overhead significantly. This allows eBPF programs to perform at speeds comparable to native code execution, even for complex tasks like system call filtering and network traffic analysis.
 
 
-**5. Safety and Verifier**
+#### Safety and Verifier
 
 Classic BPF uses a simple verifier that checks for program safety by ensuring there are no errors like out-of-bounds memory access.
 
@@ -182,7 +181,7 @@ eBPF, on the other hand, includes a more sophisticated verifier that ensures the
 This makes eBPF programs much safer, even when they are running with elevated privileges or performing sensitive tasks in the kernel.
 
 
-**6. Program Size and Restrictions**
+#### Program Size and Restrictions
 
 Classic BPF: The original BPF format had a program size limit of 4096 instructions, and programs had to be very efficient to avoid exceeding this limit. The limited number of registers and operations meant that programs were usually simple and short.
 

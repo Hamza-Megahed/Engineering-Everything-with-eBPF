@@ -8,7 +8,7 @@ Traffic Control subsystem is designed to schedule packets using a queuing system
 The core of traffic control is built around qdiscs which stands for queuing disciplines, qdiscs define the rules for how packets are handled by a queuing system. There are two types of qdiscs, classful and classless. classful qdiscs enable the creation of hierarchical queuing structures to facilitates the implementation of complex traffic management policies. 
 Classful qdiscs consist of two parts, filters and classes. The best definition is in the man page which says the following:
 
-```
+```html
 Queueing Discipline:
 qdisc is short for 'queueing discipline' and it is elementary to understanding traffic control. Whenever the Kernel needs to send a packet to an interface, it is enqueued to the qdisc configured for that interface. Immediately afterwards, the Kernel tries to get as many packets as possible from the qdisc, for giving them to the network adaptor driver.
 
@@ -60,8 +60,9 @@ Actions and their corresponding values are defined in `include/uapi/linux/pkt_cl
 #define TC_ACT_TRAP		      8
 ```
 
-Actions and direct-action are defined in `https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_SCHED_CLS/#direct-action` which stated as the following:
-```
+Actions and direct-action are defined in  
+https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_SCHED_CLS/#direct-action which stated as the following:
+```html
 Direct action
 
 When attached in direct action mode, the eBPF program will act as both a classifier and an action. This mode simplifies setups for the most common use cases where we just want to always execute an action. In direct action mode the return value can be one of:
@@ -230,7 +231,8 @@ The steps are as follows:
 2. Calculate the TCP header length to determine the exact offset of the payload.
 3. Read the first 4 bytes of the payload.
 4. Replace these 4 bytes with 'XXXX' using the `bpf_skb_store_bytes` helper function.
-5. Recalculate the checksum using the `bpf_l4_csum_replace` helper function.
+5. Recalculate the checksum using the `bpf_l4_csum_replace` helper function.  
+
 `bpf_skb_store_bytes` helper function has the following prototype:
 ```c
 static long (* const bpf_skb_store_bytes)(struct __sk_buff *skb, __u32 offset, const void *from, __u32 len, __u64 flags) = (void *) 9;

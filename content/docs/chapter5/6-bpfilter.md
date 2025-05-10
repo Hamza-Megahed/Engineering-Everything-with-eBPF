@@ -4,10 +4,8 @@ description: A work-in-progress kernel module that translates iptables and nftab
 weight: 7
 ---
 
-bpfilter is a eBPF-based packet filtering currently maintained by meta, designed to replace or complement traditional packet filtering systems such as netfilter/iptables. It leverages the power of eBPF programs to implement filtering directly in the kernel. bpfilter is part of a broader shift towards eBPF-driven networking, moving away from older, monolithic approaches with minimal overhead.
-
-bpfilter consists of two parts: daemon and front-ends. Font-end such as `bfcli` which receives firewall rules from administrators and send them to the daemon (`bpfilter`). `bpfilter` daemon parses the ruleset whether provided directly as a string or loaded from a file and then translates these high-level rules into eBPF bytecode that can be executed in the kernel.
-
+bpfilter is a eBPF-based packet filtering currently maintained by meta, designed to replace or complement traditional packet filtering systems such as netfilter/iptables. It leverages the power of eBPF programs to implement filtering directly in the kernel. bpfilter is part of a broader shift towards eBPF-driven networking, moving away from older, monolithic approaches with minimal overhead.  
+bpfilter consists of two parts: daemon and front-ends. Font-end such as `bfcli` which receives firewall rules from administrators and send them to the daemon (`bpfilter`). `bpfilter` daemon parses the ruleset whether provided directly as a string or loaded from a file and then translates these high-level rules into eBPF bytecode that can be executed in the kernel.  
 bpfilter attaches the generated eBPF programs to specific kernel hooks such as XDP, TC (Traffic Control), or netfilter hooks (like NF_PRE_ROUTING, NF_LOCAL_IN, etc.). Each hook corresponds to a different stage in the packet processing pipeline, allowing bpfilter to intercept packets as early or as late as necessary.
 <p style="text-align: center;">
   <img src="/images/docs/chapter5/bpfilter-Architecture.png" alt="Centered image" />
@@ -33,10 +31,9 @@ export BUILD_DIR=$SOURCES_DIR/build
 cmake -S $SOURCES_DIR -B $BUILD_DIR
 make -C $BUILD_DIR
 ```
-{{< alert title="Note" >}}bpfilter can use custom version `iptables` and `nftables` and supply your rules in either `iptables` syntax or `nftables` syntax such dropping incoming ICMP with `iptables` using `--bpf` flag as the following:
-```sh
-sudo ./iptables --bpf -D INPUT -p icmp -j DROP
-```
+{{< alert title="Note" >}}bpfilter can use custom version `iptables` and `nftables` and supply your rules in either `iptables` syntax or `nftables` syntax such dropping incoming ICMP with `iptables` using `--bpf` flag as the following:  
+`sudo ./iptables --bpf -D INPUT -p icmp -j DROP`
+
 {{< /alert >}}
 
 
@@ -83,10 +80,9 @@ BF_HOOK_NF_POST_ROUTING: similar to nftables and iptables postrouting hook.
 BF_HOOK_TC_EGRESS: egress TC hook.
 ```
 
-**$POLICY:** The default action (typically ACCEPT or DROP) applied to packets that do not match any rule in the chain.
-
-**Rule**: Each rule under the chain consists of one or more **matchers** followed by a **verdict**.
-**$MATCHER:** A condition (or multiple conditions) that compares parts of the packet. For example, checking the protocol or matching an IP address.
+**$POLICY:** The default action (typically ACCEPT or DROP) applied to packets that do not match any rule in the chain.  
+**Rule**: Each rule under the chain consists of one or more **matchers** followed by a **verdict**.  
+**$MATCHER:** A condition (or multiple conditions) that compares parts of the packet. For example, checking the protocol or matching an IP address.  
  **$VERDICT:** The action to take if the matchers are true. Common verdicts are:
 - **ACCEPT:** Let the packet continue through the network stack.
 - **DROP:** Discard the packet.
@@ -94,7 +90,7 @@ BF_HOOK_TC_EGRESS: egress TC hook.
 
 The following tables are from the bpfilter documentation and they contain detailed information about the various matchers used in bpfilter for filtering network traffic. Each table lists the matcher name (the field of the packet), its corresponding type in bpfilter (for example, `udp.sport` or `tcp.sport`), the operator used for comparison (such as `eq`, `not`, or `range`), the payload (the value or range to compare against), and additional notes that explain usage constraints or default behaviors.
 
-**Meta matchers**
+### Meta matchers
 
 | Matches          | Type            | Operator | Payload       | Notes                                                                                                                                                             |
 | ---------------- | --------------- | -------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -109,7 +105,7 @@ The following tables are from the bpfilter documentation and they contain detail
 | Destination port | `meta.dport`    | range    | `$START-$END` | `$START` and `$END` are valid port values, as decimal integers.                                                                                                   |
 
 
-**IPv4 matchers**
+### IPv4 matchers
 
 | Matches             | Type         | Operator | Payload         | Notes                                                                       |
 |---------------------|--------------|----------|-----------------|-----------------------------------------------------------------------------|
@@ -121,7 +117,7 @@ The following tables are from the bpfilter documentation and they contain detail
 | Destination address | `ip4.daddr`  | in       | `{$IP[,...]}`   | Only support `/32` mask.                                                    |
 | Protocol            | `ip4.proto`  | eq       | `$PROTOCOL`     | Only `icmp` is supported for now, more protocols will be added.             |
 
-**IPv6 matchers**
+### IPv6 matchers
 
 | Matches              | Type         | Operator | Payload       | Notes                                                       |
 |----------------------|--------------|----------|---------------|-------------------------------------------------------------|
@@ -130,7 +126,7 @@ The following tables are from the bpfilter documentation and they contain detail
 | Destination address  | `ip6.daddr`  | eq       | `$IP/$PREFIX` | `/$PREFIX` is optional, `/128` is used by default.           |
 | Destination address  | `ip6.daddr`  | not      | `$IP/$PREFIX` | `/$PREFIX` is optional, `/128` is used by default.           |
 
-**TCP matchers**
+### TCP matchers
 
 | Matches          | Type         | Operator | Payload        | Notes                                                                                                                      |
 |------------------|--------------|----------|----------------|----------------------------------------------------------------------------------------------------------------------------|
@@ -145,7 +141,7 @@ The following tables are from the bpfilter documentation and they contain detail
 | Flags            | `tcp.flags`  | any      | `$FLAGS`       | `$FLAGS` is a comma-separated list of capitalized TCP flags (`FIN`, `RST`, `ACK`, `ECE`, `SYN`, `PSH`, `URG`, `CWR`).       |
 | Flags            | `tcp.flags`  | all      | `$FLAGS`       | `$FLAGS` is a comma-separated list of capitalized TCP flags (`FIN`, `RST`, `ACK`, `ECE`, `SYN`, `PSH`, `URG`, `CWR`).       |
 
-**UDP matchers**
+### UDP matchers
 
 | Matches          | Type        | Operator | Payload       | Notes                                                           |
 | ---------------- | ----------- | -------- | ------------- | --------------------------------------------------------------- |

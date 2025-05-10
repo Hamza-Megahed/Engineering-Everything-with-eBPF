@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="eBPF Map Operations">
   <meta itemprop="description" content="Create read update delete batch pin freeze everything you need to manage maps.">
-  <meta itemprop="wordCount" content="5778">
+  <meta itemprop="wordCount" content="5781">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="eBPF Map Operations">
   <meta name="twitter:description" content="Create read update delete batch pin freeze everything you need to manage maps.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -230,17 +230,72 @@
         <nav id="TableOfContents">
   <ul>
     <li><a href="#ebpf-map-operations-overview">eBPF Map Operations Overview</a></li>
-    <li><a href="#1-map-update-element">1. Map Update Element</a></li>
-    <li><a href="#2-map-lookup-element">2. Map Lookup Element</a></li>
-    <li><a href="#3-map-delete-element">3. Map Delete Element</a></li>
-    <li><a href="#4-map-lookup-and-delete-element">4. Map Lookup and Delete Element</a></li>
-    <li><a href="#5-get-next-key">5. Get Next Key</a></li>
-    <li><a href="#6-map-lookup-batch">6. Map Lookup Batch</a></li>
-    <li><a href="#7-map-update-batch">7. Map Update Batch</a></li>
-    <li><a href="#8-map-delete-batch">8. Map Delete Batch</a></li>
-    <li><a href="#9-map-freeze">9. Map Freeze</a></li>
-    <li><a href="#10-object-pin">10. Object Pin</a></li>
-    <li><a href="#11-object-get">11. Object Get</a></li>
+    <li><a href="#1-map-update-element">1. Map Update Element</a>
+      <ul>
+        <li><a href="#user-space-code">User-Space code</a></li>
+        <li><a href="#kernel-space-code">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#2-map-lookup-element">2. Map Lookup Element</a>
+      <ul>
+        <li><a href="#user-space-code-1">User-Space code</a></li>
+        <li><a href="#kernel-space-code-1">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-map-delete-element">3. Map Delete Element</a>
+      <ul>
+        <li><a href="#user-space-code-2">User-Space code</a></li>
+        <li><a href="#kernel-space-code-2">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#4-map-lookup-and-delete-element">4. Map Lookup and Delete Element</a>
+      <ul>
+        <li><a href="#user-space-code-3">User-Space code</a></li>
+        <li><a href="#kernel-space-code-3">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#5-get-next-key">5. Get Next Key</a>
+      <ul>
+        <li><a href="#user-space-code-4">User-Space code</a></li>
+        <li><a href="#kernel-space-code-4">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#6-map-lookup-batch">6. Map Lookup Batch</a>
+      <ul>
+        <li><a href="#user-space-code-5">User-Space code</a></li>
+        <li><a href="#kernel-space-code-5">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#7-map-update-batch">7. Map Update Batch</a>
+      <ul>
+        <li><a href="#user-space-code-6">User-Space code</a></li>
+        <li><a href="#kernel-space-code-6">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#8-map-delete-batch">8. Map Delete Batch</a>
+      <ul>
+        <li><a href="#user-space-code-7">User-Space code</a></li>
+        <li><a href="#kernel-space-code-7">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#9-map-freeze">9. Map Freeze</a>
+      <ul>
+        <li><a href="#user-space-code-8">User-Space code</a></li>
+        <li><a href="#kernel-space-code-8">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#10-object-pin">10. Object Pin</a>
+      <ul>
+        <li><a href="#user-space-code-9">User-Space code</a></li>
+        <li><a href="#kernel-space-code-9">Kernel-Space code</a></li>
+      </ul>
+    </li>
+    <li><a href="#11-object-get">11. Object Get</a>
+      <ul>
+        <li><a href="#user-space-code-10">User-Space code</a></li>
+        <li><a href="#kernel-space-code-10">Kernel-Space code</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
       </div>
@@ -272,18 +327,18 @@
 	<h2 id="ebpf-map-operations-overview">eBPF Map Operations Overview<a class="td-heading-self-link" href="#ebpf-map-operations-overview" aria-label="Heading self-link"></a></h2>
 <p>eBPF map operations are a set of functions defined in the Linux kernel that allow interaction with eBPF maps. These operations enable reading, writing, deleting, and managing data within the maps. The operations are part of the <code>bpf_cmd</code> defined in the kernel source file <code>/include/uapi/linux/bpf.h</code>. Some commonly used operations include:</p>
 <ul>
-<li><strong><code>BPF_MAP_CREATE</code></strong>: Creates a new eBPF map. This operation sets up a map.</li>
-<li><strong><code>BPF_MAP_UPDATE_ELEM</code></strong>: Inserts or updates a key-value pair.</li>
-<li><strong><code>BPF_MAP_LOOKUP_ELEM</code></strong>: Retrieves the value associated with a given key.</li>
-<li><strong><code>BPF_MAP_DELETE_ELEM</code></strong>: Deletes a key-value pair by its key.</li>
-<li><strong><code>BPF_MAP_LOOKUP_AND_DELETE_ELEM</code></strong>: Retrieves a value by key and deletes the entry in one step.</li>
-<li><strong><code>BPF_MAP_GET_NEXT_KEY</code></strong>: Iterates through the keys in the map.</li>
-<li><strong><code>BPF_MAP_LOOKUP_BATCH</code></strong>: Retrieves multiple entries in a single call.</li>
-<li><strong><code>BPF_MAP_UPDATE_BATCH</code></strong>: Updates multiple entries at once.</li>
-<li><strong><code>BPF_MAP_DELETE_BATCH</code></strong>: Deletes multiple entries in one operation.</li>
-<li><strong><code>BPF_MAP_FREEZE</code></strong>: Converts the map into a read-only state.</li>
-<li><strong><code>BPF_OBJ_PIN</code></strong>: Pins the map to the BPF filesystem so it persists beyond the process&rsquo;s lifetime.</li>
-<li><strong><code>BPF_OBJ_GET</code></strong>: Retrieves a previously pinned map.</li>
+<li><strong>BPF_MAP_CREATE</strong>: Creates a new eBPF map. This operation sets up a map.</li>
+<li><strong>BPF_MAP_UPDATE_ELEM</strong>: Inserts or updates a key-value pair.</li>
+<li><strong>BPF_MAP_LOOKUP_ELEM</strong>: Retrieves the value associated with a given key.</li>
+<li><strong>BPF_MAP_DELETE_ELEM</strong>: Deletes a key-value pair by its key.</li>
+<li><strong>BPF_MAP_LOOKUP_AND_DELETE_ELEM</strong>: Retrieves a value by key and deletes the entry in one step.</li>
+<li><strong>BPF_MAP_GET_NEXT_KEY</strong>: Iterates through the keys in the map.</li>
+<li><strong>BPF_MAP_LOOKUP_BATCH</strong>: Retrieves multiple entries in a single call.</li>
+<li><strong>BPF_MAP_UPDATE_BATCH</strong>: Updates multiple entries at once.</li>
+<li><strong>BPF_MAP_DELETE_BATCH</strong>: Deletes multiple entries in one operation.</li>
+<li><strong>BPF_MAP_FREEZE</strong>: Converts the map into a read-only state.</li>
+<li><strong>BPF_OBJ_PIN</strong>: Pins the map to the BPF filesystem so it persists beyond the process&rsquo;s lifetime.</li>
+<li><strong>BPF_OBJ_GET</strong>: Retrieves a previously pinned map.</li>
 </ul>
 <p>These operations allow efficient data sharing between eBPF programs and user-space applications. The <code>bpf()</code> syscall is used to perform these operations, providing a flexible interface for interacting with eBPF maps. Each operation serves a specific purpose.</p>
 <p>In this chapter, we have already explained <code>BPF_MAP_CREATE</code> in detail , so we will not cover it again. Instead, we will focus on the rest. We will show how to use them with a simple hash map and explain the code thoroughly.</p>
@@ -346,15 +401,17 @@
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
 </span></span></code></pre></div><p>Additionally, some operations—like batch operations and object pinning/getting—are implemented in the kernel but are intended to be invoked from user-space via system calls or libbpf rather than being used directly inside eBPF programs. We&rsquo;ll explain each operation in both contexts.</p>
 <h2 id="1-map-update-element">1. Map Update Element<a class="td-heading-self-link" href="#1-map-update-element" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
-<p><code>BPF_MAP_UPDATE_ELEM</code> command inserts or updates a key-value pair in the map. The function <code>bpf_map_update_elem</code> is a libbpf wrapper for <code>BPF_MAP_UPDATE_ELEM</code> command, it&rsquo;s part of the libbpf library, which provides a user-space interface for interacting with eBPF maps in the Linux kernel with prototype as follows:
-<code>int bpf_map_update_elem(int fd, const void *key, const void *value, __u64 flags);</code>
-It takes a map file descriptor, pointers to the key and value, and a flag indicating how the update should be performed. The flag can be</p>
+<h3 id="user-space-code">User-Space code<a class="td-heading-self-link" href="#user-space-code" aria-label="Heading self-link"></a></h3>
+<p><code>BPF_MAP_UPDATE_ELEM</code> command inserts or updates a key-value pair in the map.<br>
+The function <code>bpf_map_update_elem</code> is a libbpf wrapper for <code>BPF_MAP_UPDATE_ELEM</code> command, it&rsquo;s part of the libbpf library, which provides a user-space interface for interacting with eBPF maps in the Linux kernel with prototype as follows:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_update_elem</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u64</span> <span style="color:#000">flags</span><span style="color:#000;font-weight:bold">);</span>
+</span></span></code></pre></div><p>It takes a map file descriptor, pointers to the key and value, and a flag indicating how the update should be performed. The flag can be</p>
 <ol>
 <li><code>BPF_NOEXIST</code> to insert only if the key does not exist.</li>
 <li><code>BPF_EXIST</code> to update only if the key already exists.</li>
 <li><code>BPF_ANY</code> to insert or update unconditionally.
-On success, this call returns zero. On failure, it returns -1 and sets <code>errno</code> to indicate the cause of the error. For instance, if you use <code>BPF_NOEXIST</code> but the key already exists, it returns <code>EEXIST</code>. If you use <code>BPF_EXIST</code> but the key does not exist, it returns <code>ENOENT</code> which is <code>No such file or directory</code>.
+On success, this call returns zero. On failure, it returns -1 and sets <code>errno</code> to indicate the cause of the error. For instance, if you use <code>BPF_NOEXIST</code> but the key already exists, it returns <code>EEXIST</code>. If you use <code>BPF_EXIST</code> but the key does not exist, it returns <code>ENOENT</code> which is <code>No such file or directory</code>.</li>
+</ol>
 
 
 <div class="alert alert-primary" role="alert">
@@ -363,8 +420,7 @@ On success, this call returns zero. On failure, it returns -1 and sets <code>err
     <code>BPF_NOEXIST</code> isn&rsquo;t supported for array type maps since all keys always exist.
 
 </div>
-</li>
-</ol>
+
 <p>Here is an example that first tries to insert a new element using <code>BPF_NOEXIST</code> and then updates it using <code>BPF_EXIST</code>:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -424,19 +480,19 @@ On success, this call returns zero. On failure, it returns -1 and sets <code>err
 </span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span></code></pre></div><p>To compile and run the program, use the following command:
-<code>gcc -o update-ebpf-map update-ebpf-map.c -lbpf</code> Then, execute the program with: <code>sudo ./update-ebpf-map</code>
+</span></span></code></pre></div><p>To compile and run the program, use the following command: <code>gcc -o update-ebpf-map update-ebpf-map.c -lbpf</code>.<br>
+Then, execute the program with: <code>sudo ./update-ebpf-map</code>.
 We first create a map and then insert <code>(5 -&gt; 100)</code> using <code>BPF_ANY</code>, which either inserts or updates unconditionally. Since the map was empty, <code>(5 -&gt; 100)</code> is inserted. Next, we update <code>(5 -&gt; 100)</code> to <code>(5 -&gt; 200)</code> using <code>BPF_EXIST</code>, ensuring that the key must exist beforehand. The operation succeeds, and the value associated with key <code>5</code> is now <code>200</code>.
-Then, we try to insert <code>(4 -&gt; 300)</code> using <code>BPF_EXIST</code>, which requires the key to already exist in the map. Since the key <code>4</code> does not exist in the map, the operation fails, and the error <code>ENOENT</code> is triggered, resulting in the message &ldquo;Failed to insert or update element: No such file or directory.&rdquo;
+Then, we try to insert <code>(4 -&gt; 300)</code> using <code>BPF_EXIST</code>, which requires the key to already exist in the map. Since the key <code>4</code> does not exist in the map, the operation fails, and the error <code>ENOENT</code> is triggered, resulting in the message &ldquo;Failed to insert or update element: No such file or directory.&rdquo;<br>
 The output from running the program (<code>sudo ./update-ebpf-map</code>) is as follows:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>Hash map created successfully with fd: <span style="color:#0000cf;font-weight:bold">3</span>
 </span></span><span style="display:flex;"><span>Element inserted or updated successfully: <span style="color:#000">key</span> <span style="color:#ce5c00;font-weight:bold">=</span> 5, <span style="color:#000">value</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">100</span>
 </span></span><span style="display:flex;"><span>Element inserted or updated successfully: <span style="color:#000">key</span> <span style="color:#ce5c00;font-weight:bold">=</span> 5, <span style="color:#000">value</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">200</span>
 </span></span><span style="display:flex;"><span>Failed to insert or update element: No such file or directory
-</span></span></code></pre></div><p><strong>Kernel-Space code:</strong></p>
+</span></span></code></pre></div><h3 id="kernel-space-code">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code" aria-label="Heading self-link"></a></h3>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_update_elem</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">map</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">value</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u64</span> <span style="color:#000">flags</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div><h2 id="2-map-lookup-element">2. Map Lookup Element<a class="td-heading-self-link" href="#2-map-lookup-element" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
+<h3 id="user-space-code-1">User-Space code<a class="td-heading-self-link" href="#user-space-code-1" aria-label="Heading self-link"></a></h3>
 <p><code>BPF_MAP_LOOKUP_ELEM</code> command is used to retrieve the value associated with a given key. The <code>bpf_map_lookup_elem</code> function is a libbpf wrapper for <code>BPF_MAP_LOOKUP_ELEM</code> command and its prototype is : <code>int bpf_map_lookup_elem(int fd, const void *key, void *value)</code> , so you provide the map’s file descriptor, a pointer to the key you want to look up, and a pointer to a buffer where the value will be stored if the key is found. If the operation succeeds, it returns zero, and the value is copied into the user-provided buffer. If the key does not exist, it returns -1 and sets <code>errno</code> to <code>ENOENT</code>.</p>
 <p>Consider a scenario where you have inserted an entry <code>(key=10, value=100)</code> into the map. Looking it up would look like this:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -504,11 +560,12 @@ The output from running the program (<code>sudo ./update-ebpf-map</code>) is as 
 </span></span><span style="display:flex;"><span>Found value <span style="color:#0000cf;font-weight:bold">100</span> <span style="color:#204a87;font-weight:bold">for</span> key <span style="color:#0000cf;font-weight:bold">10</span>
 </span></span><span style="display:flex;"><span>Element doesn<span style="color:#a40000">&#39;</span>t exist: No such file or directory
 </span></span></code></pre></div><p>This operation allows you to query the map and read the data it contains without modifying it. If the map is empty or does not contain the requested key, <code>bpf_map_lookup_elem</code> simply fails and sets an appropriate error code.</p>
-<p><strong>Kernel-Space code:</strong></p>
+<h3 id="kernel-space-code-1">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-1" aria-label="Heading self-link"></a></h3>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">bpf_map_lookup_elem</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">map</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div><h2 id="3-map-delete-element">3. Map Delete Element<a class="td-heading-self-link" href="#3-map-delete-element" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
-<p><code>BPF_MAP_DELETE_ELEM</code> command removes a key-value pair from the map. The <code>bpf_map_delete_elem</code> function is a libbpf wrapper for <code>BPF_MAP_DELETE_ELEM</code> command and its prototype is : <code>int bpf_map_delete_elem(int fd, const void *key)</code> which takes a map file descriptor and a pointer to the key you want to remove. If the key is found and deleted, it returns zero. If the key does not exist, it returns -1 and sets <code>errno=ENOENT</code>.</p>
+<h3 id="user-space-code-2">User-Space code<a class="td-heading-self-link" href="#user-space-code-2" aria-label="Heading self-link"></a></h3>
+<p><code>BPF_MAP_DELETE_ELEM</code> command removes a key-value pair from the map.<br>
+The <code>bpf_map_delete_elem</code> function is a libbpf wrapper for <code>BPF_MAP_DELETE_ELEM</code> command and its prototype is : <code>int bpf_map_delete_elem(int fd, const void *key)</code> which takes a map file descriptor and a pointer to the key you want to remove. If the key is found and deleted, it returns zero. If the key does not exist, it returns -1 and sets <code>errno=ENOENT</code>.</p>
 <p>Here is an example of deleting a key:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -574,10 +631,10 @@ The output from running the program (<code>sudo ./update-ebpf-map</code>) is as 
 </span></span><span style="display:flex;"><span>Key <span style="color:#0000cf;font-weight:bold">20</span> deleted successfully
 </span></span><span style="display:flex;"><span>Confirmed that key <span style="color:#0000cf;font-weight:bold">20</span> no longer exists
 </span></span></code></pre></div><p>If you call <code>bpf_map_delete_elem</code> for a key that does not exist, the operation simply returns an error and sets <code>errno=ENOENT</code>, indicating that there was nothing to delete.</p>
-<p><strong>Kernel-Space code:</strong></p>
+<h3 id="kernel-space-code-2">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-2" aria-label="Heading self-link"></a></h3>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_delete_elem</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">map</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div><h2 id="4-map-lookup-and-delete-element">4. Map Lookup and Delete Element<a class="td-heading-self-link" href="#4-map-lookup-and-delete-element" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
+<h3 id="user-space-code-3">User-Space code<a class="td-heading-self-link" href="#user-space-code-3" aria-label="Heading self-link"></a></h3>
 <p><code>BPF_MAP_LOOKUP_AND_DELETE_ELEM</code> command retrieves the value associated with the given key, just like <code>BPF_MAP_LOOKUP_ELEM</code> command, but it also removes the key-value pair from the map in a single operation The <code>bpf_map_lookup_and_delete_elem</code> function is a libbpf wrapper for <code>BPF_MAP_LOOKUP_AND_DELETE_ELEM</code> command and its prototype is: <code>int bpf_map_lookup_and_delete_elem(int fd, const void *key, void *value)</code> . If the key exists, the function returns zero, copies the value to the user-provided buffer, and deletes that entry from the map. If the key is not found, it returns -1 and sets <code>errno=ENOENT</code>. This operation is particularly useful for scenarios where you want to consume entries from a map, such as implementing a queue or stack-like structure, or simply ensuring that once you retrieve a value, it is removed without requiring a separate delete call.</p>
 <p>First, consider inserting a key-value pair and then looking it up and deleting it at the same time:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -637,16 +694,16 @@ The output from running the program (<code>sudo ./update-ebpf-map</code>) is as 
 </span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span></code></pre></div><p>This example inserts <code>(10 -&gt; 100)</code> into a hash map, then calls <code>bpf_map_lookup_and_delete_elem</code> for <code>key=10</code>. The operation returns the value <code>100</code> and removes the entry from the map at the same time. A subsequent lookup confirms the key is gone. The output is similar to this:</p>
+</span></span></code></pre></div><p>The previous example inserts <code>(10 -&gt; 100)</code> into a hash map, then the program calls <code>bpf_map_lookup_and_delete_elem</code> for <code>key=10</code>. The operation returns the value <code>100</code> and removes the entry from the map at the same time. A subsequent lookup confirms the key is gone. The output is similar to this:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>Hash map created successfully with fd: <span style="color:#0000cf;font-weight:bold">3</span>
 </span></span><span style="display:flex;"><span>Element inserted or updated successfully: <span style="color:#000">key</span> <span style="color:#ce5c00;font-weight:bold">=</span> 10, <span style="color:#000">value</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">100</span>
 </span></span><span style="display:flex;"><span>Lookup and delete succeeded, <span style="color:#000">value</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#0000cf;font-weight:bold">100</span>
 </span></span><span style="display:flex;"><span>Confirmed that key <span style="color:#0000cf;font-weight:bold">10</span> no longer exists
-</span></span></code></pre></div><p><strong>Kernel-Space code:</strong></p>
+</span></span></code></pre></div><h3 id="kernel-space-code-3">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-3" aria-label="Heading self-link"></a></h3>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">bpf_map_lookup_and_delete_elem</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">map</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div><h2 id="5-get-next-key">5. Get Next Key<a class="td-heading-self-link" href="#5-get-next-key" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
-<p><code>BPF_MAP_GET_NEXT_KEY</code> command iterates through the keys in a map. If you pass a specific key, the function returns the next key in the map, or sets <code>errno=ENOENT</code> if there is no next key. If you call it with a non-existing key or a NULL pointer (in some usages), it can return the first key in the map. This allows you to iterate over all keys one by one, even if you do not know them in advance.. The <code>bpf_map_get_next_key</code> function is a libbpf wrapper for <code>BPF_MAP_GET_NEXT_KEY</code> command and its prototype is: <code>int bpf_map_get_next_key(int fd, const void *key, void *next_key)</code>.
+<h3 id="user-space-code-4">User-Space code<a class="td-heading-self-link" href="#user-space-code-4" aria-label="Heading self-link"></a></h3>
+<p><code>BPF_MAP_GET_NEXT_KEY</code> command iterates through the keys in a map. If you pass a specific key, the function returns the next key in the map, or sets <code>errno=ENOENT</code> if there is no next key. If you call it with a non-existing key or a NULL pointer (in some usages), it can return the first key in the map. This allows you to iterate over all keys one by one, even if you do not know them in advance.. The <code>bpf_map_get_next_key</code> function is a libbpf wrapper for <code>BPF_MAP_GET_NEXT_KEY</code> command and its prototype is: <code>int bpf_map_get_next_key(int fd, const void *key, void *next_key)</code>.<br>
 It&rsquo;s important to note that the order of keys returned by <code>bpf_map_get_next_key</code> is not guaranteed to be the same as the typical ordering found in most iterators in other programming languages. The keys in eBPF maps are stored in an internal, arbitrary order determined by the kernel. Therefore, the order in which keys are returned when iterating is not necessarily sequential (e.g., ascending or based on insertion order). If you need a specific order, such as sorted keys, you will need to handle that ordering manually in your application.</p>
 <p>Here’s how you might iterate over all keys:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -720,23 +777,23 @@ It&rsquo;s important to note that the order of keys returned by <code>bpf_map_ge
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
 </span></span></code></pre></div><p>In this example, we insert <code>(10-&gt;100)</code>, <code>(20-&gt;200)</code>, <code>(30-&gt;300)</code> into the map. We start iteration with a key (-1) that we know does not exist. The kernel returns the first key in ascending order. We then print each key-value pair and call <code>bpf_map_get_next_key</code> to advance to the next key. When <code>ENOENT</code> is returned, we know we have reached the end of the map. This process allows scanning the map’s contents without knowing the keys upfront.</p>
-<p><strong>Kernel-Space code:</strong></p>
+<h3 id="kernel-space-code-4">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-4" aria-label="Heading self-link"></a></h3>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_get_next_key</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">map</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">key</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">next_key</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div><h2 id="6-map-lookup-batch">6. Map Lookup Batch<a class="td-heading-self-link" href="#6-map-lookup-batch" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
-<p><code>BPF_MAP_LOOKUP_BATCH</code> command fetches multiple elements from the map in a single call. Instead of calling <code>BPF_MAP_LOOKUP_ELEM</code> command repeatedly for each key, you can use this operation to retrieve several keys and their associated values at once. This improves performance when dealing with large maps or when you need to read multiple entries efficiently.
-The <code>bpf_map_lookup_batch</code> function is a libbpf wrapper for <code>BPF_MAP_LOOKUP_BATCH</code> command and it uses two special parameters: <strong><code>in_batch</code></strong> and <strong><code>out_batch</code></strong>, which help maintain the state between successive batch lookups. You begin by passing a <code>NULL</code> <code>in_batch</code> to start from the first set of entries. The kernel then returns a batch of <code>(key, value)</code> pairs and sets <code>out_batch</code> to indicate where to resume from. On subsequent calls, you pass <code>out_batch</code> as <code>in_batch</code> to continue retrieving the next batch of entries until all entries have been retrieved. This method is particularly efficient for maps with a large number of entries, as it reduces the overhead of making individual lookups for each element, thus speeding up the retrieval process.
+<h3 id="user-space-code-5">User-Space code<a class="td-heading-self-link" href="#user-space-code-5" aria-label="Heading self-link"></a></h3>
+<p><code>BPF_MAP_LOOKUP_BATCH</code> command fetches multiple elements from the map in a single call. Instead of calling <code>BPF_MAP_LOOKUP_ELEM</code> command repeatedly for each key, you can use this operation to retrieve several keys and their associated values at once. This improves performance when dealing with large maps or when you need to read multiple entries efficiently.<br>
+The <code>bpf_map_lookup_batch</code> function is a libbpf wrapper for <code>BPF_MAP_LOOKUP_BATCH</code> command and it uses two special parameters: <strong><code>in_batch</code></strong> and <strong><code>out_batch</code></strong>, which help maintain the state between successive batch lookups. You begin by passing a <code>NULL</code> <code>in_batch</code> to start from the first set of entries. The kernel then returns a batch of <code>(key, value)</code> pairs and sets <code>out_batch</code> to indicate where to resume from. On subsequent calls, you pass <code>out_batch</code> as <code>in_batch</code> to continue retrieving the next batch of entries until all entries have been retrieved. This method is particularly efficient for maps with a large number of entries, as it reduces the overhead of making individual lookups for each element, thus speeding up the retrieval process.<br>
 The helper function prototype is</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_lookup_batch</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">in_batch</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">out_batch</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">keys</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>                         <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">values</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u32</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">count</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_batch_opts</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div><ul>
-<li><strong><code>fd</code></strong>: The file descriptor for the eBPF map you&rsquo;re querying.</li>
-<li><strong><code>in_batch</code></strong>: The address of the first element in the batch to read. You pass <code>NULL</code> for the first call to start from the beginning of the map. On subsequent calls, you pass the address of <code>out_batch</code> to continue from the last retrieved entry.</li>
-<li><strong><code>out_batch</code></strong>: This is an output parameter that the kernel sets to the position of the last element retrieved. It indicates where to resume for the next batch lookup.</li>
-<li><strong><code>keys</code></strong>: A pointer to a buffer where the kernel will store the keys retrieved.</li>
-<li><strong><code>values</code></strong>: A pointer to a buffer where the kernel will store the corresponding values for the retrieved keys.</li>
-<li><strong><code>count</code></strong>: On input, this specifies the number of elements you want to retrieve in the batch. On output, it will contain the actual number of elements retrieved.</li>
-<li><strong><code>opts</code></strong>: An optional parameter for additional configuration (can be <code>NULL</code> if not needed).</li>
+<li><strong>fd</strong>: The file descriptor for the eBPF map you&rsquo;re querying.</li>
+<li><strong>in_batch</strong>: The address of the first element in the batch to read. You pass <code>NULL</code> for the first call to start from the beginning of the map. On subsequent calls, you pass the address of <code>out_batch</code> to continue from the last retrieved entry.</li>
+<li><strong>out_batch</strong>: This is an output parameter that the kernel sets to the position of the last element retrieved. It indicates where to resume for the next batch lookup.</li>
+<li><strong>keys</strong>: A pointer to a buffer where the kernel will store the keys retrieved.</li>
+<li><strong>values</strong>: A pointer to a buffer where the kernel will store the corresponding values for the retrieved keys.</li>
+<li><strong>count</strong>: On input, this specifies the number of elements you want to retrieve in the batch. On output, it will contain the actual number of elements retrieved.</li>
+<li><strong>opts</strong>: An optional parameter for additional configuration (can be <code>NULL</code> if not needed).</li>
 </ul>
 <p>Let&rsquo;s go through an example:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -803,7 +860,7 @@ The helper function prototype is</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#ce5c00;font-weight:bold">-</span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span></code></pre></div><p>This example first inserts nine key-value pairs into a hash map. Then, it calls <code>bpf_map_lookup_batch</code> repeatedly to retrieve elements in batches, until <code>ENOENT</code> indicates that all entries have been retrieved. Each successful batch call prints out a subset of the map entries. Since there are only nine entries, you will likely retrieve them in one or two batches, depending on the batch size. However, this method scales well for larger maps.
+</span></span></code></pre></div><p>The previous example first inserts nine key-value pairs into a hash map. Then, it calls <code>bpf_map_lookup_batch</code> repeatedly to retrieve elements in batches, until <code>ENOENT</code> indicates that all entries have been retrieved. Each successful batch call prints out a subset of the map entries. Since there are only nine entries, you will likely retrieve them in one or two batches, depending on the batch size. However, this method scales well for larger maps.<br>
 The batch size is set to <code>2</code> (in <code>batch_count</code>), meaning the program will attempt to retrieve two entries in each call to <code>bpf_map_lookup_batch</code>. If the map does not contain enough entries to fill the entire batch, <code>batch_count</code> is adjusted to reflect how many entries were actually returned. When <code>bpf_map_lookup_batch</code> eventually returns <code>ENOENT</code>, it indicates that all elements have been retrieved. The output could be like:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>Hash map created successfully with fd: <span style="color:#0000cf;font-weight:bold">3</span>
 </span></span><span style="display:flex;"><span>Element inserted or updated successfully: <span style="color:#000">key</span> <span style="color:#ce5c00;font-weight:bold">=</span> 10, <span style="color:#000">value</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">100</span>
@@ -823,14 +880,14 @@ The batch size is set to <code>2</code> (in <code>batch_count</code>), meaning t
 </span></span><span style="display:flex;"><span>Batch element: <span style="color:#000">key</span><span style="color:#ce5c00;font-weight:bold">=</span>40, <span style="color:#000">value</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#0000cf;font-weight:bold">700</span>
 </span></span><span style="display:flex;"><span>Batch element: <span style="color:#000">key</span><span style="color:#ce5c00;font-weight:bold">=</span>50, <span style="color:#000">value</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#0000cf;font-weight:bold">500</span>
 </span></span><span style="display:flex;"><span>Batch element: <span style="color:#000">key</span><span style="color:#ce5c00;font-weight:bold">=</span>90, <span style="color:#000">value</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#0000cf;font-weight:bold">600</span>
-</span></span></code></pre></div><p><strong>Kernel-Space code:</strong></p>
+</span></span></code></pre></div><h3 id="kernel-space-code-5">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-5" aria-label="Heading self-link"></a></h3>
 <p>There is no helper function for such operation.</p>
 <h2 id="7-map-update-batch">7. Map Update Batch<a class="td-heading-self-link" href="#7-map-update-batch" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
+<h3 id="user-space-code-6">User-Space code<a class="td-heading-self-link" href="#user-space-code-6" aria-label="Heading self-link"></a></h3>
 <p><code>BPF_MAP_UPDATE_BATCH</code> command  allows you to insert or update multiple keys and values in a single call. Similar to <code>BPF_MAP_LOOKUP_BATCH</code> command, this can significantly reduce overhead compared to performing multiple <code>BPF_MAP_LOOKUP_ELEM</code> calls in a loop. The <code>bpf_map_update_batch</code> function is a libbpf wrapper for <code>BPF_MAP_UPDATE_BATCH</code> command and its prototype is:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_update_batch</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">keys</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">values</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u32</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">count</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>			 <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_batch_opts</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">)</span>
-</span></span></code></pre></div><p>You provide arrays of keys and values, along with a count, and <code>bpf_map_update_batch</code> attempts to insert or update all of them at once. Just like <code>bpf_map_update_elem</code>, you can specify flags such as <code>BPF_ANY</code>, <code>BPF_NOEXIST</code>, or <code>BPF_EXIST</code> to control insertion and update behavior as we mentioned earlier .</p>
+</span></span></code></pre></div><p>You provide arrays of keys and values, along with a count, and <code>bpf_map_update_batch</code> attempts to insert or update all of them at once. Just like <code>bpf_map_update_elem</code>, you can specify flags such as <code>BPF_ANY</code>, <code>BPF_NOEXIST</code>, or <code>BPF_EXIST</code> to control insertion and update behavior as we mentioned earlier.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -888,14 +945,14 @@ The batch size is set to <code>2</code> (in <code>batch_count</code>), meaning t
 </span></span><span style="display:flex;"><span><span style="color:#000">Key</span><span style="color:#ce5c00;font-weight:bold">=</span>50, <span style="color:#000">Value</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#0000cf;font-weight:bold">600</span>
 </span></span><span style="display:flex;"><span><span style="color:#000">Key</span><span style="color:#ce5c00;font-weight:bold">=</span>60, <span style="color:#000">Value</span><span style="color:#ce5c00;font-weight:bold">=</span><span style="color:#0000cf;font-weight:bold">50</span>
 </span></span></code></pre></div><p>This bulk approach is especially beneficial when populating maps with a large set of keys during initialization or when updating multiple entries at once.</p>
-<p><strong>Kernel-Space code:</strong></p>
+<h3 id="kernel-space-code-6">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-6" aria-label="Heading self-link"></a></h3>
 <p>There is no helper function for such operation.</p>
 <h2 id="8-map-delete-batch">8. Map Delete Batch<a class="td-heading-self-link" href="#8-map-delete-batch" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
+<h3 id="user-space-code-7">User-Space code<a class="td-heading-self-link" href="#user-space-code-7" aria-label="Heading self-link"></a></h3>
 <p><code>BPF_MAP_DELETE_BATCH</code> command removes multiple entries from the map in a single call, much like <code>BPF_MAP_DELETE_ELEM</code> does for individual keys. You supply arrays of keys along with a count, and the kernel attempts to delete all those keys at once. This operation is more efficient than deleting entries one by one, especially for large sets of keys. The <code>bpf_map_delete_batch</code> function is a libbpf wrapper for <code>BPF_MAP_DELETE_BATCH</code> command and its prototype is:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_delete_batch</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">keys</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u32</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">count</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>			 <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_map_batch_opts</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">)</span>
-</span></span></code></pre></div><p>The <strong><code>fd</code></strong> parameter is the file descriptor for the map, and <strong><code>keys</code></strong> is a pointer to an array of keys to delete. The <strong><code>count</code></strong> parameter specifies the number of keys to delete and is updated with the actual number of deletions. The <strong><code>opts</code></strong> parameter is optional and allows additional configuration (usually passed as <code>NULL</code>). The function returns <code>0</code> if successful, or a negative error code if an error occurs, with <strong><code>errno</code></strong> providing more details.</p>
+</span></span></code></pre></div><p>The <strong>fd</strong> parameter is the file descriptor for the map, and <strong>keys</strong> is a pointer to an array of keys to delete. The <strong>count</strong> parameter specifies the number of keys to delete and is updated with the actual number of deletions. The <strong>opts</strong> parameter is optional and allows additional configuration (usually passed as <code>NULL</code>). The function returns <code>0</code> if successful, or a negative error code if an error occurs, with <strong>errno</strong> providing more details.</p>
 <p>For example, if your map currently contains <code>(10-&gt;100)</code>, <code>(20-&gt;200)</code>, and <code>(30-&gt;300)</code>, and you want to remove <code>(10, 20, 30)</code> all at once:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/libbpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;bpf/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -962,11 +1019,11 @@ The batch size is set to <code>2</code> (in <code>batch_count</code>), meaning t
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
 </span></span></code></pre></div><p>If successful, all three keys are removed. If an error occurs (for example, if one key does not exist), <code>delete_count</code> may be set to the number of successfully deleted keys before the error. In that case, you can handle partial success accordingly.
 This approach is ideal when you need to clear out a subset of keys without performing multiple individual deletions.</p>
-<p><strong>Kernel-Space code:</strong></p>
+<h3 id="kernel-space-code-7">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-7" aria-label="Heading self-link"></a></h3>
 <p>There is no helper function for such operation.</p>
 <h2 id="9-map-freeze">9. Map Freeze<a class="td-heading-self-link" href="#9-map-freeze" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
-<p><code>BPF_MAP_FREEZE</code> command converts the specified map into a read-only state. After freezing a map, no further updates or deletions can be performed using <code>bpf()</code> syscalls, although eBPF programs themselves can still read and, in some cases, modify certain fields if allowed by the map type. Freezing is useful when you have finished constructing or populating a map and want to ensure its contents remain stable.
+<h3 id="user-space-code-8">User-Space code<a class="td-heading-self-link" href="#user-space-code-8" aria-label="Heading self-link"></a></h3>
+<p><code>BPF_MAP_FREEZE</code> command converts the specified map into a read-only state. After freezing a map, no further updates or deletions can be performed using <code>bpf()</code> syscalls, although eBPF programs themselves can still read and, in some cases, modify certain fields if allowed by the map type. Freezing is useful when you have finished constructing or populating a map and want to ensure its contents remain stable.<br>
 The <code>bpf_map_freeze</code> function is a libbpf wrapper for <code>BPF_MAP_FREEZE</code> command and its prototype is:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_map_freeze</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">)</span>
 </span></span></code></pre></div><p>To freeze a map:</p>
@@ -1032,11 +1089,11 @@ The <code>bpf_map_freeze</code> function is a libbpf wrapper for <code>BPF_MAP_F
 </span></span><span style="display:flex;"><span>Element inserted or updated successfully: <span style="color:#000">key</span> <span style="color:#ce5c00;font-weight:bold">=</span> 10, <span style="color:#000">value</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">100</span>
 </span></span><span style="display:flex;"><span>Map is now frozen and read-only
 </span></span><span style="display:flex;"><span>Update failed, map is frozen
-</span></span></code></pre></div><p><strong>Kernel-Space code:</strong></p>
+</span></span></code></pre></div><h3 id="kernel-space-code-8">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-8" aria-label="Heading self-link"></a></h3>
 <p>There is no helper function for such operation.</p>
 <h2 id="10-object-pin">10. Object Pin<a class="td-heading-self-link" href="#10-object-pin" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong>
-<code>BPF_OBJ_PIN</code> command allows you to pin a map (or other eBPF objects like programs) to a location in the eBPF filesystem (<code>/sys/fs/bpf</code> by default). Pinning makes the map accessible to other processes after the original process that created it terminates, thereby extending the map’s lifetime beyond that of a single application.
+<h3 id="user-space-code-9">User-Space code<a class="td-heading-self-link" href="#user-space-code-9" aria-label="Heading self-link"></a></h3>
+<p><code>BPF_OBJ_PIN</code> command allows you to pin a map (or other eBPF objects like programs) to a location in the eBPF filesystem (<code>/sys/fs/bpf</code> by default). Pinning makes the map accessible to other processes after the original process that created it terminates, thereby extending the map’s lifetime beyond that of a single application.<br>
 The <code>bpf_obj_pin_opts</code> function is a libbpf wrapper for <code>BPF_OBJ_PIN</code> command and its prototype is:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_obj_pin_opts</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">pathname</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_obj_pin_opts</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">opts</span><span style="color:#000;font-weight:bold">)</span>
 </span></span></code></pre></div><p>
@@ -1108,11 +1165,11 @@ For instance, to pin a map under <code>/sys/fs/bpf/my_map</code>:</p>
 
 </div>
 </p>
-<p><strong>Kernel-Space code:</strong></p>
+<h3 id="kernel-space-code-9">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-9" aria-label="Heading self-link"></a></h3>
 <p>There is no helper function for such operation.</p>
 <h2 id="11-object-get">11. Object Get<a class="td-heading-self-link" href="#11-object-get" aria-label="Heading self-link"></a></h2>
-<p><strong>User-Space code:</strong></p>
-<p><code>BPF_OBJ_GET</code> command retrieves a file descriptor for a previously pinned map, allowing a separate process to access and interact with that map.  This facilitates sharing eBPF maps between multiple processes or restoring access to the map after the original creating process has exited.
+<h3 id="user-space-code-10">User-Space code<a class="td-heading-self-link" href="#user-space-code-10" aria-label="Heading self-link"></a></h3>
+<p><code>BPF_OBJ_GET</code> command retrieves a file descriptor for a previously pinned map, allowing a separate process to access and interact with that map.  This facilitates sharing eBPF maps between multiple processes or restoring access to the map after the original creating process has exited.<br>
 The <code>bpf_obj_get</code> function is a libbpf wrapper for <code>BPF_OBJ_GET</code> command and its prototype is:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_obj_get</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">pathname</span><span style="color:#000;font-weight:bold">)</span>
 </span></span></code></pre></div><p>By calling <code>bpf_obj_get(path)</code>, you open a reference to the pinned map from the filesystem path. Let&rsquo;s get the previous map <code>/sys/fs/bpf/my_map</code></p>
@@ -1148,7 +1205,7 @@ The <code>bpf_obj_get</code> function is a libbpf wrapper for <code>BPF_OBJ_GET<
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>Opened pinned map from /sys/fs/bpf/my_map
 </span></span><span style="display:flex;"><span>Retrieved value <span style="color:#0000cf;font-weight:bold">500</span> <span style="color:#204a87;font-weight:bold">for</span> key <span style="color:#0000cf;font-weight:bold">50</span> from pinned map
 </span></span></code></pre></div><p>If successful, <code>pinned_map_fd</code> can be used just like any other map file descriptor. This is essential for long-running services or tools that need persistent state maintained across restarts, or for sharing data structures between different components of a system.</p>
-<p><strong>Kernel-Space code:</strong></p>
+<h3 id="kernel-space-code-10">Kernel-Space code<a class="td-heading-self-link" href="#kernel-space-code-10" aria-label="Heading self-link"></a></h3>
 <p>There is no helper function for such operation.</p>
 <p>I know it can be challenging to wrap your head around the differences between eBPF user-space code and kernel-space eBPF programs. Bear with me—soon we&rsquo;ll see eBPF programs in action, including maps and map operations, and everything will start to click!</p>
 

@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.2d2954103a1ca7b99d7bf4e15a887a32.json"
+    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -254,15 +254,15 @@
 	<p>Traffic Control subsystem is designed to schedule packets using a queuing system which controls the traffic direction and filtering. Traffic control can be used to filter traffic by applying rules and traffic shaping among other functions.
 The core of traffic control is built around qdiscs which stands for queuing disciplines, qdiscs define the rules for how packets are handled by a queuing system. There are two types of qdiscs, classful and classless. classful qdiscs enable the creation of hierarchical queuing structures to facilitates the implementation of complex traffic management policies.
 Classful qdiscs consist of two parts, filters and classes. The best definition is in the man page which says the following:</p>
-<pre tabindex="0"><code>Queueing Discipline:
-qdisc is short for &#39;queueing discipline&#39; and it is elementary to understanding traffic control. Whenever the Kernel needs to send a packet to an interface, it is enqueued to the qdisc configured for that interface. Immediately afterwards, the Kernel tries to get as many packets as possible from the qdisc, for giving them to the network adaptor driver.
-
-Classes:
-Some qdiscs can contain classes, which contain further qdiscs,traffic may then be enqueued in any of the inner qdiscs, which are within the classes.  When the kernel tries to dequeue a packet from such a classful qdisc it can come from any of the classes. A qdisc may for example prioritize certain kinds of traffic by trying to dequeue from certain classes before others.
-
-Filters:
-A filter is used by a classful qdisc to determine in which class a packet will be enqueued. Whenever traffic arrives at a class with subclasses, it needs to be classified. Various methods may be employed to do so, one of these are the filters. All filters attached to the class are called, until one of them returns with a verdict. If no verdict was made, other criteria may be available. This differs per qdisc.
-</code></pre><p>In essence: classful qdiscs have filters which are used to classify traffic and determine which class a packet should be placed in.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>Queueing Discipline:
+</span></span><span style="display:flex;"><span>qdisc is short for &#39;queueing discipline&#39; and it is elementary to understanding traffic control. Whenever the Kernel needs to send a packet to an interface, it is enqueued to the qdisc configured for that interface. Immediately afterwards, the Kernel tries to get as many packets as possible from the qdisc, for giving them to the network adaptor driver.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Classes:
+</span></span><span style="display:flex;"><span>Some qdiscs can contain classes, which contain further qdiscs,traffic may then be enqueued in any of the inner qdiscs, which are within the classes.  When the kernel tries to dequeue a packet from such a classful qdisc it can come from any of the classes. A qdisc may for example prioritize certain kinds of traffic by trying to dequeue from certain classes before others.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Filters:
+</span></span><span style="display:flex;"><span>A filter is used by a classful qdisc to determine in which class a packet will be enqueued. Whenever traffic arrives at a class with subclasses, it needs to be classified. Various methods may be employed to do so, one of these are the filters. All filters attached to the class are called, until one of them returns with a verdict. If no verdict was made, other criteria may be available. This differs per qdisc.
+</span></span></code></pre></div><p>In essence: classful qdiscs have filters which are used to classify traffic and determine which class a packet should be placed in.</p>
 <p style="text-align: center;">
   <img src="/images/docs/chapter4/tc-1.png" alt="Centered image" />
 </p>
@@ -301,21 +301,22 @@ Actions define what happens to a packet after it has been classified. Once a pac
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline"></span><span style="color:#ce5c00;font-weight:bold">#</span><span style="color:#000">define</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">TC_ACT_REPEAT</span><span style="color:#f8f8f8;text-decoration:underline">		  </span><span style="color:#0000cf;font-weight:bold">6</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline"></span><span style="color:#ce5c00;font-weight:bold">#</span><span style="color:#000">define</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">TC_ACT_REDIRECT</span><span style="color:#f8f8f8;text-decoration:underline">		  </span><span style="color:#0000cf;font-weight:bold">7</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline"></span><span style="color:#ce5c00;font-weight:bold">#</span><span style="color:#000">define</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">TC_ACT_TRAP</span><span style="color:#f8f8f8;text-decoration:underline">		      </span><span style="color:#0000cf;font-weight:bold">8</span><span style="color:#f8f8f8;text-decoration:underline">
-</span></span></span></code></pre></div><p>Actions and direct-action are defined in <code>https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_SCHED_CLS/#direct-action</code> which stated as the following:</p>
-<pre tabindex="0"><code>Direct action
-
-When attached in direct action mode, the eBPF program will act as both a classifier and an action. This mode simplifies setups for the most common use cases where we just want to always execute an action. In direct action mode the return value can be one of:
-
-* TC_ACT_UNSPEC (-1) - Signals that the default configured action should be taken.
-* TC_ACT_OK (0) - Signals that the packet should proceed.
-* TC_ACT_RECLASSIFY (1) - Signals that the packet has to re-start classification from the root qdisc. This is typically used after modifying the packet so its classification might have different results.
-* TC_ACT_SHOT (2) - Signals that the packet should be dropped, no other TC processing should happen.
-* TC_ACT_PIPE	(3) - While defined, this action should not be used and holds no particular meaning for eBPF classifiers.
-* TC_ACT_STOLEN (4) - While defined, this action should not be used and holds no particular meaning for eBPF classifiers.
-* TC_ACT_QUEUED (5) - While defined, this action should not be used and holds no particular meaning for eBPF classifiers.
-* TC_ACT_REPEAT (6) - While defined, this action should not be used and holds no particular meaning for eBPF classifiers.
-* TC_ACT_REDIRECT	(7) - Signals that the packet should be redirected, the details of how and where to are set as side effects by helpers functions.
-</code></pre><p>Now, let&rsquo;s look at an example to fully understand the concepts discussed above. In the next example, we use <code>BPF_PROG_TYPE_SCHED_CLS</code> program but will allow us to take actions based on out classification using direct-action later. The code checks for packets on egress with port 8080 and drops them and send a message with <code>bpf_printk</code>.</p>
+</span></span></span></code></pre></div><p>Actions and direct-action are defined in<br>
+<a href="https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_SCHED_CLS/#direct-action">https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_SCHED_CLS/#direct-action</a> which stated as the following:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>Direct action
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>When attached in direct action mode, the eBPF program will act as both a classifier and an action. This mode simplifies setups for the most common use cases where we just want to always execute an action. In direct action mode the return value can be one of:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>* TC_ACT_UNSPEC (-1) - Signals that the default configured action should be taken.
+</span></span><span style="display:flex;"><span>* TC_ACT_OK (0) - Signals that the packet should proceed.
+</span></span><span style="display:flex;"><span>* TC_ACT_RECLASSIFY (1) - Signals that the packet has to re-start classification from the root qdisc. This is typically used after modifying the packet so its classification might have different results.
+</span></span><span style="display:flex;"><span>* TC_ACT_SHOT (2) - Signals that the packet should be dropped, no other TC processing should happen.
+</span></span><span style="display:flex;"><span>* TC_ACT_PIPE	(3) - While defined, this action should not be used and holds no particular meaning for eBPF classifiers.
+</span></span><span style="display:flex;"><span>* TC_ACT_STOLEN (4) - While defined, this action should not be used and holds no particular meaning for eBPF classifiers.
+</span></span><span style="display:flex;"><span>* TC_ACT_QUEUED (5) - While defined, this action should not be used and holds no particular meaning for eBPF classifiers.
+</span></span><span style="display:flex;"><span>* TC_ACT_REPEAT (6) - While defined, this action should not be used and holds no particular meaning for eBPF classifiers.
+</span></span><span style="display:flex;"><span>* TC_ACT_REDIRECT	(7) - Signals that the packet should be redirected, the details of how and where to are set as side effects by helpers functions.
+</span></span></code></pre></div><p>Now, let&rsquo;s look at an example to fully understand the concepts discussed above. In the next example, we use <code>BPF_PROG_TYPE_SCHED_CLS</code> program but will allow us to take actions based on out classification using direct-action later. The code checks for packets on egress with port 8080 and drops them and send a message with <code>bpf_printk</code>.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/if_ether.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/ip.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -454,9 +455,9 @@ Next, attach the object file to the egress traffic with the direct-action flag: 
 <li>Calculate the TCP header length to determine the exact offset of the payload.</li>
 <li>Read the first 4 bytes of the payload.</li>
 <li>Replace these 4 bytes with &lsquo;XXXX&rsquo; using the <code>bpf_skb_store_bytes</code> helper function.</li>
-<li>Recalculate the checksum using the <code>bpf_l4_csum_replace</code> helper function.
-<code>bpf_skb_store_bytes</code> helper function has the following prototype:</li>
+<li>Recalculate the checksum using the <code>bpf_l4_csum_replace</code> helper function.</li>
 </ol>
+<p><code>bpf_skb_store_bytes</code> helper function has the following prototype:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">static</span> <span style="color:#000">long</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#000">bpf_skb_store_bytes</span><span style="color:#000;font-weight:bold">)(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">__sk_buff</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">skb</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u32</span> <span style="color:#000">offset</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">from</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u32</span> <span style="color:#000">len</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u64</span> <span style="color:#000">flags</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">9</span><span style="color:#000;font-weight:bold">;</span>
 </span></span></code></pre></div><p>While <code>bpf_l4_csum_replace</code> helper function has the following prototype:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">static</span> <span style="color:#000">long</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#000">bpf_l4_csum_replace</span><span style="color:#000;font-weight:bold">)(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">__sk_buff</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">skb</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u32</span> <span style="color:#000">offset</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u64</span> <span style="color:#000">from</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u64</span> <span style="color:#000">to</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u64</span> <span style="color:#000">flags</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">11</span><span style="color:#000;font-weight:bold">;</span>

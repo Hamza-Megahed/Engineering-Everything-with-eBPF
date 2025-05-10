@@ -203,7 +203,7 @@ int count_getpid(void * ctx):
 We can get visual representation of our code instructions using `sudo bpftool prog dump xlated id 312 visual &> vis.out` and the output `vis.out` is a DOT language file which is a graph description language and can be viewed Graphviz. It can be converted to PNG using `dot -Tpng viz.out -o viz.png` and you can display viz.png file.
 
 <p style="text-align: center;">
-  <img src="/images/docs/chapter6/graphviz.svg" alt="Centered image" />
+  <img src="/images/docs/chapter6/graphviz.png" alt="Centered image" />
 </p>
 
 BPFTool can also dump jited or the program machine code using `sudo bpftool prog dump jited id 312`:
@@ -246,7 +246,8 @@ int count_getpid(void * ctx):
 
 {{< alert title="Note" >}}I had to download the source code and compile bpftool to enable JIT disassembly support. I used the command `make LLVM_CONFIG=$(which llvm-config) CFLAGS_EXTRA="-DENABLE_JIT_DISASM=1"` to ensure that LLVM was correctly detected and that JIT disassembly support was enabled.{{< /alert >}}
 
-{{< alert title="Note" >}}You can inspect eBPF instructions for the object file using `llvm-objdump -S getpid.o` 
+{{< alert title="Note" >}}You can inspect eBPF instructions for the object file using `llvm-objdump -S getpid.o` {{< /alert >}}
+
 ```sh
 getpid.o:	file format elf64-bpf
 
@@ -272,8 +273,9 @@ Disassembly of section tracepoint/syscalls/sys_enter_getpid:
       11:	b7 00 00 00 00 00 00 00	r0 = 0x0
       12:	95 00 00 00 00 00 00 00	exit
 ```
-You can find a list of eBPF opcodes from kernel documentation https://docs.kernel.org/bpf/standardization/instruction-set.html or RFC 9669 https://www.rfc-editor.org/rfc/rfc9669.html.
-{{< /alert >}}
+You can find a list of eBPF opcodes from kernel documentation  
+https://docs.kernel.org/bpf/standardization/instruction-set.html or RFC 9669 https://www.rfc-editor.org/rfc/rfc9669.html.
+
 
 BPFTool can display the list of all maps using `sudo bpftool map`
 ```sh

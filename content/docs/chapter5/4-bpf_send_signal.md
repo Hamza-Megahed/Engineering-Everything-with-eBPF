@@ -146,7 +146,14 @@ child_process:
   ret
 ```
 
-First, we compile it using `nasm -f elf64 -o privilege_escalation.o privilege_escalation.asm` , then link it `ld -o privilege_escalation privilege_escalation.o`
+First, we compile it using 
+```sh
+nasm -f elf64 -o privilege_escalation.o privilege_escalation.asm
+```
+Then link it 
+```sh
+ld -o privilege_escalation privilege_escalation.o`
+```
 
 We build an eBPF program that uses `bpf_send_signal` to monitor for a suspicious sequence of syscalls. If the program detects that a process has `forked`, then called `setuid(0)`, and finally executed `execve` to run `/bin/bash` (spawning a root shell), it will immediately fire a signal to terminate that process.
 
@@ -168,6 +175,8 @@ struct {
     __type(key, u32);
     __type(value, u8);
 } setuid SEC(".maps");
+
+char LICENSE[] SEC("license") = "GPL";
 
 SEC("tracepoint/syscalls/sys_enter_fork")
 int trace_fork(struct trace_event_raw_sys_enter *ctx)
@@ -206,8 +215,6 @@ int trace_execve(struct trace_event_raw_sys_enter *ctx)
     }
     return 0;
 }
-
-char LICENSE[] SEC("license") = "GPL";
 ```
 
 `sudo ./privilege_escalation` 
