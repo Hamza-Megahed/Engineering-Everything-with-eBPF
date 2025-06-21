@@ -4,8 +4,7 @@ description: High level flow loader to verifier to JIT with maps and helpers alo
 weight: 6
 ---
 
-The eBPF architecture is both simple—through its rigid instruction set, maps, and helpers—and sophisticated—via the verifier, JIT, and integration points. At a high level, it is a pipeline taking user-space defined logic through a safety check and into the kernel’s execution environment. At a deep level, each component (verifier, maps, JIT) enforces strict rules that guarantee the kernel’s stability and performance.
-Through this layered design, eBPF achieves a rare combination: the ability to safely run custom code inside the kernel at near-native speeds while maintaining robust security and reliability guarantees.
+The eBPF architecture is both simple—through its rigid instruction set, maps, and helpers—and sophisticated—via the verifier, JIT, and integration points. At a high level, it is a pipeline taking user-space defined logic through a safety check and into the kernel’s execution environment. At a deep level, each component (verifier, maps, JIT) enforces strict rules that guarantee the kernel’s stability and performance. Through this layered design, eBPF achieves a rare combination: the ability to safely run custom code inside the kernel at near-native speeds while maintaining robust security and reliability guarantees.
 
 Some of the following may not be clear to you yet, as each component will be explained in more detail in the following chapters.
 

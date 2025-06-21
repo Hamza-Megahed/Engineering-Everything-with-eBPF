@@ -10,8 +10,10 @@ An fentry eBPF program is attached precisely at the entry point of a kernel func
 - When a function is compiled with tracing support CONFIG_FUNCTION_TRACER, the compiler inserts a call to `__fentry__` at the beginning of the function which contains several `NOP` instructions `0x90`.
 - When an fentry eBPF program is attached, the kernel patches the NOPs dynamically—replacing it with a jump to a BPF trampoline.
 - The trampoline then efficiently invokes fentry handler (without the overhead of breakpoints or interrupts) and, after executing, returns control to the original function so that normal execution continues.
+
 Fentry-based and fexit-based eBPF programs are classified under the program type `BPF_PROG_TYPE_TRACING`.
 By looking at the entry is a kernel function such as `do_set_acl`. First we need to download debug symbols for the kernel, on debian just `sudo apt-get install linux-image-$(uname -r)-dbg` and the debug symbols will be at `/usr/lib/debug/boot/vmlinux-$(uname -r)`.
+
 Getting the entry point of `do_set_acl` using `objdump -d vmlinux-$(uname -r) | grep -A 10 "<do_set_acl>:"`
 ```c
 ffffffff814d7d20 <do_set_acl>:

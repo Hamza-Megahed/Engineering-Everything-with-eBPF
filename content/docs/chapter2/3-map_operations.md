@@ -7,18 +7,18 @@ weight: 4
 ## eBPF Map Operations Overview
 
 eBPF map operations are a set of functions defined in the Linux kernel that allow interaction with eBPF maps. These operations enable reading, writing, deleting, and managing data within the maps. The operations are part of the `bpf_cmd` defined in the kernel source file `/include/uapi/linux/bpf.h`. Some commonly used operations include:
-- **BPF_MAP_CREATE**: Creates a new eBPF map. This operation sets up a map.
-- **BPF_MAP_UPDATE_ELEM**: Inserts or updates a key-value pair.
-- **BPF_MAP_LOOKUP_ELEM**: Retrieves the value associated with a given key.
-- **BPF_MAP_DELETE_ELEM**: Deletes a key-value pair by its key.
-- **BPF_MAP_LOOKUP_AND_DELETE_ELEM**: Retrieves a value by key and deletes the entry in one step.
-- **BPF_MAP_GET_NEXT_KEY**: Iterates through the keys in the map.
-- **BPF_MAP_LOOKUP_BATCH**: Retrieves multiple entries in a single call.
-- **BPF_MAP_UPDATE_BATCH**: Updates multiple entries at once.
-- **BPF_MAP_DELETE_BATCH**: Deletes multiple entries in one operation.
-- **BPF_MAP_FREEZE**: Converts the map into a read-only state.
-- **BPF_OBJ_PIN**: Pins the map to the BPF filesystem so it persists beyond the process's lifetime.
-- **BPF_OBJ_GET**: Retrieves a previously pinned map.
+- `BPF_MAP_CREATE`: Creates a new eBPF map. This operation sets up a map.
+- `BPF_MAP_UPDATE_ELEM`: Inserts or updates a key-value pair.
+- `BPF_MAP_LOOKUP_ELEM`: Retrieves the value associated with a given key.
+- `BPF_MAP_DELETE_ELEM`: Deletes a key-value pair by its key.
+- `BPF_MAP_LOOKUP_AND_DELETE_ELEM`: Retrieves a value by key and deletes the entry in one step.
+- `BPF_MAP_GET_NEXT_KEY`: Iterates through the keys in the map.
+- `BPF_MAP_LOOKUP_BATCH`: Retrieves multiple entries in a single call.
+- `BPF_MAP_UPDATE_BATCH`: Updates multiple entries at once.
+- `BPF_MAP_DELETE_BATCH`: Deletes multiple entries in one operation.
+- `BPF_MAP_FREEZE`: Converts the map into a read-only state.
+- `BPF_OBJ_PIN`: Pins the map to the BPF filesystem so it persists beyond the process's lifetime.
+- `BPF_OBJ_GET`: Retrieves a previously pinned map.
 
 These operations allow efficient data sharing between eBPF programs and user-space applications. The `bpf()` syscall is used to perform these operations, providing a flexible interface for interacting with eBPF maps. Each operation serves a specific purpose. 
 
@@ -91,7 +91,7 @@ Additionally, some operations—like batch operations and object pinning/getting
 ## 1. Map Update Element 
 
 ### User-Space code 
-`BPF_MAP_UPDATE_ELEM` command inserts or updates a key-value pair in the map.  
+`BPF_MAP_UPDATE_ELEM` command inserts or updates a key-value pair in the map.
 The function `bpf_map_update_elem` is a libbpf wrapper for `BPF_MAP_UPDATE_ELEM` command, it's part of the libbpf library, which provides a user-space interface for interacting with eBPF maps in the Linux kernel with prototype as follows:
 ```c
 int bpf_map_update_elem(int fd, const void *key, const void *value, __u64 flags);
@@ -168,10 +168,10 @@ int main() {
 
 ```
 
-To compile and run the program, use the following command: `gcc -o update-ebpf-map update-ebpf-map.c -lbpf`.  
+To compile and run the program, use the following command: `gcc -o update-ebpf-map update-ebpf-map.c -lbpf`.
 Then, execute the program with: `sudo ./update-ebpf-map`.
 We first create a map and then insert `(5 -> 100)` using `BPF_ANY`, which either inserts or updates unconditionally. Since the map was empty, `(5 -> 100)` is inserted. Next, we update `(5 -> 100)` to `(5 -> 200)` using `BPF_EXIST`, ensuring that the key must exist beforehand. The operation succeeds, and the value associated with key `5` is now `200`.
-Then, we try to insert `(4 -> 300)` using `BPF_EXIST`, which requires the key to already exist in the map. Since the key `4` does not exist in the map, the operation fails, and the error `ENOENT` is triggered, resulting in the message "Failed to insert or update element: No such file or directory."  
+Then, we try to insert `(4 -> 300)` using `BPF_EXIST`, which requires the key to already exist in the map. Since the key `4` does not exist in the map, the operation fails, and the error `ENOENT` is triggered, resulting in the message "Failed to insert or update element: No such file or directory."
 The output from running the program (`sudo ./update-ebpf-map`) is as follows:
 
 ```sh
@@ -189,7 +189,7 @@ int bpf_map_update_elem(void *map, const void *key, const void *value, __u64 fla
 
 ## 2. Map Lookup Element
 
-### User-Space code  
+### User-Space code
 `BPF_MAP_LOOKUP_ELEM` command is used to retrieve the value associated with a given key. The `bpf_map_lookup_elem` function is a libbpf wrapper for `BPF_MAP_LOOKUP_ELEM` command and its prototype is : `int bpf_map_lookup_elem(int fd, const void *key, void *value)` , so you provide the map’s file descriptor, a pointer to the key you want to look up, and a pointer to a buffer where the value will be stored if the key is found. If the operation succeeds, it returns zero, and the value is copied into the user-provided buffer. If the key does not exist, it returns -1 and sets `errno` to `ENOENT`.
 
 Consider a scenario where you have inserted an entry `(key=10, value=100)` into the map. Looking it up would look like this:
@@ -276,7 +276,7 @@ void *bpf_map_lookup_elem(const void *map, const void *key);
 
 ### User-Space code
 
-`BPF_MAP_DELETE_ELEM` command removes a key-value pair from the map.  
+`BPF_MAP_DELETE_ELEM` command removes a key-value pair from the map.
 The `bpf_map_delete_elem` function is a libbpf wrapper for `BPF_MAP_DELETE_ELEM` command and its prototype is : `int bpf_map_delete_elem(int fd, const void *key)` which takes a map file descriptor and a pointer to the key you want to remove. If the key is found and deleted, it returns zero. If the key does not exist, it returns -1 and sets `errno=ENOENT`.
 
 Here is an example of deleting a key:
@@ -534,8 +534,8 @@ int bpf_map_get_next_key(const void *map, const void *key, void *next_key);
 
 ### User-Space code
 
-`BPF_MAP_LOOKUP_BATCH` command fetches multiple elements from the map in a single call. Instead of calling `BPF_MAP_LOOKUP_ELEM` command repeatedly for each key, you can use this operation to retrieve several keys and their associated values at once. This improves performance when dealing with large maps or when you need to read multiple entries efficiently.  
-The `bpf_map_lookup_batch` function is a libbpf wrapper for `BPF_MAP_LOOKUP_BATCH` command and it uses two special parameters: **`in_batch`** and **`out_batch`**, which help maintain the state between successive batch lookups. You begin by passing a `NULL` `in_batch` to start from the first set of entries. The kernel then returns a batch of `(key, value)` pairs and sets `out_batch` to indicate where to resume from. On subsequent calls, you pass `out_batch` as `in_batch` to continue retrieving the next batch of entries until all entries have been retrieved. This method is particularly efficient for maps with a large number of entries, as it reduces the overhead of making individual lookups for each element, thus speeding up the retrieval process.  
+`BPF_MAP_LOOKUP_BATCH` command fetches multiple elements from the map in a single call. Instead of calling `BPF_MAP_LOOKUP_ELEM` command repeatedly for each key, you can use this operation to retrieve several keys and their associated values at once. This improves performance when dealing with large maps or when you need to read multiple entries efficiently.
+The `bpf_map_lookup_batch` function is a libbpf wrapper for `BPF_MAP_LOOKUP_BATCH` command and it uses two special parameters: `in_batch` and `out_batch`, which help maintain the state between successive batch lookups. You begin by passing a `NULL` `in_batch` to start from the first set of entries. The kernel then returns a batch of `(key, value)` pairs and sets `out_batch` to indicate where to resume from. On subsequent calls, you pass `out_batch` as `in_batch` to continue retrieving the next batch of entries until all entries have been retrieved. This method is particularly efficient for maps with a large number of entries, as it reduces the overhead of making individual lookups for each element, thus speeding up the retrieval process.  
 The helper function prototype is 
 ```c
 int bpf_map_lookup_batch(int fd, void *in_batch, void *out_batch, void *keys,
@@ -620,7 +620,7 @@ int main() {
 }
 ```
 
-The previous example first inserts nine key-value pairs into a hash map. Then, it calls `bpf_map_lookup_batch` repeatedly to retrieve elements in batches, until `ENOENT` indicates that all entries have been retrieved. Each successful batch call prints out a subset of the map entries. Since there are only nine entries, you will likely retrieve them in one or two batches, depending on the batch size. However, this method scales well for larger maps.  
+The previous example first inserts nine key-value pairs into a hash map. Then, it calls `bpf_map_lookup_batch` repeatedly to retrieve elements in batches, until `ENOENT` indicates that all entries have been retrieved. Each successful batch call prints out a subset of the map entries. Since there are only nine entries, you will likely retrieve them in one or two batches, depending on the batch size. However, this method scales well for larger maps.
 The batch size is set to `2` (in `batch_count`), meaning the program will attempt to retrieve two entries in each call to `bpf_map_lookup_batch`. If the map does not contain enough entries to fill the entire batch, `batch_count` is adjusted to reflect how many entries were actually returned. When `bpf_map_lookup_batch` eventually returns `ENOENT`, it indicates that all elements have been retrieved. The output could be like:
 
 ```sh
@@ -651,7 +651,7 @@ There is no helper function for such operation.
 
 ### User-Space code
 
-`BPF_MAP_UPDATE_BATCH` command  allows you to insert or update multiple keys and values in a single call. Similar to `BPF_MAP_LOOKUP_BATCH` command, this can significantly reduce overhead compared to performing multiple `BPF_MAP_LOOKUP_ELEM` calls in a loop. The `bpf_map_update_batch` function is a libbpf wrapper for `BPF_MAP_UPDATE_BATCH` command and its prototype is:
+`BPF_MAP_UPDATE_BATCH` command allows you to insert or update multiple keys and values in a single call. Similar to `BPF_MAP_LOOKUP_BATCH` command, this can significantly reduce overhead compared to performing multiple `BPF_MAP_LOOKUP_ELEM` calls in a loop. The `bpf_map_update_batch` function is a libbpf wrapper for `BPF_MAP_UPDATE_BATCH` command and its prototype is:
 ```c
 int bpf_map_update_batch(int fd, const void *keys, const void *values, __u32 *count,
 			 const struct bpf_map_batch_opts *opts)
@@ -817,7 +817,7 @@ There is no helper function for such operation.
 
 ### User-Space code
 
-`BPF_MAP_FREEZE` command converts the specified map into a read-only state. After freezing a map, no further updates or deletions can be performed using `bpf()` syscalls, although eBPF programs themselves can still read and, in some cases, modify certain fields if allowed by the map type. Freezing is useful when you have finished constructing or populating a map and want to ensure its contents remain stable.  
+`BPF_MAP_FREEZE` command converts the specified map into a read-only state. After freezing a map, no further updates or deletions can be performed using `bpf()` syscalls, although eBPF programs themselves can still read and, in some cases, modify certain fields if allowed by the map type. Freezing is useful when you have finished constructing or populating a map and want to ensure its contents remain stable.
 The `bpf_map_freeze` function is a libbpf wrapper for `BPF_MAP_FREEZE` command and its prototype is:
 ```c
 int bpf_map_freeze(int fd)
@@ -900,12 +900,12 @@ There is no helper function for such operation.
 ## 10. Object Pin
 
 ### User-Space code
-`BPF_OBJ_PIN` command allows you to pin a map (or other eBPF objects like programs) to a location in the eBPF filesystem (`/sys/fs/bpf` by default). Pinning makes the map accessible to other processes after the original process that created it terminates, thereby extending the map’s lifetime beyond that of a single application.  
+`BPF_OBJ_PIN` command allows you to pin a map (or other eBPF objects like programs) to a location in the eBPF filesystem (`/sys/fs/bpf` by default). Pinning makes the map accessible to other processes after the original process that created it terminates, thereby extending the map’s lifetime beyond that of a single application.
 The `bpf_obj_pin_opts` function is a libbpf wrapper for `BPF_OBJ_PIN` command and its prototype is:
 ```c
 int bpf_obj_pin_opts(int fd, const char *pathname, const struct bpf_obj_pin_opts *opts)
 ```
-{{< alert title="Note" >}}The pathname argument must not contain a dot (“.”).{{< /alert >}}
+{{< alert title="Note" >}}The pathname argument must not contain a dot (".").{{< /alert >}}
 For instance, to pin a map under `/sys/fs/bpf/my_map`:
 
 ```c
@@ -972,7 +972,7 @@ There is no helper function for such operation.
 
 ### User-Space code
 
-`BPF_OBJ_GET` command retrieves a file descriptor for a previously pinned map, allowing a separate process to access and interact with that map.  This facilitates sharing eBPF maps between multiple processes or restoring access to the map after the original creating process has exited.  
+`BPF_OBJ_GET` command retrieves a file descriptor for a previously pinned map, allowing a separate process to access and interact with that map. This facilitates sharing eBPF maps between multiple processes or restoring access to the map after the original creating process has exited.
 The `bpf_obj_get` function is a libbpf wrapper for `BPF_OBJ_GET` command and its prototype is:
 ```c
 int bpf_obj_get(const char *pathname)

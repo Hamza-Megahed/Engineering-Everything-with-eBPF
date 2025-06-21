@@ -4,21 +4,22 @@ description: CNCF project using eBPF to monitor and enforce runtime security pol
 weight: 6
 ---
 
-Tetragon is an open-source tool that uses eBPF to monitor and control Linux systems. It tracks events like process execution, network connections, and file access in real time. You can write custom rules to filter these events, and it runs with very little performance impact. Although it works great with Kubernetes and container setups, it can secure any Linux system that supports eBPF. Its kernel-level enforcement can, for example, kill a process if it violates a rule, adding a strong layer of security. Tetragon can be installed from their website https://tetragon.io/docs/installation/package/, consider download it to follow this part.  
+Tetragon is an open-source tool that uses eBPF to monitor and control Linux systems. It tracks events like process execution, network connections, and file access in real time. You can write custom rules to filter these events, and it runs with very little performance impact. Although it works great with Kubernetes and container setups, it can secure any Linux system that supports eBPF. Its kernel-level enforcement can, for example, kill a process if it violates a rule, adding a strong layer of security. Tetragon can be installed from their [website](https://tinyurl.com/eck5524z), consider download it to follow this part.
+
 Tetragon works by using policies called TracingPolicies. These policies let you define exactly what kernel events to monitor and what actions to take when those events happen. You write rules in a policy that attach probes to kernel functions, filter events based on criteria like arguments or process IDs, and then enforce actions (for example, killing a process) if a rule is matched. This approach gives you fine-grained control over system security in real time. Let's take a glimpse of what Tetragon can do.
 
 ## TracingPolicy
 
 A TracingPolicy is a YAML document that follows Kubernetes’ API conventions. Even if you’re running Tetragon on a CLI (non-Kubernetes) installation, the policy structure remains similar. At its simplest, a tracing policy must include:
 
-**API Version and Kind:** This tells Tetragon which version of the API you’re using and what type of object you’re creating. For tracing policies, you typically use:
+`API Version and Kind`: This tells Tetragon which version of the API you’re using and what type of object you’re creating. For tracing policies, you typically use:
 
 ```yaml
     apiVersion: cilium.io/v1alpha1
     kind: TracingPolicy
 ```
 
-**Metadata:** Metadata includes a unique name for your policy.
+`Metadata`: Metadata includes a unique name for your policy.
 ```yaml
     metadata:
       name: "example-policy"
@@ -26,7 +27,7 @@ A TracingPolicy is a YAML document that follows Kubernetes’ API conventions. E
 
 ### Spec Section
 
-**Spec:** The spec contains all the configuration details about what you want to trace and how. It’s where you define:
+`Spec`: The spec contains all the configuration details about what you want to trace and how. It’s where you define:
 
 - The hook point (e.g., a kernel function to monitor)
 - Which arguments you want to capture
@@ -54,7 +55,7 @@ spec:
 
 - You are instructing Tetragon to insert a kprobe into `do_mkdirat` kernel function and it's not a syscall.
 - The policy tells the eBPF code to extract three arguments: the integer value (the file descriptor number), the filename structure (which include the file path) and integer value as mode.
- In some cases, you want to capture the return value from a function. To do so, set the `return` flag to true, define a `returnArg`, and specify its type.  This is useful when you want to track how a function completes.
+ In some cases, you want to capture the return value from a function. To do so, set the `return` flag to true, define a `returnArg`, and specify its type. This is useful when you want to track how a function completes.
 
 ```yaml
 spec:
@@ -76,7 +77,7 @@ spec:
 
 ### Selectors
 
-**Selectors** are the core of in-kernel filtering. They allow you to define conditions that must be met for the policy to apply and actions to be triggered. Within a selector, you can include one or more filters.
+`Selectors` are the core of in-kernel filtering. They allow you to define conditions that must be met for the policy to apply and actions to be triggered. Within a selector, you can include one or more filters.
 
 ### Filter Types
 
@@ -84,18 +85,18 @@ Each probe can contain up to 5 selectors and each selector can contain one or mo
 
 | Filter Name                | Definition                                                                                                           | Operators                                                                                                                                                                                                              |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **matchArgs**              | Filters on the value of function arguments.                                                                          | Equal, NotEqual, Prefix, Postfix, Mask, GreaterThan (GT), LessThan (LT), SPort, NotSPort, SPortPriv, NotSPortPriv, DPort, NotDPort, DPortPriv, NotDPortPriv, SAddr, NotSAddr, DAddr, NotDAddr, Protocol, Family, State |
-| **matchReturnArgs**        | Filters based on the function’s return value.                                                                        | Equal, NotEqual, Prefix, Postfix                                                                                                                                                                                       |
-| **matchPIDs**              | Filters on the host PID of the process.                                                                              | In, NotIn                                                                                                                                                                                                              |
-| **matchBinaries**          | Filters on the binary path (or name) of the process invoking the event.                                              | In, NotIn, Prefix, NotPrefix, Postfix, NotPostfix                                                                                                                                                                      |
-| **matchNamespaces**        | Filters based on Linux namespace values.                                                                             | In, NotIn                                                                                                                                                                                                              |
-| **matchCapabilities**      | Filters based on Linux capabilities in the specified set (Effective, Inheritable, or Permitted).                     | In, NotIn                                                                                                                                                                                                              |
-| **matchNamespaceChanges**  | Filters based on changes in Linux namespaces (e.g., when a process changes its namespace).                           | In                                                                                                                                                                                                                     |
-| **matchCapabilityChanges** | Filters based on changes in Linux capabilities (e.g., when a process’s capabilities are altered).                    | In                                                                                                                                                                                                                     |
-| **matchActions**           | Applies an action when the selector matches (executed directly in kernel BPF code or in userspace for some actions). | Not a traditional filter; supports action types such as: Sigkill, Signal, Override, FollowFD, UnfollowFD, CopyFD, GetUrl, DnsLookup, Post, NoPost, TrackSock, UntrackSock, NotifyEnforcer.                             |
-| **matchReturnActions**     | Applies an action based on the return value matching the selector.                                                   | Similar to **matchActions**; supports action types (as above) that are executed on return events.                                                                                                                      |
+| matchArgs              | Filters on the value of function arguments.                                                                          | Equal, NotEqual, Prefix, Postfix, Mask, GreaterThan (GT), LessThan (LT), SPort, NotSPort, SPortPriv, NotSPortPriv, DPort, NotDPort, DPortPriv, NotDPortPriv, SAddr, NotSAddr, DAddr, NotDAddr, Protocol, Family, State |
+| matchReturnArgs        | Filters based on the function’s return value.                                                                        | Equal, NotEqual, Prefix, Postfix                                                                                                                                                                                       |
+| matchPIDs              | Filters on the host PID of the process.                                                                              | In, NotIn                                                                                                                                                                                                              |
+| matchBinaries          | Filters on the binary path (or name) of the process invoking the event.                                              | In, NotIn, Prefix, NotPrefix, Postfix, NotPostfix                                                                                                                                                                      |
+| matchNamespaces        | Filters based on Linux namespace values.                                                                             | In, NotIn                                                                                                                                                                                                              |
+| matchCapabilities      | Filters based on Linux capabilities in the specified set (Effective, Inheritable, or Permitted).                     | In, NotIn                                                                                                                                                                                                              |
+| matchNamespaceChanges  | Filters based on changes in Linux namespaces (e.g., when a process changes its namespace).                           | In                                                                                                                                                                                                                     |
+| matchCapabilityChanges | Filters based on changes in Linux capabilities (e.g., when a process’s capabilities are altered).                    | In                                                                                                                                                                                                                     |
+| matchActions           | Applies an action when the selector matches (executed directly in kernel BPF code or in userspace for some actions). | Not a traditional filter; supports action types such as: Sigkill, Signal, Override, FollowFD, UnfollowFD, CopyFD, GetUrl, DnsLookup, Post, NoPost, TrackSock, UntrackSock, NotifyEnforcer.                             |
+| matchReturnActions     | Applies an action based on the return value matching the selector.                                                   | Similar to matchActions; supports action types (as above) that are executed on return events.                                                                                                                      |
 
-**matchArgs:** Filter on a specific argument’s value (if filename = /etc/passwd)
+`matchArgs`: Filter on a specific argument’s value (if filename = /etc/passwd)
 ```yaml
     selectors:
     - matchArgs:
@@ -105,7 +106,7 @@ Each probe can contain up to 5 selectors and each selector can contain one or mo
         - "/etc/shadow"
 ```
 
-**matchBinaries:**  Filters based on the binary path or name of the process invoking the function.
+`matchBinaries`: Filters based on the binary path or name of the process invoking the function.
 ```yaml
     - matchBinaries:
       - operator: "In"
@@ -142,9 +143,9 @@ First, filter on the second parameter (index=1), then match it with (/etc/passwd
 
 ### Actions 
 
-**matchActions / matchReturnActions:**  These attach actions to be executed when the selector matches. They also allow you to filter based on the value of return arguments (if needed).  
+`matchActions` and `matchReturnActions`: These attach actions to be executed when the selector matches. They also allow you to filter based on the value of return arguments (if needed).  
 Actions are what your policy does when a selector matches. They allow you to enforce decisions right in the kernel. Some common actions include:  
-**Sigkill / Signal:**  immediately terminates the offending process.
+`Sigkill` and `Signal`: immediately terminates the offending process.
 ```yaml
     matchActions: 
     - action: Sigkill
@@ -157,7 +158,7 @@ To send a specific signal (e.g., SIGKILL which is signal 9)
       argSig: 
 ```
 
-**Override:**  Modifies the return value of a function, which can cause the caller to receive an error code. This action uses the error injection framework.
+`Override`:  Modifies the return value of a function, which can cause the caller to receive an error code. This action uses the error injection framework.
 ```yaml
     - matchActions:
       - action: Override
@@ -166,7 +167,7 @@ To send a specific signal (e.g., SIGKILL which is signal 9)
 
 {{< alert title="Note" >}}Override function used for error injection. Due to security implications, override function is available only if the kernel was compiled with `CONFIG_BPF_KPROBE_OVERRIDE` option. There is a list of all function that support override and they are tagged with `ALLOW_ERROR_INJECTION` and they are located at `/sys/kernel/debug/error_injection/list`.{{< /alert >}}
 
-**FollowFD / UnfollowFD / CopyFD:**  These actions help track file descriptor usage. For example, you can map a file descriptor to a file name during an open call, so that later calls (e.g., sys_write) that only have an FD can be correlated to a file path. The best example to explain FollowFD / UnfollowFD is from Tetragon documentation. This example is how to prevent write to a specific files for example `/etc/passwd`. `sys_write` only takes a file descriptor not a name and location. First we hook to `fd_install` kernel function.  
+`FollowFD`, `UnfollowFD` and `CopyFD`:  These actions help track file descriptor usage. For example, you can map a file descriptor to a file name during an open call, so that later calls (e.g., sys_write) that only have an FD can be correlated to a file path. The best example to explain FollowFD / UnfollowFD is from Tetragon documentation. This example is how to prevent write to a specific files for example `/etc/passwd`. `sys_write` only takes a file descriptor not a name and location. First we hook to `fd_install` kernel function.  
 `fd_install` is a kernel function that's called when a file descriptor is being added to a process's file descriptor table. In simpler terms, when a process opens a file (or performs a similar operation that creates a file descriptor), `fd_install` is invoked to associate the new file descriptor (an integer) with the corresponding file object. `fd_install` has the following prototype:
 ```c
 void fd_install(unsigned int fd, struct file *file);
@@ -229,7 +230,7 @@ In the previous example, the second argument is defined as `file` type as the na
     type: "file"
 ```
 
-**Post:** Sends an event up to user space. You can also ask for kernel and user stack traces to be included, and even limit how often these events fire.
+`Post`: Sends an event up to user space. You can also ask for kernel and user stack traces to be included, and even limit how often these events fire.
 ```yaml
     selectors:
     - matchArgs:
@@ -244,7 +245,7 @@ In the previous example, the second argument is defined as `file` type as the na
         userStackTrace: true
 ```
 
-**GetUrl / DnsLookup:** The GetUrl action triggers an HTTP GET request to a specified URL`argUrl`.  The DnsLookup action initiates a DNS lookup for a specified fully qualified domain name (FQDN) `argFqdn`.
+`GetUrl` and `DnsLookup`: The GetUrl action triggers an HTTP GET request to a specified URL`argUrl`. The `DnsLookup` action initiates a DNS lookup for a specified fully qualified domain name (FQDN) `argFqdn`.
 Both actions are used to notify external systems when a specific event occurs in the kernel such as (Thinkst canaries or webhooks).
 ```yaml
 matchActions:
@@ -398,4 +399,4 @@ spec:
         - "0"
 ```
 
-Tetragon can be configured to send metrics to Prometheus to monitor activities observed by Tetragon https://tetragon.io/docs/installation/metrics/ it has also Elastic integration https://www.elastic.co/guide/en/integrations/current/cilium_tetragon.html. Tetragon has policy library and many useful use cases in their documentation. It's a powerful tool and even fun to try it https://tetragon.io/docs/
+Tetragon can be configured to send [metrics](https://tinyurl.com/3p7nkrs4) to Prometheus to monitor activities observed by Tetragon. It has also [Elastic integration](https://tinyurl.com/4wafr2cb). Tetragon has policy library and many useful use cases in their [documentation](https://tinyurl.com/mpurdj5z). It's a powerful tool and even fun to try it.

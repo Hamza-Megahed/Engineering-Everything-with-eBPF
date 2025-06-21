@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="BCC">
   <meta itemprop="description" content="BPF Compiler Collection a Python and Lua toolkit that wraps Clang so you can embed small eBPF snippets in scripts and run them with just a few lines of loader code.">
-  <meta itemprop="wordCount" content="2612">
+  <meta itemprop="wordCount" content="2620">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="BCC">
   <meta name="twitter:description" content="BPF Compiler Collection a Python and Lua toolkit that wraps Clang so you can embed small eBPF snippets in scripts and run them with just a few lines of loader code.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -276,7 +276,7 @@
 	<header class="article-meta">
 		
   </header>
-	<p>BCC in short  is a toolkit that makes eBPF development easier by providing a higher-level interface. It compiles your eBPF C code at runtime to match the target kernel’s data structures. BCC works with languages like Python, Lua, and C++, and includes helpful macros and shortcuts for simpler programming. Essentially, BCC takes your eBPF program as a C string, preprocesses it, and then compiles it using clang.</p>
+	<p>BCC in short is a toolkit that makes eBPF development easier by providing a higher-level interface. It compiles your eBPF C code at runtime to match the target kernel’s data structures. BCC works with languages like Python, Lua, and C++, and includes helpful macros and shortcuts for simpler programming. Essentially, BCC takes your eBPF program as a C string, preprocesses it, and then compiles it using clang.</p>
 <p>The following is a crash course on BCC. I strongly recommend reading the BCC manual as well—it’s incredibly detailed and covers topics that are too extensive for this chapter.</p>
 <h2 id="probes-definition">Probes Definition<a class="td-heading-self-link" href="#probes-definition" aria-label="Heading self-link"></a></h2>
 <ol>
@@ -284,7 +284,7 @@
 <li>kretprobe: <code>kretprobe__</code> followed by the name of kernel function name. For example, <code>int kretprobe__do_mkdirat(struct pt_regs *ctx)</code>. Return value can be extracted using <code>PT_REGS_RC(ctx)</code> macro.</li>
 <li>uprobes: Can be declared as regular C function. For example, <code>int function(struct pt_regs *ctx)</code>. Arguments can be extracted using PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), &hellip; macros.</li>
 <li>uretprobes: Can be declared as regular C function<code>int function(struct pt_regs *ctx)</code>. Return value can be extracted using <code>PT_REGS_RC(ctx)</code> macro.</li>
-<li>Tracepoints: <code>TRACEPOINT_PROBE</code> followed by <code>(category, event)</code> . For example,  <code>TRACEPOINT_PROBE(sched,sched_process_exit)</code>. Arguments are available in an <code>args</code> struct and you can list of argument from the <code>format</code> file. Foe example, <code>args-&gt;pathname</code> in case of <code>TRACEPOINT_PROBE(syscalls, sys_enter_unlinkat)</code>.</li>
+<li>Tracepoints: <code>TRACEPOINT_PROBE</code> followed by <code>(category, event)</code> . For example, <code>TRACEPOINT_PROBE(sched,sched_process_exit)</code>. Arguments are available in an <code>args</code> struct and you can list of argument from the <code>format</code> file. Foe example, <code>args-&gt;pathname</code> in case of <code>TRACEPOINT_PROBE(syscalls, sys_enter_unlinkat)</code>.</li>
 <li>Raw Tracepoints: <code>RAW_TRACEPOINT_PROBE(event)</code>.<br>
 For example, <code>RAW_TRACEPOINT_PROBE(sys_enter)</code>. As stated before, raw tracepoint uses <code>bpf_raw_tracepoint_args</code> as context and it has args as <code>args[0]</code> -&gt; points to <code>pt_regs</code> structure and <code>args[1]</code> is the syscall number. To access the target functions&rsquo; parameters, you can either cast <code>ctx-&gt;args[0]</code> to a pointer to a <code>struct pt_regs</code> and use it directly, or copy its contents into a local variable of type <code>struct pt_regs</code> (e.g., <code>struct pt_regs regs;</code>). Then, you can extract the syscall parameters using the <code>PT_REGS_PARM</code> macros (such as <code>PT_REGS_PARM1</code>, <code>PT_REGS_PARM2</code>, etc.).</li>
 </ol>
@@ -304,30 +304,30 @@ For example, <code>RAW_TRACEPOINT_PROBE(sys_enter)</code>. As stated before, raw
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
 </span></span></code></pre></div><h2 id="data-handling">Data handling<a class="td-heading-self-link" href="#data-handling" aria-label="Heading self-link"></a></h2>
 <ol>
-<li><strong>bpf_probe_read_kernel</strong> helper function with the following prototype:</li>
+<li><code>bpf_probe_read_kernel</code> helper function with the following prototype:</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_probe_read_kernel</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dst</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">src</span><span style="color:#000;font-weight:bold">)</span>
 </span></span></code></pre></div><p><code>bpf_probe_read_kernel</code> is used for copying arbitrary data (e.g., structures, buffers) from kernel space and returns 0 on success.</p>
 <ol start="2">
-<li><strong>bpf_probe_read_kernel_str</strong> helper function with the following prototype:</li>
+<li><code>bpf_probe_read_kernel_str</code> helper function with the following prototype:</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_probe_read_kernel_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dst</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">src</span><span style="color:#000;font-weight:bold">)</span>
 </span></span></code></pre></div><p><code>bpf_probe_read_kernel_str</code> is used for reading null-terminated strings from kernel space and returns the length of the string including the trailing NULL on success.</p>
 <ol start="3">
-<li><strong>bpf_probe_read_user</strong> helper function with the following prototype:</li>
+<li><code>bpf_probe_read_user</code> helper function with the following prototype:</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_probe_read_user</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dst</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">src</span><span style="color:#000;font-weight:bold">)</span>
 </span></span></code></pre></div><p><code>bpf_probe_read_user</code> is used for copying arbitrary data (e.g., structures, buffers) from user space and returns 0 on success.</p>
 <ol start="4">
-<li><strong>bpf_probe_read_user_str</strong> helper function with the following prototype:</li>
+<li><code>bpf_probe_read_user_str</code> helper function with the following prototype:</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_probe_read_user_str</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dst</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">size</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">src</span><span style="color:#000;font-weight:bold">)</span>  
 </span></span></code></pre></div><p><code>bpf_probe_read_user_str</code> is used for reading null-terminated strings from user space and returns the length of the string including the trailing NULL on success.</p>
 <ol start="5">
-<li><strong>bpf_ktime_get_ns</strong>: returns <code>u64</code> time elapsed since system boot in nanoseconds.</li>
-<li><strong>bpf_get_current_pid_tgid</strong>: returns <code>u64</code> current tgid and pid.</li>
-<li><strong>bpf_get_current_uid_gid</strong>: returns <code>u64</code> current pid and gid.</li>
-<li><strong>bpf_get_current_comm(void *buf, __u32 size_of_buf)</strong>:  copy current process name into pointer<code>buf</code> and sizeof at least 16 bytes.
+<li><code>bpf_ktime_get_ns</code>: returns <code>u64</code> time elapsed since system boot in nanoseconds.</li>
+<li><code>bpf_get_current_pid_tgid</code>: returns <code>u64</code> current tgid and pid.</li>
+<li><code>bpf_get_current_uid_gid</code>: returns <code>u64</code> current pid and gid.</li>
+<li><code>bpf_get_current_comm(void *buf, __u32 size_of_buf)</code>: copy current process name into pointer<code>buf</code> and sizeof at least 16 bytes.
 For example:</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">comm</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">TASK_COMM_LEN</span><span style="color:#000;font-weight:bold">];</span> <span style="color:#8f5902;font-style:italic">// TASK_COMM_LEN = 16, defined in include/linux/sched.h
@@ -338,8 +338,8 @@ For example:</li>
 <h2 id="buffers">Buffers<a class="td-heading-self-link" href="#buffers" aria-label="Heading self-link"></a></h2>
 <ol>
 <li><code>BPF_PERF_OUTPUT(name)</code>: creates eBPF table to push data out to user-space using perf buffer.</li>
-<li><code>perf_submit</code>: a method of a <code>BPF_PERF_OUTPUT</code> to submit data to user-space. <code>perf_submit</code> has the following prototype: <code>int perf_submit((void *)ctx, (void *)data, u32 data_size)</code>.</li>
-<li><code>BPF_RINGBUF_OUTPUT</code>:  creates eBPF table to push data out to user-space using ring buffer. It has the following prototype <code>BPF_RINGBUF_OUTPUT(name, page_cnt)</code>, <code>page_cnt</code> is number of memory pages for ring buffer size.</li>
+<li><code>perf_submit</code>: a method of a <code>BPF_PERF_OUTPUT</code> to submit data to user-space. The method <code>perf_submit</code> has the following prototype: <code>int perf_submit((void *)ctx, (void *)data, u32 data_size)</code>.</li>
+<li><code>BPF_RINGBUF_OUTPUT</code>: creates eBPF table to push data out to user-space using ring buffer. It has the following prototype <code>BPF_RINGBUF_OUTPUT(name, page_cnt)</code>, <code>page_cnt</code> is number of memory pages for ring buffer size.</li>
 <li><code>ringbuf_output</code>: a method of the <code>BPF_RINGBUF_OUTPUT</code> to submit data to user-space.<code>ringbuf_output</code> has the following prototype: <code>int ringbuf_output((void *)data, u64 data_size, u64 flags)</code>.</li>
 <li><code>ringbuf_reserve</code>: a method of the <code>BPF_RINGBUF_OUTPUT</code> to reserve a space in ring buffer and allocate data structure pointer for output data. It has the following prototype: <code>void* ringbuf_reserve(u64 data_size)</code>.</li>
 <li><code>ringbuf_submit</code>: a method of the <code>BPF_RINGBUF_OUTPUT</code> to submit data to user-space. <code>ringbuf_submit</code> has the following prototype: <code>void ringbuf_submit((void *)data, u64 flags)</code>.</li>
@@ -356,13 +356,13 @@ For example:</li>
 <li><code>map.delete(&amp;key)</code>: delete a key from map.</li>
 <li><code>map.update(&amp;key, &amp;val)</code>: updates value for a given key.</li>
 <li><code>map.insert(&amp;key, &amp;val)</code>: inserts a value for a given key.</li>
-<li><code>map.increment(key[, increment_amount])</code>: increments the key by <code>increment_amount</code>.</li>
+<li><code>map.increment(key[, increment_amount])</code>: increments the value associated with key by <code>increment_amount</code>.</li>
 </ol>
 <h2 id="bcc-python">BCC Python<a class="td-heading-self-link" href="#bcc-python" aria-label="Heading self-link"></a></h2>
 <ol>
 <li><code>BPF(text=prog)</code>: creates eBPF object.</li>
 <li><code>BPF.attach_kprobe(event=&quot;event&quot;, fn_name=&quot;name&quot;)</code>: attach a probe into kernel function <code>event</code> and use <code>name</code> as kprobe handler.</li>
-<li><code>BPF.attach_kretprobe(event=&quot;event&quot;, fn_name=&quot;name&quot;)</code>: the same as <code>attach_kprobe</code>.</li>
+<li><code>BPF.attach_kretprobe(event=&quot;event&quot;, fn_name=&quot;name&quot;)</code>: behaves the same way as <code>attach_kprobe</code>.</li>
 <li><code>BPF.attach_tracepoint(tp=&quot;tracepoint&quot;, fn_name=&quot;name&quot;)</code>: attach a probe into <code>tracepoint</code> and use <code>name</code> as tracepoint handler.</li>
 <li><code>BPF.attach_uprobe(name=&quot;location&quot;, sym=&quot;symbol&quot;, fn_name=&quot;name&quot;)</code>: attach a probe to<code>location</code> with <code>symbol</code>use <code>name</code> as uprobe handler. For example,</li>
 </ol>
@@ -391,7 +391,7 @@ XDP_FLAGS_HW_MODE (1U &laquo; 3): This flag is used for offloading the XDP progr
 <li><code>BPF.perf_buffer_poll(timeout=T)</code>: polls data from perf buffer.</li>
 <li><code>BPF.ring_buffer_poll(timeout=T)</code>: polls data from ring buffer.</li>
 <li><code>table.open_perf_buffer(callback, page_cnt=N, lost_cb=None)</code>: opens a perf ring buffer for <code>BPF_PERF_OUTPUT</code>.</li>
-<li><code>table.open_ring_buffer(callback, ctx=None)</code>: opens a buffer ring for <code>BPF_RINGBUF_OUTPUT</code>.</li>
+<li><code>table.open_ring_buffer(callback, ctx=None)</code>: opens a buffer ring specifically for <code>BPF_RINGBUF_OUTPUT</code>.</li>
 <li><code>BPF.trace_print</code>: reads from <code>/sys/kernel/debug/tracing/trace_pipe</code> and prints the contents.</li>
 </ol>
 <h2 id="examples">Examples<a class="td-heading-self-link" href="#examples" aria-label="Heading self-link"></a></h2>

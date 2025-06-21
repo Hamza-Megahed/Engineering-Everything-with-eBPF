@@ -6,13 +6,12 @@ weight: 2
 
 ### Writing eBPF Code
 
-When writing eBPF code, you typically need to write two separate parts: one for **kernel-space** and the other for **user-space**.  
-**Kernel Space Code:**  
-The kernel-space code is responsible for performing specific tasks, such as tracing, monitoring network packets, filtering system calls, or attaching to kprobes, tracepoints, etc. This code interacts directly with the kernel and can access kernel data structures or events. The kernel space is highly sensitive, so the code running there must be safe and efficient.
-The kernel-space code is written in a special eBPF-compatible language (with a C-like syntax) and is loaded into the kernel using helper libraries (such as libbpf) or system calls (like `bpf()`).  
-**User Space Code:**  
-User-space code is responsible for loading the eBPF program into the kernel, attaching it to specific hooks or events, and managing communication between user space and kernel space. It also handles tasks like retrieving data from the kernel (e.g., using maps for data storage).  
-User-space code is written in a regular programming language (such as C or Python) and runs outside the kernel, as a user-space application.
+When writing eBPF code, you typically need to write two separate parts: one for **kernel-space** and the other for **user-space**.
+**Kernel Space Code:**
+The kernel-space code is responsible for performing specific tasks, such as tracing, monitoring network packets, filtering system calls, or attaching to kprobes, tracepoints, etc. This code interacts directly with the kernel and can access kernel data structures or events. The kernel space is highly sensitive, so the code running there must be safe and efficient. The kernel-space code is written in a special eBPF-compatible language (with a C-like syntax) and is loaded into the kernel using helper libraries (such as libbpf) or system calls (like `bpf()`).
+
+**User Space Code:**
+User-space code is responsible for loading the eBPF program into the kernel, attaching it to specific hooks or events, and managing communication between user space and kernel space. It also handles tasks like retrieving data from the kernel (e.g., using maps for data storage). User-space code is written in a regular programming language (such as C or Python) and runs outside the kernel, as a user-space application.
 
 <p style="text-align: center;">
   <img src="/images/docs/chapter3/eBPF-Architecture.png" alt="Centered image" />
@@ -20,14 +19,17 @@ User-space code is written in a regular programming language (such as C or Pytho
 
 ### libbpf
 
-libbpf is a C-based library designed to facilitate interaction with the eBPF subsystem in the Linux kernel. It provides a set of high-level and low-level APIs that simplify of loading, verifying, and managing eBPF programs. By handling the complexities of working with the kernel, libbpf enables developers to focus more on optimizing their eBPF code's performance and correctness, rather than managing the details of user-space and kernel-space interactions.  
-libbpf includes a variety of BPF helper functions that ease development. These helpers allow eBPF programs to interact with the system more effectively, providing functions for tasks like debugging, manipulating network packets, and working with eBPF maps. This reduces the amount of code developers need to write, enabling them to focus on the logic of their BPF programs.  
+libbpf is a C-based library designed to facilitate interaction with the eBPF subsystem in the Linux kernel. It provides a set of high-level and low-level APIs that simplify of loading, verifying, and managing eBPF programs. By handling the complexities of working with the kernel, libbpf enables developers to focus more on optimizing their eBPF code's performance and correctness, rather than managing the details of user-space and kernel-space interactions.
+
+libbpf includes a variety of BPF helper functions that ease development. These helpers allow eBPF programs to interact with the system more effectively, providing functions for tasks like debugging, manipulating network packets, and working with eBPF maps. This reduces the amount of code developers need to write, enabling them to focus on the logic of their BPF programs.
+
 One of the most significant benefits of libbpf is its support for eBPF CO-RE (Compile Once, Run Everywhere), a mechanism that enhances the portability of eBPF programs. By leveraging BTF (BPF Type Format)—a metadata format that describes kernel data types such as data structures, unions, enums, and function prototypes—libbpf allows developers to write eBPF programs that can be compiled once and run across multiple kernel versions. CO-RE produces an ELF file with precompiled eBPF bytecode that can run across different kernel versions, eliminating the need for recompiling or modifying eBPF code for different systems. BTF information can be generated via
 ```bash
 sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
 ```
- Simply, libbpf uses BTF information to align or modify the types and fields in the eBPF program with the current running kernel. For more information about eBPF CO-RE, please refer to this https://nakryiko.com/posts/bpf-core-reference-guide/.  
-As stated in https://docs.kernel.org/bpf/libbpf/libbpf_overview.html
+Simply, libbpf uses BTF information to align or modify the types and fields in the eBPF program with the current running kernel. For more information about eBPF CO-RE, please refer to this [post](https://tinyurl.com/2jvnrz8m).
+
+As stated in [kernel documentation](https://tinyurl.com/59359jps)
 
 ```html
 libbpf provides APIs that user space programs can use to manipulate the BPF programs by triggering different phases of a BPF application lifecycle.
@@ -35,11 +37,11 @@ libbpf provides APIs that user space programs can use to manipulate the BPF prog
 The following section provides a brief overview of each phase in the BPF life cycle:
 
 Open phase: In this phase, libbpf parses the BPF object file and discovers BPF maps, BPF programs, and global variables. After a BPF app is opened, user space apps can make additional adjustments (setting BPF program types, if necessary; pre-setting initial values for global variables, etc.) before all the entities are created and loaded.
-    
+
 Load phase: In the load phase, libbpf creates BPF maps, resolves various relocations, and verifies and loads BPF programs into the kernel. At this point, libbpf validates all the parts of a BPF application and loads the BPF program into the kernel, but no BPF program has yet been executed. After the load phase, it’s possible to set up the initial BPF map state without racing with the BPF program code execution.
-    
+
 Attachment phase: In this phase, libbpf attaches BPF programs to various BPF hook points (e.g., tracepoints, kprobes, cgroup hooks, network packet processing pipeline, etc.). During this phase, BPF programs perform useful work such as processing packets, or updating BPF maps and global variables that can be read from user space.
-    
+
 Tear down phase: In the tear down phase, libbpf detaches BPF programs and unloads them from the kernel. BPF maps are destroyed, and all the resources used by the BPF app are freed.
 ```
 
@@ -48,7 +50,8 @@ A BPF Object Skeleton File is a C header file `(.skel.h)` generated using `bpfto
 
 ### eBPF Probes
 
-eBPF probes are mechanisms used to attach eBPF programs to specific events within the kernel or user-space. These probes allow developers to dynamically hook into various parts of the system and execute eBPF programs when those events or locations are triggered, enabling data collection, behavior monitoring, or influencing execution.  
+eBPF probes are mechanisms used to attach eBPF programs to specific events within the kernel or user-space. These probes allow developers to dynamically hook into various parts of the system and execute eBPF programs when those events or locations are triggered, enabling data collection, behavior monitoring, or influencing execution.
+
 eBPF probes allow attaching to various points in the kernel’s execution flow to observe and sometimes modify behavior. Each type of eBPF probe corresponds to a particular attachment point. Some common probe types include:
 
 - **kprobe:** Attaches to almost any kernel instruction address.
@@ -62,7 +65,8 @@ eBPF probes allow attaching to various points in the kernel’s execution flow t
 
 ### Kprobes
 
-A kprobe is a dynamic instrumentation mechanism that allows you to attach a custom handler at almost any kernel instruction address, often used at the start of a kernel function. When the CPU executes this probed instruction, it triggers the kprobe handler. This handler can inspect CPU registers, function arguments, and kernel memory state before the original instruction executes. kprobe-based eBPF programs are classified under the program type `BPF_PROG_TYPE_KPROBE`.  
+A kprobe is a dynamic instrumentation mechanism that allows you to attach a custom handler at almost any kernel instruction address, often used at the start of a kernel function. When the CPU executes this probed instruction, it triggers the kprobe handler. This handler can inspect CPU registers, function arguments, and kernel memory state before the original instruction executes. kprobe-based eBPF programs are classified under the program type `BPF_PROG_TYPE_KPROBE`.
+
 You can list all of the kernel exported symbols using `sudo cat /proc/kallsyms` and we are only interested in `T` which represents globally visible text symbols (Code) and they can be attached.
 
 #### How Kprobes Work Under the Hood
@@ -87,14 +91,14 @@ You can list all of the kernel exported symbols using `sudo cat /proc/kallsyms` 
 
 {{< alert title="Note" >}}kprobes can be attached to nearly any kernel instruction. However, certain functions—such as those involved in kprobe handling itself—cannot be probed, as doing so would trigger recursive traps and potentially destabilize the kernel.{{< /alert >}}
 
-As stated in https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_KPROBE/
+As stated in [eBPF Docs](https://tinyurl.com/4szez633)
 ```html
 The context passed to kprobe programs is `struct pt_regs`. This structure is different for each CPU architecture since it contains a copy of the CPU registers at the time the kprobe was invoked.
 
 It is common for kprobe programs to use the macros from the Libbpf `bpf_tracing.h` header file, which defines `PT_REGS_PARM1` ... `PT_REGS_PARM5` as well as a number of others. These macros will translate to the correct field in `struct pt_regs` depending on the current architecture. Communicating the architecture you are compiling the BPF program for is done by defining one of the `__TARGET_ARCH_*` values in your program or via the command line while compiling.
 ```
 
-PT_REGS_PARMX macros are defined in `bpf_tracing.h`
+`PT_REGS_PARMX` macros are defined in `bpf_tracing.h`
 ```c
 #define PT_REGS_PARM1(x) (__PT_REGS_CAST(x)->__PT_PARM1_REG)
 #define PT_REGS_PARM2(x) (__PT_REGS_CAST(x)->__PT_PARM2_REG)
@@ -136,8 +140,9 @@ struct pt_regs {
 
 The `struct pt_regs` stores the CPU's register state at the time of an interrupt, system call, or exception, enabling the kernel to save and restore the execution context of a process. By capturing the state of general-purpose registers, segment registers, and special registers (such as the instruction pointer and stack pointer).
 
-In the next example we will attach a kprobe to start of of `do_mkdirat` syscall which is used to create a new directory.  
-`do_mkdirat` prototype `int do_mkdirat(int dfd, struct filename *name, umode_t mode);` and it has 3 parameters `dfd`, `struct filename`, `mode`.
+In the next example we will attach a kprobe to start of of `do_mkdirat` syscall which is used to create a new directory.
+
+`do_mkdirat` prototype is `int do_mkdirat(int dfd, struct filename *name, umode_t mode);` and it has 3 parameters `dfd`, `struct filename`, `mode`.
 `dfd`: stands for "directory file descriptor." It specifies the directory relative to which the new directory should be created.
 `struct filename` is a kernel data structure defined in `/include/linux/fs.h` 
 ```c
@@ -198,7 +203,8 @@ Then we added `license` we we discussed in the previous chapter
 SEC("kprobe/do_mkdirat")
 int kprobe_mkdir(struct pt_regs *ctx)
 ```
-`SEC` It tells the compile what ELF section to put which is `kprobe` and where to attach it which is `do_mkdirat`. Then kprobe handler `kprobe_mkdir`  that gets executed when `do_mkdirat` entry point is triggered.  
+`SEC` It tells the compile what ELF section to put which is `kprobe` and where to attach it which is `do_mkdirat`. Then kprobe handler `kprobe_mkdir` that gets executed when `do_mkdirat` entry point is triggered.
+
 `struct pt_regs *ctx` is the context passed to the eBPF program by the kernel. It contains information about the registers at the time the function was invoked, including the function arguments, return addresses. The `ctx` pointer will be used to extract these values.
 
 ```c
@@ -213,8 +219,8 @@ Since we are interested in the `PID`, we shift the 64-bit value to the right by 
     struct filename *name = (struct filename *)PT_REGS_PARM2(ctx);
     filename = BPF_CORE_READ(name, name);
 ```
-`PT_REGS_PARM2(ctx)`: As previously discussed, this is a macro used to extract the second argument of the function being probed. In this case, the second argument is a pointer to the `filename` structure, which is passed to the `do_mkdirat` function. `struct filename *name`: This line casts the second parameter (a pointer to `struct filename`) to the `name` variable. `struct filename` holds the path to the directory to be created.  
-`BPF_CORE_READ(name, name)`:  It uses the `BPF_CORE_READ` macro from the `bpf_core_read.h` header. This macro is a helper function designed to safely read fields from kernel structures in a way that is compatible with BPF CO-RE (Compile Once, Run Everywhere) and it's necessary because kernel structures may change between different kernel versions, and `BPF_CORE_READ` ensures that the field `name` can be accessed in a manner that works across various kernel versions.  
+`PT_REGS_PARM2(ctx)`: As previously discussed, this is a macro used to extract the second argument of the function being probed. In this case, the second argument is a pointer to the `filename` structure, which is passed to the `do_mkdirat` function. `struct filename *name`: This line casts the second parameter (a pointer to `struct filename`) to the `name` variable. `struct filename` holds the path to the directory to be created.
+`BPF_CORE_READ(name, name)`: It uses the `BPF_CORE_READ` macro from the `bpf_core_read.h` header. This macro is a helper function designed to safely read fields from kernel structures in a way that is compatible with BPF CO-RE (Compile Once, Run Everywhere) and it's necessary because kernel structures may change between different kernel versions, and `BPF_CORE_READ` ensures that the field `name` can be accessed in a manner that works across various kernel versions.
 `name` field: In this case, the field `name` in `struct filename` holds the string representing the path of the directory to be created.
 
 ```c
@@ -229,7 +235,7 @@ Since we are interested in the `PID`, we shift the 64-bit value to the right by 
 
 At this point we need to compile this code into an object file using `clang` with help from `bpftool`. 
 1. Install required tools `sudo apt install linux-tools-$(uname -r) clang llvm libbpf-dev bpftool`, 
-2. Generate `vmlinux.h`  via `sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h`
+2. Generate `vmlinux.h` via `sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h`
 3. Compile eBPF code into an object file `clang -g -O2 -target bpf -c kprobe-mkdirat.bpf.c -o kprobe-mkdirat.o` with debugging information (`-g`) and optimization level `-O2`. The `-target bpf` flag ensures that Clang compiles the code for the eBPF target architecture.
 4. Generate the skeleton header file `sudo bpftool gen skeleton kprobe-mkdirat.o > kprobe-mkdirat.skel.h`
 
@@ -254,7 +260,7 @@ Idx Name                   Size     VMA              Type
 The generated object file `kprobe-mkdirat.o` has the file format ELF64-BPF, indicating it is a 64-bit ELF object file specifically for BPF (eBPF) code.  
 `kprobe/do_mkdirat` This is the section header where the actual eBPF program resides, as indicated by `SEC("kprobe/do_mkdirat")` in the code. This section contains the code that will be executed when the `do_mkdirat` kprobe is triggered.
 
-Let's move to the user-space code. The following code is derived from https://github.com/libbpf/libbpf-bootstrap
+Let's move to the user-space code. The following code is derived from [libbpf-bootstrap](https://tinyurl.com/5yknkz7j)
 ```c
 #include <stdio.h>
 #include <unistd.h>
@@ -341,6 +347,7 @@ This function attaches the eBPF program to the kernel's `kprobe` at the `do_mkdi
 This function cleans up and frees resources used by the BPF skeleton. It detaches the program and destroys the associated maps and other resources.  
 All these functions (`_open()`, `_load()`, `_attach()`, and `_destroy()`) are automatically generated from the eBPF skeleton file. As we explained earlier that the skeleton file abstracts much of the complexity of interacting with BPF programs, making it much easier to build user-space code for managing and interacting with eBPF programs. It eliminates the need for manual setup and error handling, simplify the entire process.  
 To compile the user-space code, we use the following command: `clang -o loader loader.c -lbpf`. This compiles the `loader.c` file and links it with the `libbpf` library, producing an executable named `loader`.  
+
 To start the eBPF program, you can use the following command: `sudo ./loader`. This runs the compiled user-space program `loader`, which loads the eBPF program, attaches it to the kernel function (in this case, the `do_mkdirat` function via kprobes), and starts tracing the kernel function. The `sudo` is necessary because eBPF programs often require root privileges to attach to kernel functions or tracepoints.
 ```sh
 libbpf: loading object 'kprobe_mkdirat' from buffer
@@ -380,11 +387,11 @@ Successfully started! Please run `sudo cat /sys/kernel/debug/tracing/trace_pipe`
 
 To view the output of the eBPF program, you can open a separate terminal window and run the following command: `sudo cat /sys/kernel/debug/tracing/trace_pipe`
 
-Then in another separate terminal run  `mkdir testing`. In the second terminal, you should now see the following output:
+Then in another separate terminal run `mkdir testing`. In the second terminal, you should now see the following output:
 ```sh
     mkdir-2173    [003] ...21 12952.686720: bpf_trace_printk: KPROBE ENTRY pid = 2173, filename = testing, mode = 511
 ```
-mode = 511. The value 511 is the decimal representation of the octal permission `0777`.  
+mode = 511. The value 511 is the decimal representation of the octal permission `0777`.
 
 To observe the behavior of loading the eBPF program, you can run `strace` using the following command: `sudo strace -ebpf ./loader`. This will trace the `bpf()` system calls made by the `loader` program.
 ```sh
@@ -395,7 +402,8 @@ The previous output tells us that the program type is BPF_PROG_TYPE_KPROBE in `p
   <img src="/images/docs/chapter3/kprobe-example-1.png" alt="Centered image" />
 </p>
 
-Congratulations! You've just run your first eBPF program, and it's a portable eBPF program that can work across different kernel versions.  It wasn't that complicated, was it?  
+Congratulations! You've just run your first eBPF program, and it's a portable eBPF program that can work across different kernel versions. It wasn't that complicated, was it?
+
 In eBPF kernel code, we used the name of the kprobe handler as `kprobe_mkdir` and passed a `struct pt_regs` as the context for the `kprobe_mkdir` function. Another approach is using `BPF_KPROBE`, which offers a more convenient and readable way to define kprobe handlers. With `BPF_KPROBE`, you specify the name of the function followed by any additional arguments you want to capture, making it a simpler and cleaner method. 
 ```c
 #define __TARGET_ARCH_x86
@@ -427,8 +435,8 @@ bpf(BPF_PROG_LOAD, {prog_type=BPF_PROG_TYPE_KPROBE, insn_cnt=22, insns=0x556e4ec
 Now let's move forward to walkthrough kretprobe.
 
 
-### Kretprobes  
-  
+### Kretprobes
+
 A kretprobe fires when a monitored function returns. While a kprobe targets function entry (or a specific instruction), a kretprobe targets function exit. By pairing a kprobe at function entry with a kretprobe at function exit, you can measure how long a function took to run or check its return value. kretprobe-based eBPF programs are also classified under the program type `BPF_PROG_TYPE_KPROBE`
 
 #### How Kretprobes Work Under the Hood
@@ -475,7 +483,7 @@ We changed SEC from `("kprobe/do_mkdirat")` to `("kretprobe/do_mkdirat")`
 SEC("kretprobe/do_mkdirat")
 int kretprobe_mkdir(struct pt_regs *ctx)
 ```
-Using `PT_REGS_RC` macro to extract the return value form `pt_regs` structure. PT_REGS_RC is defined in `bpf_tracing.h` as 
+Using `PT_REGS_RC` macro to extract the return value form `pt_regs` structure. Macro PT_REGS_RC is defined in `bpf_tracing.h` as 
 ```c
 #define PT_REGS_RC(x) (__PT_REGS_CAST(x)->__PT_RC_REG)
 ```
@@ -550,7 +558,7 @@ err = kretprobe_mkdirat__load(skel);
 err = kretprobe_mkdirat__attach(skel);
 kretprobe_mkdirat__destroy(skel);
 ```
-Finally, let's compile it and link it to libbpf `clang -o loader loader.c -lbpf` then run it as the previous with `sudo ./loader`  Then `sudo cat /sys/kernel/debug/tracing/trace_pipe` in a separate terminal. Then use command `mkdir test` and we get
+Finally, let's compile it and link it to libbpf `clang -o loader loader.c -lbpf` then run it as the previous with `sudo ./loader`. Then `sudo cat /sys/kernel/debug/tracing/trace_pipe` in a separate terminal. Then use command `mkdir test` and we get
 ```sh
            <...>-2053    [002] ...21  5359.243727: bpf_trace_printk: KPROBE ENTRY pid = 2053, return = 0
 ```
@@ -626,7 +634,7 @@ Combining the use of both `kprobe` and `kretprobe` on the `do_mkdirat` kernel fu
 
 `/sys/kernel/debug/tracing/trace_pipe` is globally shared interface that aggregates all ebpf programs trace events, which can lead to contention and data mixing. In contrast, using maps provides a dedicated, structured, and efficient mechanism to pass data between kernel and user space, offering better control and isolation.
 
-Let's go forward and use maps instead of the kernel's trace buffer `/sys/kernel/debug/tracing/trace_pipe`. Le'ts go back the first example and add `BPF_MAP_TYPE_PERF_EVENT_ARRAY` to it and store our data using `bpf_perf_event_output` in BPF perf event.
+Let's go forward and use maps instead of the kernel's trace buffer `/sys/kernel/debug/tracing/trace_pipe`. Using the first example and add `BPF_MAP_TYPE_PERF_EVENT_ARRAY` to it and store our data using `bpf_perf_event_output` in BPF perf event.
 <p style="text-align: center;">
   <img src="/images/docs/chapter3/kprobe-perf-buffer.png" alt="Centered image" />
 </p>
@@ -686,7 +694,7 @@ struct {
 } mkdir SEC(".maps");
 ```
 
-Then we created `ev` of type  `struct event` and store both `pid` and `mode`
+Then we created `ev` of type `struct event` and store both `pid` and `mode`
 ```c
     struct event ev = {};
     ev.pid = pid;
@@ -697,7 +705,7 @@ Next, we used `bpf_probe_read_str` to safely read a string from kernel space and
 ```c
     bpf_probe_read_str(ev.filename, sizeof(ev.filename), filename);
 ```
-Finally,  write `ev` data into our created map `mkdir`.
+Finally, write `ev` data into our created map `mkdir`.
 ```c
     bpf_perf_event_output(ctx, &mkdir, BPF_F_CURRENT_CPU, &ev, sizeof(ev));
 ```
@@ -812,11 +820,11 @@ Then we Initialize `pb` to hold the perf buffer, `struct perf_buffer` is defined
     struct perf_buffer *pb = NULL;
 ```
 
-Next, we created a perf buffer for our `BPF_MAP_TYPE_PERF_EVENT_ARRAY` using `perf_buffer__new`  and it has the following prototype 
+Next, we created a perf buffer for our perf array map `BPF_MAP_TYPE_PERF_EVENT_ARRAY` using `perf_buffer__new` and it has the following prototype 
 ```c
 struct perf_buffer * perf_buffer__new (int map_fd, size_t page_cnt, perf_buffer_sample_fn sample_cb, perf_buffer_lost_fn lost_cb, void *ctx, const struct perf_buffer_opts *opts)
 ```
-`perf_buffer__new` takes a file descriptor for  `BPF_MAP_TYPE_PERF_EVENT_ARRAY` , memory page size for each CPU, a function to invoke on each each received data, a function to invoke in case of data loss, *ctx and *opts.
+`perf_buffer__new` takes a file descriptor for `BPF_MAP_TYPE_PERF_EVENT_ARRAY` , memory page size for each CPU, a function to invoke on each each received data, a function to invoke in case of data loss, *ctx and *opts.
 ```c
     pb = perf_buffer__new(bpf_map__fd(skel->maps.mkdir), PERF_BUFFER_PAGES, handle_event, handle_lost_events, NULL, NULL);
     if (!pb) {
@@ -874,8 +882,8 @@ asmlinkage long sys_execve(const char __user *filename,
                            const char __user *const __user *envp);
 ```
 `asmlinkage`: It's a macro to tell the compile to that arguments are passed on the stack not registers.
-`const char __user *filename`:  A pointer to the filename (a user-space string) of the program to execute.
-`const char __user *const __user *argv`:  A pointer to an array of pointers (from user space) to the argument strings for the new program.
+`const char __user *filename`: A pointer to the filename (a user-space string) of the program to execute.
+`const char __user *const __user *argv`: A pointer to an array of pointers (from user space) to the argument strings for the new program.
 `const char __user *const __user _*envp`: A pointer to an array of pointers (from user space) to the environment variables for the new program.
 
 In next example, we will attach kprobe to `execve` syscall using `ksyscall` and we will add ring buffer to ship our events to the user-space instead of perf buffer. Ring buffer needs to be defined, reserve then submit your events. The ring buffer minimizes overhead, offering lower latency and better performance for high-frequency event reporting compared to perf buffer mechanism.
@@ -1107,12 +1115,12 @@ We Initialize `rb` to hold the ring buffer.
     struct ring_buffer *rb = NULL;
 ```
 
-`ring_buffer__new` takes a file descriptor for  `BPF_MAP_TYPE_RINGBUF`  and function to invoke on each each received data.
+`ring_buffer__new` takes a file descriptor for `BPF_MAP_TYPE_RINGBUF` and function to invoke on each each received data.
 ```c
     rb = ring_buffer__new(bpf_map__fd(skel->maps.rb), handle_event, NULL, NULL);
 ```
 
-Then we retrieve the newly added data to the ring buffer using `ring_buffer__poll` function  which has the following prototype:`int ring_buffer__poll (struct ring_buffer *rb, int timeout_ms)`.
+Then we retrieve the newly added data to the ring buffer using `ring_buffer__poll` function which has the following prototype:`int ring_buffer__poll (struct ring_buffer *rb, int timeout_ms)`.
 If Positive `timeout_ms`: Blocks for the specified time (e.g., 100ms). If data arrives within that time, it processes and returns. If no data arrives, it returns 0.
 If`timeout_ms == 0`: Non-blocking. Checks immediately for data. Returns 0 if no data is available.
 If Negative `timeout_ms`: Blocks indefinitely until data becomes available.

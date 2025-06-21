@@ -4,7 +4,7 @@ description: BPF Compiler Collection a Python and Lua toolkit that wraps Clang s
 weight: 3
 ---
 
-BCC in short  is a toolkit that makes eBPF development easier by providing a higher-level interface. It compiles your eBPF C code at runtime to match the target kernel’s data structures. BCC works with languages like Python, Lua, and C++, and includes helpful macros and shortcuts for simpler programming. Essentially, BCC takes your eBPF program as a C string, preprocesses it, and then compiles it using clang.
+BCC in short is a toolkit that makes eBPF development easier by providing a higher-level interface. It compiles your eBPF C code at runtime to match the target kernel’s data structures. BCC works with languages like Python, Lua, and C++, and includes helpful macros and shortcuts for simpler programming. Essentially, BCC takes your eBPF program as a C string, preprocesses it, and then compiles it using clang.
 
 The following is a crash course on BCC. I strongly recommend reading the BCC manual as well—it’s incredibly detailed and covers topics that are too extensive for this chapter.
 ## Probes Definition
@@ -12,7 +12,7 @@ The following is a crash course on BCC. I strongly recommend reading the BCC man
 2. kretprobe: `kretprobe__` followed by the name of kernel function name. For example, `int kretprobe__do_mkdirat(struct pt_regs *ctx)`. Return value can be extracted using `PT_REGS_RC(ctx)` macro.
 3. uprobes: Can be declared as regular C function. For example, `int function(struct pt_regs *ctx)`. Arguments can be extracted using PT_REGS_PARM1(ctx), PT_REGS_PARM2(ctx), ... macros.
 4. uretprobes: Can be declared as regular C function`int function(struct pt_regs *ctx)`. Return value can be extracted using `PT_REGS_RC(ctx)` macro.
-5. Tracepoints: `TRACEPOINT_PROBE` followed by `(category, event)` . For example,  `TRACEPOINT_PROBE(sched,sched_process_exit)`. Arguments are available in an `args` struct and you can list of argument from the `format` file. Foe example, `args->pathname` in case of `TRACEPOINT_PROBE(syscalls, sys_enter_unlinkat)`.
+5. Tracepoints: `TRACEPOINT_PROBE` followed by `(category, event)` . For example, `TRACEPOINT_PROBE(sched,sched_process_exit)`. Arguments are available in an `args` struct and you can list of argument from the `format` file. Foe example, `args->pathname` in case of `TRACEPOINT_PROBE(syscalls, sys_enter_unlinkat)`.
 6. Raw Tracepoints: `RAW_TRACEPOINT_PROBE(event)`.  
 For example, `RAW_TRACEPOINT_PROBE(sys_enter)`. As stated before, raw tracepoint uses `bpf_raw_tracepoint_args` as context and it has args as `args[0]` -> points to `pt_regs` structure and `args[1]` is the syscall number. To access the target functions' parameters, you can either cast `ctx->args[0]` to a pointer to a `struct pt_regs` and use it directly, or copy its contents into a local variable of type `struct pt_regs` (e.g., `struct pt_regs regs;`). Then, you can extract the syscall parameters using the `PT_REGS_PARM` macros (such as `PT_REGS_PARM1`, `PT_REGS_PARM2`, etc.).
 
@@ -36,34 +36,34 @@ LSM_PROBE(path_mkdir, const struct path *dir, struct dentry *dentry, umode_t mod
 
 ## Data handling
 
-1. **bpf_probe_read_kernel** helper function with the following prototype:  
+1. `bpf_probe_read_kernel` helper function with the following prototype:  
 ```c
 int bpf_probe_read_kernel(void *dst, int size, const void *src)
 ```
 `bpf_probe_read_kernel` is used for copying arbitrary data (e.g., structures, buffers) from kernel space and returns 0 on success.
 
-2. **bpf_probe_read_kernel_str** helper function with the following prototype:  
+2. `bpf_probe_read_kernel_str` helper function with the following prototype:  
 ```c
 int bpf_probe_read_kernel_str(void *dst, int size, const void *src)
 ```
 `bpf_probe_read_kernel_str` is used for reading null-terminated strings from kernel space and returns the length of the string including the trailing NULL on success.
 
-3. **bpf_probe_read_user** helper function with the following prototype:  
+3. `bpf_probe_read_user` helper function with the following prototype:  
 ```c
 int bpf_probe_read_user(void *dst, int size, const void *src)
 ```
 `bpf_probe_read_user` is used for copying arbitrary data (e.g., structures, buffers) from user space and returns 0 on success.
 
-4. **bpf_probe_read_user_str** helper function with the following prototype:  
+4. `bpf_probe_read_user_str` helper function with the following prototype:  
 ```c
 int bpf_probe_read_user_str(void *dst, int size, const void *src)  
 ```
 `bpf_probe_read_user_str` is used for reading null-terminated strings from user space and returns the length of the string including the trailing NULL on success.
 
-5. **bpf_ktime_get_ns**: returns `u64` time elapsed since system boot in nanoseconds.
-6. **bpf_get_current_pid_tgid**: returns `u64` current tgid and pid.
-7. **bpf_get_current_uid_gid**: returns `u64` current pid and gid.
-8. **bpf_get_current_comm(void *buf, __u32 size_of_buf)**:  copy current process name into pointer`buf` and sizeof at least 16 bytes.
+5. `bpf_ktime_get_ns`: returns `u64` time elapsed since system boot in nanoseconds.
+6. `bpf_get_current_pid_tgid`: returns `u64` current tgid and pid.
+7. `bpf_get_current_uid_gid`: returns `u64` current pid and gid.
+8. `bpf_get_current_comm(void *buf, __u32 size_of_buf)`: copy current process name into pointer`buf` and sizeof at least 16 bytes.
 For example:
 ```c
     char comm[TASK_COMM_LEN]; // TASK_COMM_LEN = 16, defined in include/linux/sched.h
@@ -75,8 +75,8 @@ For example:
 ## Buffers
 
 1. `BPF_PERF_OUTPUT(name)`: creates eBPF table to push data out to user-space using perf buffer.
-2. `perf_submit`: a method of a `BPF_PERF_OUTPUT` to submit data to user-space. `perf_submit` has the following prototype: `int perf_submit((void *)ctx, (void *)data, u32 data_size)`.
-3. `BPF_RINGBUF_OUTPUT`:  creates eBPF table to push data out to user-space using ring buffer. It has the following prototype `BPF_RINGBUF_OUTPUT(name, page_cnt)`, `page_cnt` is number of memory pages for ring buffer size.
+2. `perf_submit`: a method of a `BPF_PERF_OUTPUT` to submit data to user-space. The method `perf_submit` has the following prototype: `int perf_submit((void *)ctx, (void *)data, u32 data_size)`.
+3. `BPF_RINGBUF_OUTPUT`: creates eBPF table to push data out to user-space using ring buffer. It has the following prototype `BPF_RINGBUF_OUTPUT(name, page_cnt)`, `page_cnt` is number of memory pages for ring buffer size.
 4. `ringbuf_output`: a method of the `BPF_RINGBUF_OUTPUT` to submit data to user-space.`ringbuf_output` has the following prototype: `int ringbuf_output((void *)data, u64 data_size, u64 flags)`.
 5. `ringbuf_reserve`: a method of the `BPF_RINGBUF_OUTPUT` to reserve a space in ring buffer and allocate data structure pointer for output data. It has the following prototype: `void* ringbuf_reserve(u64 data_size)`.
 6. `ringbuf_submit`: a method of the `BPF_RINGBUF_OUTPUT` to submit data to user-space. `ringbuf_submit` has the following prototype: `void ringbuf_submit((void *)data, u64 flags)`.
@@ -94,13 +94,13 @@ BCC has also `BPF_HISTOGRAM`, `BPF_STACK_TRACE`, `BPF_PERF_ARRAY`, `BPF_PERCPU_H
 2. `map.delete(&key)`: delete a key from map.
 3. `map.update(&key, &val)`: updates value for a given key.
 4. `map.insert(&key, &val)`: inserts a value for a given key.
-5. `map.increment(key[, increment_amount])`: increments the key by `increment_amount`.
+5. `map.increment(key[, increment_amount])`: increments the value associated with key by `increment_amount`.
 
 ## BCC Python
 
 1. `BPF(text=prog)`: creates eBPF object.
 2. `BPF.attach_kprobe(event="event", fn_name="name")`: attach a probe into kernel function `event` and use `name` as kprobe handler.
-3. `BPF.attach_kretprobe(event="event", fn_name="name")`: the same as `attach_kprobe`.
+3. `BPF.attach_kretprobe(event="event", fn_name="name")`: behaves the same way as `attach_kprobe`.
 4. `BPF.attach_tracepoint(tp="tracepoint", fn_name="name")`: attach a probe into `tracepoint` and use `name` as tracepoint handler.
 5. `BPF.attach_uprobe(name="location", sym="symbol", fn_name="name")`: attach a probe to`location` with `symbol`use `name` as uprobe handler. For example,
 ```c
@@ -131,7 +131,7 @@ XDP_FLAGS_HW_MODE (1U << 3): This flag is used for offloading the XDP program to
 1. `BPF.perf_buffer_poll(timeout=T)`: polls data from perf buffer.
 2. `BPF.ring_buffer_poll(timeout=T)`: polls data from ring buffer.
 3. `table.open_perf_buffer(callback, page_cnt=N, lost_cb=None)`: opens a perf ring buffer for `BPF_PERF_OUTPUT`.
-4. `table.open_ring_buffer(callback, ctx=None)`: opens a buffer ring for `BPF_RINGBUF_OUTPUT`.
+4. `table.open_ring_buffer(callback, ctx=None)`: opens a buffer ring specifically for `BPF_RINGBUF_OUTPUT`.
 5. `BPF.trace_print`: reads from `/sys/kernel/debug/tracing/trace_pipe` and prints the contents.
 
 ## Examples

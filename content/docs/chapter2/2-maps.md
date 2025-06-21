@@ -6,13 +6,17 @@ weight: 3
 
 ### Introduction to eBPF Maps
 
-One of the key design elements that make eBPF so flexible and powerful is the concept of maps. An eBPF map is a data structure residing in the kernel, accessible both by eBPF programs and user space applications. Maps provide a stable way to share state, pass configuration or lookup data, store metrics, and build more complex logic around kernel events.  
-Unlike traditional kernel data structures, eBPF maps are created, managed, and destroyed via well-defined syscalls and helper functions. They offer a form of persistent kernel memory to eBPF programs, ensuring that data can outlast a single function call or event. This allows administrators and developers to build sophisticated tools for tracing, networking, security, performance monitoring, and more—without modifying or recompiling the kernel.  
+One of the key design elements that make eBPF so flexible and powerful is the concept of maps. An eBPF map is a data structure residing in the kernel, accessible both by eBPF programs and user space applications. Maps provide a stable way to share state, pass configuration or lookup data, store metrics, and build more complex logic around kernel events.
 
-The Linux kernel defines numerous map types (more than 30 as of this writing), each optimized for different use cases. Some store generic key-value pairs, others store arrays or are used specifically for attaching events, referencing other maps, or implementing special data structures like tries. Choosing the right map type depends on the data and the operations you need to perform.  
+Unlike traditional kernel data structures, eBPF maps are created, managed, and destroyed via well-defined syscalls and helper functions. They offer a form of persistent kernel memory to eBPF programs, ensuring that data can outlast a single function call or event. This allows administrators and developers to build sophisticated tools for tracing, networking, security, performance monitoring, and more—without modifying or recompiling the kernel.
+
+The Linux kernel defines numerous map types (more than 30 as of this writing), each optimized for different use cases. Some store generic key-value pairs, others store arrays or are used specifically for attaching events, referencing other maps, or implementing special data structures like tries. Choosing the right map type depends on the data and the operations you need to perform.
+
 Before we start with explaining eBPF maps, we need to install either `gcc` or `clang`, along with `libbpf-dev`, to compile our examples. These tools are essential for building and linking the necessary components for eBPF programs. On Debian and Ubuntu, you can install them using the following command:
-`sudo apt install gcc libbpf-dev`  
-Below, we explore ten commonly used eBPF map types, detailing their conceptual purpose, common use cases, and providing code snippets demonstrating their creation using the `bpf_create_map()` API.  
+`sudo apt install gcc libbpf-dev`
+
+Below, we explore ten commonly used eBPF map types, detailing their conceptual purpose, common use cases, and providing code snippets demonstrating their creation using the `bpf_create_map()` API.
+
 From the large collection defined in the kernel’s `/include/uapi/linux/bpf.h`, 
 ```c
 enum bpf_map_type {
@@ -73,8 +77,10 @@ These map types are either widely used or particularly illustrative of eBPF’s 
 
 ### Maps in eBPF program 
 
-In eBPF, there are two main components: the eBPF program (which runs in the kernel) and the user-space code (both components will be explained later). It is common to define maps in the eBPF program, but maps are actually created and managed in user-space using the `bpf()` syscall.  
-The eBPF program (kernel-side) defines how the map should look and how it will be used by the program. This definition specifies the map's type, key size, value size, and other parameters. However, the actual creation of the map (allocating memory for it in the kernel and linking it to the eBPF program) occurs in user-space. This process involves invoking the `bpf()` syscall with the `BPF_MAP_CREATE` command.  
+In eBPF, there are two main components: the eBPF program (which runs in the kernel) and the user-space code (both components will be explained later). It is common to define maps in the eBPF program, but maps are actually created and managed in user-space using the `bpf()` syscall.
+
+The eBPF program (kernel-side) defines how the map should look and how it will be used by the program. This definition specifies the map's type, key size, value size, and other parameters. However, the actual creation of the map (allocating memory for it in the kernel and linking it to the eBPF program) occurs in user-space. This process involves invoking the `bpf()` syscall with the `BPF_MAP_CREATE` command.
+
 In practice, BTF (BPF Type Format) style maps are the preferred method for defining maps in eBPF programs. Using BTF provides a more flexible, type-safe way to define maps and makes it easier to manage complex data structures. We will explain BTF (BPF Type Format) later in details. When a user-space process issues a BPF_MAP_CREATE command, the kernel invokes the `map_create(&attr)` function which look like the following:
 ```c
 static int map_create(union bpf_attr *attr)
@@ -89,7 +95,8 @@ static int map_create(union bpf_attr *attr)
 	[...]
 ```
 
-The `bpf_map_create()` function is part of the libbpf library, which provides a user-space interface for interacting with eBPF in Linux. Internally, `bpf_map_create()` sets up the necessary parameters for creating an eBPF map and then makes a call to the `bpf()` syscall with the `BPF_MAP_CREATE` command. This function simplifies the process for the user by abstracting away the complexities of directly using the `bpf()` syscall. It configures the map, including its type, key size, value size, and the number of entries, and once these parameters are prepared, `bpf_map_create()` invokes the `bpf()` syscall with the `BPF_MAP_CREATE` command, instructing the kernel to create the eBPF map. In essence, `bpf_map_create()` serves as a user-friendly wrapper around the `bpf()` syscall's `BPF_MAP_CREATE` command or `map_create` function, making it easier for user-space programs to create eBPF maps.  
+The `bpf_map_create()` function is part of the libbpf library, which provides a user-space interface for interacting with eBPF in Linux. Internally, `bpf_map_create()` sets up the necessary parameters for creating an eBPF map and then makes a call to the `bpf()` syscall with the `BPF_MAP_CREATE` command. This function simplifies the process for the user by abstracting away the complexities of directly using the `bpf()` syscall. It configures the map, including its type, key size, value size, and the number of entries, and once these parameters are prepared, `bpf_map_create()` invokes the `bpf()` syscall with the `BPF_MAP_CREATE` command, instructing the kernel to create the eBPF map. In essence, `bpf_map_create()` serves as a user-friendly wrapper around the `bpf()` syscall's `BPF_MAP_CREATE` command or `map_create` function, making it easier for user-space programs to create eBPF maps.
+
 `bpf_map_create()` wrapper function is defined in the Kernel source code under `tools/lib/bpf/bpf.c`. The function prototype is as follows:
 
 ```c
@@ -101,14 +108,14 @@ int bpf_map_create(enum bpf_map_type map_type,
                    const struct bpf_map_create_opts *opts);
 ```
 
-- **map_type**: Specifies the type of the map (e.g., `BPF_MAP_TYPE_HASH`).
-- **map_name**: The name of the map.
-- **key_size**: Size of the key in the map.
-- **value_size**: Size of the value in the map.
-- **max_entries**: Maximum number of entries the map can hold.
-- **opts**: A pointer to the `bpf_map_create_opts` structure, which contains additional options for map creation (such as flags, BTF information, etc.).
+- `map_type`: Specifies the type of the map (e.g., `BPF_MAP_TYPE_HASH`).
+- `map_name`: The name of the map.
+- `key_size`: Size of the key in the map.
+- `value_size`: Size of the value in the map.
+- `max_entries`: Maximum number of entries the map can hold.
+- `opts`: A pointer to the `bpf_map_create_opts` structure, which contains additional options for map creation (such as flags, BTF information, etc.).
 
-The `bpf_map_create_opts` structure in **libbpf** is defined as follows in `/tools/lib/bpf/bpf.h`:
+The definition for the `bpf_map_create_opts` structure, part of `libbpf`, can be found in `/tools/lib/bpf/bpf.h`
 
 ```c
 struct bpf_map_create_opts {
@@ -128,15 +135,15 @@ struct bpf_map_create_opts {
 };
 ```
 
-- **sz**: Size of the structure, ensuring forward/backward compatibility.
-- **btf_fd**, **btf_key_type_id**, **btf_value_type_id**, **btf_vmlinux_value_type_id**: These fields are related to the **BPF Type Format** (BTF), which provides type information for the map’s key and value types
-- **inner_map_fd**: The file descriptor of an inner map if the map is being used as part of a nested structure.
-- **map_flags**: Flags that modify the behavior of the map, such as setting the map to read-only or enabling special features (e.g., memory-mapping).
-- **map_extra**: Reserved for future extensions to the structure or additional configuration.
-- **numa_node**: Specifies the NUMA node for memory locality when creating the map (used for NUMA-aware systems).
-- **map_ifindex**: Specifies the network interface index for associating the map with a specific network interface.
-- **value_type_btf_obj_fd**: A file descriptor pointing to the BTF object representing the map’s value type.
-- **token_fd**: A token FD for passing file descriptors across different BPF operations.
+- `sz`: Size of the structure, ensuring forward/backward compatibility.
+- `btf_fd`, `btf_key_type_id`, `btf_value_type_id`, and `btf_vmlinux_value_type_id`: These fields are related to the `BPF Type Format` (BTF), which provides type information for the map’s key and value types
+- `inner_map_fd`: The file descriptor of an inner map if the map is being used as part of a nested structure.
+- `map_flags`: Flags that modify the behavior of the map, such as setting the map to read-only or enabling special features (e.g., memory-mapping).
+- `map_extra`: Reserved for future extensions to the structure or additional configuration.
+- `numa_node`: Specifies the NUMA node for memory locality when creating the map (used for NUMA-aware systems).
+- `map_ifindex`: Specifies the network interface index for associating the map with a specific network interface.
+- `value_type_btf_obj_fd`: A file descriptor pointing to the BTF object representing the map’s value type.
+- `token_fd`: A token FD for passing file descriptors across different BPF operations.
 
 These fields allow for fine-grained control over how the eBPF map behaves, including its memory allocation, access permissions, and type information. Don't worry about these details now, as some of them will be used shortly when we dive into more examples.
 
@@ -304,7 +311,7 @@ int main() {
 
 ### 4. Prog Array Map
 
-A program array holds references to other eBPF programs, enabling "tail calls". Tail calls allow one eBPF program to jump into another without returning, effectively chaining multiple programs into a pipeline. This map type is essential for building modular and dynamic eBPF toolchains that can be reconfigured at runtime without reloading the entire set of programs.
+A program array holds references to other eBPF programs, enabling tail calls. Tail calls allow one eBPF program to jump into another without returning, effectively chaining multiple programs into a pipeline. This map type is essential for building modular and dynamic eBPF toolchains that can be reconfigured at runtime without reloading the entire set of programs.
 
 <p style="text-align: center;">
   <img src="/images/docs/chapter2/prog-array-map.png" alt="Centered image" />
@@ -453,9 +460,10 @@ int main() {
 ### 7. LPM Trie Map
 
 The LPM (Longest Prefix Match) Trie map is designed for prefix-based lookups, commonly used in networking. For example, you might store IP prefixes (like CIDR blocks) and quickly determine which prefix best matches a given IP address. This is useful for routing, firewall rules, or policy decisions based on IP addresses.
+
 {{< alert title="Note" >}}When creating an LPM Trie map, it is important to use the `BPF_F_NO_PREALLOC` flag. This flag prevents the kernel from pre-allocating memory for all entries at map creation time, allowing the map to dynamically allocate memory as needed.{{< /alert >}}
 
-For example, if you create a map that is intended to hold **1,000 entries**, the kernel might allocate memory for all **1,000 entries** at map creation time. However, in the case of an **LPM Trie map**, the situation is different. An LPM Trie map is used for **prefix-based lookups**, such as storing **CIDR blocks** or IP address prefixes for example `192.168.0.0/24`. The number of entries and the amount of memory required for the map can vary depending on the data stored. You can still specify a `max_entries` value when creating an LPM Trie map, but it is important to note that **the kernel will ignore this value**. The actual number of entries in an LPM Trie map depends on how many prefixes are inserted, and the map dynamically allocates memory based on the prefixes.
+For example, if you create a map that is intended to hold 1,000 entries, the kernel might allocate memory for all 1,000 entries at map creation time. However, in the case of an LPM Trie map, the situation is different. An LPM Trie map is used for prefix-based lookups, such as storing CIDR blocks or IP address prefixes for example `192.168.0.0/24`. The number of entries and the amount of memory required for the map can vary depending on the data stored. You can still specify a `max_entries` value when creating an LPM Trie map, but it is important to note that the kernel will ignore this value. The actual number of entries in an LPM Trie map depends on how many prefixes are inserted, and the map dynamically allocates memory based on the prefixes.
 
 <p style="text-align: center;">
   <img src="/images/docs/chapter2/lpm-trie-map.png" alt="Centered image" />
@@ -696,7 +704,8 @@ int main() {
 
 ### 10. Ring Buffer Map
 
-The ring buffer map is a relatively new addition that enables lock-free communication from kernel to user space. Instead of performing lookups or updates for each record, the kernel-side eBPF program writes events into the ring buffer, and user space reads them as a continuous stream. A ring buffer is a circular data structure that uses a continuous block of memory to store data sequentially. When data is added to the buffer and the end is reached, new data wraps around to the beginning, potentially overwriting older data if it hasn't been read yet. A typical ring buffer uses two pointers (or "heads"): one for writing and one for reading. The write pointer marks where new data is added, while the read pointer indicates where data should be consumed. This dual-pointer system allows for efficient and concurrent operations, ensuring that the writer doesn't overwrite data before the reader has processed it. Additionally, the ring buffer is shared across all CPUs, consolidating events from multiple cores into a single stream. This greatly reduces overhead for high-volume event reporting, making it ideal for profiling, tracing, or continuous monitoring tools.
+The ring buffer map is a relatively new addition that enables lock-free communication from kernel to user space. Instead of performing lookups or updates for each record, the kernel-side eBPF program writes events into the ring buffer, and user space reads them as a continuous stream. A ring buffer is a circular data structure that uses a continuous block of memory to store data sequentially. When data is added to the buffer and the end is reached, new data wraps around to the beginning, potentially overwriting older data if it hasn't been read yet.  
+A typical ring buffer uses two pointers (or "heads"): one for writing and one for reading. The write pointer marks where new data is added, while the read pointer indicates where data should be consumed. This dual-pointer system allows for efficient and concurrent operations, ensuring that the writer doesn't overwrite data before the reader has processed it. Additionally, the ring buffer is shared across all CPUs, consolidating events from multiple cores into a single stream. This greatly reduces overhead for high-volume event reporting, making it ideal for profiling, tracing, or continuous monitoring tools.
 
 <p style="text-align: center;">
   <img src="/images/docs/chapter2/ring-buffer.png" alt="Centered image" />
@@ -747,15 +756,15 @@ int main() {
 
 By combining these map types with your eBPF programs, you can build sophisticated, runtime-configurable kernel instrumentation, security monitors, network traffic analyzers, and performance profiling tools. Each map type adds a new capability or performance characteristic, allowing developers to craft solutions that were previously challenging or impossible without kernel modifications. This flexibility not only enhances existing solutions but also opens up new possibilities for kernel-level programming. Given the ongoing evolution of eBPF, selecting the right map type for your use case becomes even more important. When doing so, it's essential to consider factors such as access patterns, data size, performance requirements, and the complexity of your architecture. Here are some things to keep in mind:
 
-- **Access Pattern and Data Size**:  
-    If you have a known, fixed number of entries indexed by integer keys, `BPF_MAP_TYPE_ARRAY` might be ideal. If keys are dynamic or unpredictable, `BPF_MAP_TYPE_HASH` might be the go-to.
-- **Performance and Concurrency**:  
+- **Access Pattern and Data Size**:
+    If you have a known, fixed number of entries indexed by integer keys, the ideal choice might be a `BPF_MAP_TYPE_ARRAY`. If keys are dynamic or unpredictable, `BPF_MAP_TYPE_HASH` might be the go-to.
+- **Performance and Concurrency**:
     Under heavy load, where multiple CPUs frequently update shared data, per-CPU maps (`BPF_MAP_TYPE_PERCPU_HASH` or `BPF_MAP_TYPE_PERCPU_ARRAY`) can reduce contention. Similarly, `BPF_MAP_TYPE_RINGBUF` is the perfect fit for high-throughput streaming scenarios.
-- **Complexity and Modularity**:  
+- **Complexity and Modularity**:
     If you need to dynamically chain programs or manage multiple maps at runtime, you could use `BPF_MAP_TYPE_PROG_ARRAY`, `BPF_MAP_TYPE_ARRAY_OF_MAPS`, or `BPF_MAP_TYPE_HASH_OF_MAPS` to facilitate more sophisticated architectures.
-- **Networking and Prefix Matching**:  
+- **Networking and Prefix Matching**:
     For IP-based lookups, `BPF_MAP_TYPE_LPM_TRIE` offers a specialized structure optimized for network prefixes and routing logic.
-- **Observability and Tracing**:  
+- **Observability and Tracing**:
     `BPF_MAP_TYPE_PERF_EVENT_ARRAY` ties into the Linux perf subsystem, enabling advanced performance monitoring and event correlation in conjunction with eBPF programs.
 
 

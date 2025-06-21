@@ -142,7 +142,7 @@ struct landlock_net_port_attr {
 	 * @port: Network port in host endianness.
 	 *
 	 * It should be noted that port 0 passed to :manpage:`bind(2)` will bind
-	 * to an available port from the ephemeral port range.  This can be
+	 * to an available port from the ephemeral port range. This can be
 	 * configured with the ``/proc/sys/net/ipv4/ip_local_port_range`` sysctl
 	 * (also used for IPv6).
 	 *
@@ -157,7 +157,7 @@ struct landlock_net_port_attr {
 Adding rules can be done using `landlock_add_rule()` syscall.
 
 3. **Restricting Self:**  
-Once a ruleset is created and populated, a thread (with `no_new_privs` set, or with `CAP_SYS_ADMIN` in its namespace) can call `landlock_restrict_self()`  syscall to enforce it on itself and all child processes. After enforcement, the process can still add more restrictions later, but cannot remove existing ones.
+Once a ruleset is created and populated, a thread (with `no_new_privs` set, or with `CAP_SYS_ADMIN` in its namespace) can call `landlock_restrict_self()` syscall to enforce it on itself and all child processes. After enforcement, the process can still add more restrictions later, but cannot remove existing ones.
 
 {{< alert title="Note" >}}Each time you call `landlock_restrict_self()` syscall will add a new layer, and you can stack up to 16 layers (rulesets). If layers exceed 16, it will return `E2BIG` (Argument list too long).{{< /alert >}}
 
@@ -165,11 +165,11 @@ Once a ruleset is created and populated, a thread (with `no_new_privs` set, or w
 
 When you call `landlock_create_ruleset()` with `attr = NULL` and `size = 0`, it returns the highest supported ABI. A recommended practice is to do a best-effort approach: detect the system’s ABI, then disable features that are not supported, so your program runs consistently on different kernels. 
 
-- **ABI < 2**: Did not allow renaming/linking across directories.
-- **ABI < 3**: File truncation could not be restricted.
-- **ABI < 4**: No network restriction support.
-- **ABI < 5**: Could not restrict `ioctl(2)` on devices.
-- **ABI < 6**: No scope restrictions for signals or abstract Unix sockets.
+- `ABI < 2`: Did not allow renaming/linking across directories.
+- `ABI < 3`: File truncation could not be restricted.
+- `ABI < 4`: No network restriction support.
+- `ABI < 5`: Could not restrict `ioctl(2)` on devices.
+- `ABI < 6`: No scope restrictions for signals or abstract Unix sockets.
 
 It's recommended to detect Landlock ABI version to maintain compatibility across different kernel versions as stated in the kernel manual:
 ```c

@@ -26,7 +26,7 @@
       <link>https://ebpf.hamza-megahed.com/docs/chapter4/3-tc/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://ebpf.hamza-megahed.com/docs/chapter4/3-tc/</guid>
-      <description>Traffic Control subsystem is designed to schedule packets using a queuing system which controls the traffic direction and filtering. Traffic control can be used to filter traffic by applying rules and traffic shaping among other functions. The core of traffic control is built around qdiscs which stands for queuing disciplines, qdiscs define the rules for how packets are handled by a queuing system. There are two types of qdiscs, classful and classless.</description>
+      <description>Traffic Control subsystem is designed to schedule packets using a queuing system which controls the traffic direction and filtering. Traffic control can be used to filter traffic by applying rules and traffic shaping among other functions. The core of traffic control is built around qdiscs which stands for queuing disciplines, qdiscs define the rules for how packets are handled by a queuing system.&#xA;There are two types of qdiscs, classful and classless.</description>
     </item>
     <item>
       <title>XDP</title>

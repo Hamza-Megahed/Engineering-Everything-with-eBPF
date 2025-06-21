@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -187,10 +187,12 @@ This is the multi-page printable view of this section.
     
 	<h1 id="pg-963291df6b201c8a3b105bddb30c924c">1 - Seccomp</h1>
     <div class="lead">Restrict system calls with flexible logic beyond static tables.</div>
-	<p>Seccomp, short for Secure Computing Mode, is a powerful kernel feature that limits the system calls a process can make, thereby reducing the exposed kernel surface and mitigating potential attacks. Seccomp is a security facility in the Linux kernel designed to be a tool for sandboxing processes by restricting the set of system calls they can use. to minimizes the kernel’s exposed interface, allowing developers to reduce the risk of kernel-level exploits. The filtering mechanism is implemented using Berkeley Packet Filter (cBPF) programs which inspect system call numbers and arguments before the system call is executed.<br>
-User-space security agents are vulnerable to TOCTOU attacks, tampering, and resource exhaustion because they depend on kernel communication to make security decisions. Seccomp addresses these issues by moving filtering into the kernel. Using a cBPF program, seccomp evaluates system call metadata atomically, eliminating the window for TOCTOU exploits and preventing tampering—since filters, once installed, become immutable and are inherited by child processes. This kernel-level enforcement ensures robust protection even if the user-space agent is compromised. Seccomp filtering is implemented as follows:<br>
-1- The filter is defined as a cBPF program that evaluates each system call based on its number and its arguments. Since cBPF programs cannot dereference pointers, they operate only on the provided system call metadata, preventing time-of-check-time-of-use (TOCTOU) vulnerabilities.<br>
-2- Once a process installs a seccomp filter using either the prctl() or seccomp() system call, every system call is intercepted and evaluated by the BPF program within the kernel. This means that even if the application logic is compromised, the kernel remains protected by the filter rules.</p>
+	<p>Seccomp, short for Secure Computing Mode, is a powerful kernel feature that limits the system calls a process can make, thereby reducing the exposed kernel surface and mitigating potential attacks. Seccomp is a security facility in the Linux kernel designed to be a tool for sandboxing processes by restricting the set of system calls they can use. to minimizes the kernel’s exposed interface, allowing developers to reduce the risk of kernel-level exploits. The filtering mechanism is implemented using Berkeley Packet Filter (cBPF) programs which inspect system call numbers and arguments before the system call is executed.</p>
+<p>User-space security agents are vulnerable to TOCTOU attacks, tampering, and resource exhaustion because they depend on kernel communication to make security decisions. Seccomp addresses these issues by moving filtering into the kernel. Using a cBPF program, seccomp evaluates system call metadata atomically, eliminating the window for TOCTOU exploits and preventing tampering—since filters, once installed, become immutable and are inherited by child processes. This kernel-level enforcement ensures robust protection even if the user-space agent is compromised. Seccomp filtering is implemented as follows:</p>
+<ol>
+<li>The filter is defined as a cBPF program that evaluates each system call based on its number and its arguments. Since cBPF programs cannot dereference pointers, they operate only on the provided system call metadata, preventing time-of-check-time-of-use (TOCTOU) vulnerabilities.</li>
+<li>Once a process installs a seccomp filter using either the prctl() or seccomp() system call, every system call is intercepted and evaluated by the BPF program within the kernel. This means that even if the application logic is compromised, the kernel remains protected by the filter rules.</li>
+</ol>
 
 
 <div class="alert alert-primary" role="alert">
@@ -200,8 +202,10 @@ User-space security agents are vulnerable to TOCTOU attacks, tampering, and reso
 
 </div>
 
-<p>The <code>prctl</code> system call is used to control specific characteristics of the calling process and will be explained shortly. Using Seccomp in an application, developers typically follow these steps:<br>
-1- The filter is defined using the <code>struct seccomp_data</code> which is defined in the kernel source code <code>include/uapi/linux/seccomp.h</code> which provides the metadata needed to evaluate each system call. This structure is defined as follows:</p>
+<p>The <code>prctl</code> system call is used to control specific characteristics of the calling process and will be explained shortly. Using Seccomp in an application, developers typically follow these steps:</p>
+<ol>
+<li>The filter is defined using the <code>struct seccomp_data</code> which is defined in the kernel source code <code>include/uapi/linux/seccomp.h</code> which provides the metadata needed to evaluate each system call. This structure is defined as follows:</li>
+</ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">/**
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"> * struct seccomp_data - the format the BPF program executes over.
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic"> * @nr: the system call number
@@ -217,22 +221,26 @@ User-space security agents are vulnerable to TOCTOU attacks, tampering, and reso
 </span></span><span style="display:flex;"><span>	<span style="color:#000">__u64</span> <span style="color:#000">instruction_pointer</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">__u64</span> <span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">6</span><span style="color:#000;font-weight:bold">];</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
-</span></span></code></pre></div><p>2- Ensure that the process or its children cannot gain elevated privileges after the filter is installed using the following:</p>
+</span></span></code></pre></div><ol start="2">
+<li>Ensure that the process or its children cannot gain elevated privileges after the filter is installed using the following:</li>
+</ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span> <span style="color:#000">prctl</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">PR_SET_NO_NEW_PRIVS</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">);</span>
-</span></span></code></pre></div><p>3- Use the <code>prctl</code>  with <code>PR_SET_SECCOMP</code> to Install or activate seccomp filtering with a BPF program:</p>
+</span></span></code></pre></div><ol start="3">
+<li>Use the <code>prctl</code>  with <code>PR_SET_SECCOMP</code> to Install or activate seccomp filtering with a BPF program:</li>
+</ol>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">prctl</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">PR_SET_SECCOMP</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">SECCOMP_MODE_FILTER</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#ce5c00;font-weight:bold">&amp;</span><span style="color:#000">prog</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div><p>Here, <code>prog</code> is a pointer to a <code>struct sock_fprog</code> (defined in <code>include/uapi/linux/filter.h</code>) containing the BPF filter.</p>
 <h3 id="seccomp-return-values">Seccomp Return Values<a class="td-heading-self-link" href="#seccomp-return-values" aria-label="Heading self-link"></a></h3>
 <p>When a system call is intercepted, the BPF program returns one of several possible values. Each return value directs the kernel on how to handle the intercepted call. The actions are prioritized, meaning that if multiple filters are in place, the one with the highest precedence takes effect. The primary return values are:</p>
 <ol>
-<li>SECCOMP_RET_KILL_PROCESS: Immediately terminates the entire process. The exit status indicates a SIGSYS signal.</li>
-<li>SECCOMP_RET_KILL_THREAD: Terminates only the current thread, again with a SIGSYS signal.</li>
-<li>SECCOMP_RET_TRAP: Sends a SIGSYS signal to the process, allowing the kernel to pass metadata about the blocked call (like the system call number and address) to a signal handler.</li>
-<li>SECCOMP_RET_ERRNO: Prevents execution of the system call and returns a predefined errno to the calling process.</li>
-<li>SECCOMP_RET_USER_NOTIF:  Routes the system call to a user space notification handler, allowing external processes (like container managers) to decide how to handle the call.</li>
-<li>SECCOMP_RET_TRACE: If a tracer is attached (via <code>ptrace</code>), the tracer is notified, giving it an opportunity to modify or skip the system call.</li>
-<li>SECCOMP_RET_LOG: Logs the system call, then allows its execution. This is useful for development and debugging.</li>
-<li>SECCOMP_RET_ALLOW:  Simply allows the system call to execute.</li>
+<li><code>SECCOMP_RET_KILL_PROCESS</code>: Immediately terminates the entire process. The exit status indicates a SIGSYS signal.</li>
+<li><code>SECCOMP_RET_KILL_THREAD</code>: Terminates only the current thread, again with a SIGSYS signal.</li>
+<li><code>SECCOMP_RET_TRAP</code>: Sends a SIGSYS signal to the process, allowing the kernel to pass metadata about the blocked call (like the system call number and address) to a signal handler.</li>
+<li><code>SECCOMP_RET_ERRNO</code>: Prevents execution of the system call and returns a predefined errno to the calling process.</li>
+<li><code>SECCOMP_RET_USER_NOTIF</code>:  Routes the system call to a user space notification handler, allowing external processes (like container managers) to decide how to handle the call.</li>
+<li><code>SECCOMP_RET_TRACE</code>: If a tracer is attached (via <code>ptrace</code>), the tracer is notified, giving it an opportunity to modify or skip the system call.</li>
+<li><code>SECCOMP_RET_LOG</code>: Logs the system call, then allows its execution. This is useful for development and debugging.</li>
+<li><code>SECCOMP_RET_ALLOW</code>: Simply allows the system call to execute.</li>
 </ol>
 <p>Seccomp return values are defined in <code>include/linux/seccomp.h</code> Kernel source code as the following:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#define SECCOMP_RET_KILL_PROCESS 0x80000000U </span><span style="color:#8f5902;font-style:italic">/* kill the process */</span><span style="color:#8f5902;font-style:italic">
@@ -247,18 +255,18 @@ User-space security agents are vulnerable to TOCTOU attacks, tampering, and reso
 </span></span></span></code></pre></div><h3 id="bpf-macros">BPF Macros<a class="td-heading-self-link" href="#bpf-macros" aria-label="Heading self-link"></a></h3>
 <p>Seccomp filters consist of a set of BPF macros. We will explain the most used ones:</p>
 <ol>
-<li><strong>BPF_STMT</strong> (code, k): A macro used to define a basic cBPF instruction that does not involve conditional branching. The <code>code</code> parameter specifies the operation, and <code>k</code> is an immediate constant value used by the instruction.</li>
-<li><strong>BPF_JUMP</strong> (code, k, jt, jf): A macro to define a conditional jump instruction.<br>
+<li><code>BPF_STMT</code> (code, k): A macro used to define a basic cBPF instruction that does not involve conditional branching. The <code>code</code> parameter specifies the operation, and <code>k</code> is an immediate constant value used by the instruction.</li>
+<li><code>BPF_JUMP</code> (code, k, jt, jf): A macro to define a conditional jump instruction.<br>
 code: Specifies the jump operation along with condition flags.<br>
 k: The constant value to compare against.<br>
 jt (jump true): The number of instructions to skip if the condition is met.<br>
 jf (jump false): The number of instructions to skip if the condition is not met.</li>
-<li><strong>BPF_LD</strong>: This flag indicates a load instruction, which reads data into the accumulator.</li>
-<li><strong>BPF_W</strong>: Specifies that the data to load is a word (typically 32 bits).</li>
-<li><strong>BPF_ABS</strong>: Instructs the load operation to use absolute addressing—that is, load data from a fixed offset within the data structure (in this case, the <code>seccomp_data</code> structure).</li>
-<li><strong>BPF_K</strong>: Denotes that the operand (<code>k</code>) is an immediate constant.</li>
-<li><strong>BPF_JMP</strong>: Indicates that the instruction is a jump (conditional or unconditional) type.</li>
-<li><strong>BPF_JEQ</strong>: A condition flag used with jump instructions that causes a jump if the accumulator equals the constant <code>k</code>.</li>
+<li><code>BPF_LD</code>: This flag indicates a load instruction, which reads data into the accumulator.</li>
+<li><code>BPF_W</code>: Specifies that the data to load is a word (typically 32 bits).</li>
+<li><code>BPF_ABS</code>: Instructs the load operation to use absolute addressing—that is, load data from a fixed offset within the data structure (in this case, the <code>seccomp_data</code> structure).</li>
+<li><code>BPF_K</code>: Denotes that the operand (<code>k</code>) is an immediate constant.</li>
+<li><code>BPF_JMP</code>: Indicates that the instruction is a jump (conditional or unconditional) type.</li>
+<li><code>BPF_JEQ</code>: A condition flag used with jump instructions that causes a jump if the accumulator equals the constant <code>k</code>.</li>
 </ol>
 <p>Let&rsquo;s explore a simplified C code example demonstrating how to set up a seccomp filter to block <code>socket</code> syscall to prevent a process from initiating new network connections.</p>
 <h3 id="code-example">Code Example<a class="td-heading-self-link" href="#code-example" aria-label="Heading self-link"></a></h3>
@@ -309,38 +317,37 @@ jf (jump false): The number of instructions to skip if the condition is not met.
 </span></span></code></pre></div><p>Seccomp filter is written using cBPF macros and defines a simple seccomp policy to block the socket system call. First, loads the system call number (from the <code>nr</code> field of the <code>seccomp_data</code> structure) into the accumulator</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">BPF_STMT</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_LD</span> <span style="color:#ce5c00;font-weight:bold">|</span> <span style="color:#000">BPF_W</span> <span style="color:#ce5c00;font-weight:bold">|</span> <span style="color:#000">BPF_ABS</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">offsetof</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">seccomp_data</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">nr</span><span style="color:#000;font-weight:bold">)),</span>
 </span></span></code></pre></div><ul>
-<li><strong>BPF_LD:</strong> Instructs the program to load data.</li>
-<li><strong>BPF_W:</strong> Specifies that a 32-bit word should be loaded.</li>
-<li><strong>BPF_ABS:</strong> Indicates that the data is located at an absolute offset from the beginning of the <code>seccomp_data</code> structure.</li>
-<li><strong>offsetof(struct seccomp_data, nr)</strong>: Computes the offset of the <code>nr</code> field (which holds the system call number) within the <code>seccomp_data</code> structure.</li>
+<li><code>BPF_LD</code>: Instructs the program to load data.</li>
+<li><code>BPF_W</code>: Specifies that a 32-bit word should be loaded.</li>
+<li><code>BPF_ABS</code>: Indicates that the data is located at an absolute offset from the beginning of the <code>seccomp_data</code> structure.</li>
+<li><code>offsetof(struct seccomp_data, nr)</code>: Computes the offset of the <code>nr</code> field (which holds the system call number) within the <code>seccomp_data</code> structure.</li>
 </ul>
-<p>Second, compare the syscall Number with <code>socket</code>. If the syscall is <code>socket</code>, the next instruction (which blocks the syscall) is executed. Otherwise,  the filter skips over the block action and moves on.</p>
+<p>Second, compare the syscall Number with <code>socket</code>. If the syscall is <code>socket</code>, the next instruction (which blocks the syscall) is executed. Otherwise, the filter skips over the block action and moves on.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">BPF_JUMP</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_JMP</span> <span style="color:#ce5c00;font-weight:bold">|</span> <span style="color:#000">BPF_JEQ</span> <span style="color:#ce5c00;font-weight:bold">|</span> <span style="color:#000">BPF_K</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">SYSCALL_SOCKET</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">),</span>
 </span></span></code></pre></div><ul>
-<li><strong>BPF_JMP</strong>: Specifies that this is a jump instruction.</li>
-<li><strong>BPF_JEQ</strong>: Adds the condition &ldquo;jump if equal&rdquo; to the operation.</li>
-<li><strong>BPF_K</strong>: Indicates that the comparison value is an immediate constant.</li>
-<li><strong>SYSCALL_SOCKET</strong>: The constant to compare against (i.e., the syscall number for <code>socket</code>).
+<li><code>BPF_JMP</code>: Specifies that this is a jump instruction.</li>
+<li><code>BPF_JEQ</code>: Adds the condition &ldquo;jump if equal&rdquo; to the operation.</li>
+<li><code>BPF_K</code>: Indicates that the comparison value is an immediate constant.</li>
+<li><code>SYSCALL_SOCKET</code>: The constant to compare against (i.e., the syscall number for <code>socket</code>).
 <ul>
-<li><strong>0</strong>: If the condition is true (the syscall number equals <code>SYSCALL_SOCKET</code>), do not skip any instructions (i.e., continue with the next instruction).</li>
-<li><strong>1</strong>: If the condition is false (the syscall number does not equal <code>SYSCALL_SOCKET</code>), skip one instruction.</li>
+<li><code>0</code>: If the condition is true (the syscall number equals <code>SYSCALL_SOCKET</code>), do not skip any instructions (i.e., continue with the next instruction).</li>
+<li><code>1</code>: If the condition is false (the syscall number does not equal <code>SYSCALL_SOCKET</code>), skip one instruction.</li>
 </ul>
 </li>
 </ul>
 <p>Third, Block the socket() syscall and return error code (e.g., EPERM).</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">BPF_STMT</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_RET</span> <span style="color:#ce5c00;font-weight:bold">|</span> <span style="color:#000">BPF_K</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">SECCOMP_RET_ERRNO</span> <span style="color:#ce5c00;font-weight:bold">|</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#000">EPERM</span> <span style="color:#ce5c00;font-weight:bold">&amp;</span> <span style="color:#000">SECCOMP_RET_DATA</span><span style="color:#000;font-weight:bold">)),</span>
 </span></span></code></pre></div><ul>
-<li><strong>BPF_RET:</strong> Instructs the program to return a value immediately, effectively terminating the BPF program&rsquo;s evaluation for this syscall.</li>
-<li><strong>BPF_K:</strong> Indicates that the return value is given as an immediate constant.</li>
-<li><strong>Return Value:</strong> <code>SECCOMP_RET_ERRNO | (EPERM &amp; SECCOMP_RET_DATA)</code><br>
+<li><code>BPF_RET</code>: Instructs the program to return a value immediately, effectively terminating the BPF program&rsquo;s evaluation for this syscall.</li>
+<li><code>BPF_K</code>: Indicates that the return value is given as an immediate constant.</li>
+<li><code>Return Value</code>: <code>SECCOMP_RET_ERRNO | (EPERM &amp; SECCOMP_RET_DATA)</code><br>
 This tells the kernel to block the syscall by returning an error. Specifically, it sets the syscall&rsquo;s return value to an error code (<code>EPERM</code>), meaning &ldquo;Operation not permitted.&rdquo;</li>
 </ul>
 <p>Fourth, If the syscall was not <code>socket</code>, this instruction permits it.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">BPF_STMT</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">BPF_RET</span> <span style="color:#ce5c00;font-weight:bold">|</span> <span style="color:#000">BPF_K</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">SECCOMP_RET_ALLOW</span><span style="color:#000;font-weight:bold">),</span>
 </span></span></code></pre></div><ul>
-<li><strong>BPF_RET | BPF_K:</strong> Again, a return instruction with a constant.</li>
-<li><strong>Return Value:</strong> <code>SECCOMP_RET_ALLOW</code><br>
-This instructs the kernel to allow the syscall to proceed.</li>
+<li><code>BPF_RET | BPF_K</code>: Again, a return instruction with a constant.</li>
+<li><code>Return Value</code>: <code>SECCOMP_RET_ALLOW</code>. This instructs the kernel to allow the syscall to proceed.</li>
 </ul>
 <p>Then, ensure that the process or its children cannot gain elevated privileges after the filter is installed</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">prctl</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">PR_SET_NO_NEW_PRIVS</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">)</span>
@@ -599,7 +606,7 @@ This instructs the kernel to allow the syscall to proceed.</li>
 </span></span><span style="display:flex;"><span>--- SIGSEGV <span style="color:#ce5c00;font-weight:bold">{</span><span style="color:#000">si_signo</span><span style="color:#ce5c00;font-weight:bold">=</span>SIGSEGV, <span style="color:#000">si_code</span><span style="color:#ce5c00;font-weight:bold">=</span>SI_KERNEL, <span style="color:#000">si_addr</span><span style="color:#ce5c00;font-weight:bold">=</span>NULL<span style="color:#ce5c00;font-weight:bold">}</span> ---
 </span></span><span style="display:flex;"><span>+++ killed by SIGSEGV <span style="color:#ce5c00;font-weight:bold">(</span>core dumped<span style="color:#ce5c00;font-weight:bold">)</span> +++
 </span></span><span style="display:flex;"><span>Segmentation fault <span style="color:#ce5c00;font-weight:bold">(</span>core dumped<span style="color:#ce5c00;font-weight:bold">)</span>
-</span></span></code></pre></div><p>We need to whitelist <code>exit_group</code> too in our code. Strace couldn&rsquo;t record <code>exit_group</code> syscall first because syscall such as <code>exit_group</code> syscall terminates the process immediately, so there’s no “return” value for strace to capture. Fixing our code is just by adding <code>exit_group</code> to the whitelist:</p>
+</span></span></code></pre></div><p>We need to whitelist <code>exit_group</code> too in our code. Strace couldn&rsquo;t record <code>exit_group</code> syscall first because syscall such as <code>exit_group</code> syscall terminates the process immediately, so there’s no return value for strace to capture. Fixing our code is just by adding <code>exit_group</code> to the whitelist:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdio.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdlib.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;unistd.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -705,21 +712,19 @@ This instructs the kernel to allow the syscall to proceed.</li>
 <li><strong>Flexibility and Experimentation:</strong> Administrators and security professionals can quickly test and deploy new security policies, fine-tune behavior, or respond to emerging threats without lengthy kernel recompilations.</li>
 <li><strong>Runtime Enforcement:</strong> eBPF programs attached to LSM hooks (using the BPF_PROG_TYPE_LSM) can inspect the kernel context and actively enforce security decisions (such as logging events or rejecting operations).</li>
 </ul>
-<p>In short, while traditional LSM modules (such as SELinux) enforce security policies statically at build time, LSM with eBPF hooks introduces dynamic, runtime adaptability to kernel security. This hybrid approach leverages the robustness of the LSM framework and the operational agility of eBPF. The LSM interface triggers immediately before the kernel acts on a data structure, and at each hook point, a callback function determines whether to permit the action.  Let&rsquo;s explore together LSM with eBPF. First, we need to check if <code>BPF LSM</code> is supported by the kernel:</p>
+<p>In short, while traditional LSM modules (such as SELinux) enforce security policies statically at build time, LSM with eBPF hooks introduces dynamic, runtime adaptability to kernel security. This hybrid approach leverages the robustness of the LSM framework and the operational agility of eBPF. The LSM interface triggers immediately before the kernel acts on a data structure, and at each hook point, a callback function determines whether to permit the action.</p>
+<p>Let&rsquo;s explore together LSM with eBPF. First, we need to check if <code>BPF LSM</code> is supported by the kernel:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>cat /boot/config-<span style="color:#204a87;font-weight:bold">$(</span>uname -r<span style="color:#204a87;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">|</span> grep BPF_LSM
 </span></span></code></pre></div><p>If the output is <code>CONFIG_BPF_LSM=y</code> then the <code>BPF LSM</code> is supported. Then we check if <code>BPF LSM</code> is enabled:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>cat /sys/kernel/security/lsm
 </span></span></code></pre></div><p>if the output contains <code>bpf</code> then the module is enabled like the following:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>lockdown,capability,landlock,yama,apparmor,tomoyo,bpf,ipe,ima,evm
-</span></span></code></pre></div><p>If the output is similar to <code>ndlock,lockdown,yama,integrity,apparmor</code> with <code>bpf</code>. Then, add
-<code>GRUB_CMDLINE_LINUX=&quot;lsm=ndlock,lockdown,yama,integrity,apparmor,bpf&quot;</code> to <code>/etc/default/grub</code> followed by updating the grub using <code>sudo update-grub2</code> and reboot.</p>
+</span></span></code></pre></div><p>If the output includes <code>ndlock</code>, <code>lockdown</code>, <code>yama</code>, <code>integrity</code>, and <code>apparmor</code> along with <code>bpf</code>, add <code>GRUB_CMDLINE_LINUX=&quot;lsm=ndlock,lockdown,yama,integrity,apparmor,bpf&quot;</code> to the <code>/etc/default/grub</code> file, update GRUB using <code>sudo update-grub2</code>, and reboot.</p>
 <p>The list of all LSM hooks are defined in <code>include/linux/lsm_hook_defs.h</code>, the following is just an example of it:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">LSM_HOOK</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">path_chmod</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">path</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">path</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">umode_t</span> <span style="color:#000">mode</span><span style="color:#000;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span><span style="color:#000">LSM_HOOK</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">path_chown</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">path</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">path</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">kuid_t</span> <span style="color:#000">uid</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">kgid_t</span> <span style="color:#000">gid</span><span style="color:#000;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span><span style="color:#000">LSM_HOOK</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">int</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">path_chroot</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">path</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">path</span><span style="color:#000;font-weight:bold">)</span>
-</span></span></code></pre></div><p>LSM hooks documentation is located at</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/include/linux/lsm_hooks.h 
-</span></span></code></pre></div><p>which has descriptive documentation for most of LSM hooks such as:</p>
+</span></span></code></pre></div><p><a href="https://tinyurl.com/48ajwu7v">LSM hooks documentation</a> which has descriptive documentation for most of LSM hooks such as:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span> * @path_chmod:
 </span></span><span style="display:flex;"><span> *	  Check for permission to change a mode of the file @path. The new
 </span></span><span style="display:flex;"><span> *	  mode is specified in @mode.
@@ -804,7 +809,7 @@ This instructs the kernel to allow the syscall to proceed.</li>
 </span></span><span style="display:flex;"><span>	 	<span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">rcu_head</span> <span style="color:#000">d_rcu</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000;font-weight:bold">}</span> <span style="color:#000">d_u</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
-</span></span></code></pre></div><p><code>struct dentry</code> data structure has a member <code>struct qstr</code> data structure that contains information about the name  (a pointer to the actual character array containing the name) defined in <code>include/linux/dcache.h</code> as the following:</p>
+</span></span></code></pre></div><p><code>struct dentry</code> data structure has a member <code>struct qstr</code> data structure that contains information about the name (a pointer to the actual character array containing the name) defined in <code>include/linux/dcache.h</code> as the following:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">qstr</span> <span style="color:#000;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">union</span> <span style="color:#000;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>		<span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000;font-weight:bold">{</span>
@@ -816,7 +821,7 @@ This instructs the kernel to allow the syscall to proceed.</li>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
 </span></span></code></pre></div><p>That&rsquo;s how you extract the filename: by reading the <code>dentry</code> data structure, then accessing its <code>d_name</code> member, and finally retrieving the <code>name</code> member using <code>BPF_CORE_READ</code> macro.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">dname</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span><span style="color:#000">BPF_CORE_READ</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">dentry</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">d_name</span><span style="color:#000;font-weight:bold">.</span><span style="color:#000">name</span><span style="color:#000;font-weight:bold">);</span>
-</span></span></code></pre></div><p><code>bpf_path_d_path</code> Kernel function i used to extract the path name for the supplied path data structure defined in <code>fs/bpf_fs_kfuncs.c</code> in the kernel source code as  the following:</p>
+</span></span></code></pre></div><p><code>bpf_path_d_path</code> Kernel function i used to extract the path name for the supplied path data structure defined in <code>fs/bpf_fs_kfuncs.c</code> in the kernel source code as the following:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">__bpf_kfunc</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">bpf_path_d_path</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">path</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">path</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">char</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">buf</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">size_t</span> <span style="color:#000">buf__sz</span><span style="color:#000;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">len</span><span style="color:#000;font-weight:bold">;</span>
@@ -1079,7 +1084,7 @@ This instructs the kernel to allow the syscall to proceed.</li>
 </span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span></code></pre></div><p>When a process running as UID 1000 (for example, when a user attempts to run ping or ssh) tries to create a new socket, the LSM hook for socket creation is triggered.The eBPF program intercepts this call and retrieves the current UID using <code>bpf_get_current_uid_gid()</code>. If the UID is 1000, the program returns <code>-EPERM</code> (which means &ldquo;Operation not permitted&rdquo;). This return value causes the socket creation to fail.</p>
+</span></span></code></pre></div><p>When a process running as UID 1000 (for example, when a user attempts to run ping or ssh) tries to create a new socket, the LSM hook for socket creation is triggered. The eBPF program intercepts the system call and uses <code>bpf_get_current_uid_gid()</code> to obtain the current UID. If the UID is 1000, the program returns <code>-EPERM</code> (which means &ldquo;Operation not permitted&rdquo;). This return value causes the socket creation to fail.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>ping-2197 <span style="color:#ce5c00;font-weight:bold">[</span>...<span style="color:#ce5c00;font-weight:bold">]</span> Blocking socket_create <span style="color:#204a87;font-weight:bold">for</span> uid 1000, family 2, <span style="color:#204a87">type</span> 2, protocol <span style="color:#0000cf;font-weight:bold">1</span>
 </span></span><span style="display:flex;"><span>ssh-2198 <span style="color:#ce5c00;font-weight:bold">[</span>...<span style="color:#ce5c00;font-weight:bold">]</span> Blocking socket_create <span style="color:#204a87;font-weight:bold">for</span> uid 1000, family 2, <span style="color:#204a87">type</span> 1, protocol <span style="color:#0000cf;font-weight:bold">6</span>
 </span></span></code></pre></div><p>Of course—you can fine-tune your policy based on the arguments passed to the hook. For example, if you only want to block socket creation for TCP (protocol number 6), you can do something like this:</p>
@@ -1216,7 +1221,7 @@ Define access rights since the defaults actions is deny. Define access rights ca
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * @port: Network port in host endianness.
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 *
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * It should be noted that port 0 passed to :manpage:`bind(2)` will bind
-</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * to an available port from the ephemeral port range.  This can be
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * to an available port from the ephemeral port range. This can be
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * configured with the ``/proc/sys/net/ipv4/ip_local_port_range`` sysctl
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * (also used for IPv6).
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 *
@@ -1229,7 +1234,7 @@ Define access rights since the defaults actions is deny. Define access rights ca
 </span></span></code></pre></div><p>Adding rules can be done using <code>landlock_add_rule()</code> syscall.</p>
 <ol start="3">
 <li><strong>Restricting Self:</strong><br>
-Once a ruleset is created and populated, a thread (with <code>no_new_privs</code> set, or with <code>CAP_SYS_ADMIN</code> in its namespace) can call <code>landlock_restrict_self()</code>  syscall to enforce it on itself and all child processes. After enforcement, the process can still add more restrictions later, but cannot remove existing ones.</li>
+Once a ruleset is created and populated, a thread (with <code>no_new_privs</code> set, or with <code>CAP_SYS_ADMIN</code> in its namespace) can call <code>landlock_restrict_self()</code> syscall to enforce it on itself and all child processes. After enforcement, the process can still add more restrictions later, but cannot remove existing ones.</li>
 </ol>
 
 
@@ -1243,11 +1248,11 @@ Once a ruleset is created and populated, a thread (with <code>no_new_privs</code
 <h3 id="abi-versions-and-compatibility">ABI Versions and Compatibility<a class="td-heading-self-link" href="#abi-versions-and-compatibility" aria-label="Heading self-link"></a></h3>
 <p>When you call <code>landlock_create_ruleset()</code> with <code>attr = NULL</code> and <code>size = 0</code>, it returns the highest supported ABI. A recommended practice is to do a best-effort approach: detect the system’s ABI, then disable features that are not supported, so your program runs consistently on different kernels.</p>
 <ul>
-<li><strong>ABI &lt; 2</strong>: Did not allow renaming/linking across directories.</li>
-<li><strong>ABI &lt; 3</strong>: File truncation could not be restricted.</li>
-<li><strong>ABI &lt; 4</strong>: No network restriction support.</li>
-<li><strong>ABI &lt; 5</strong>: Could not restrict <code>ioctl(2)</code> on devices.</li>
-<li><strong>ABI &lt; 6</strong>: No scope restrictions for signals or abstract Unix sockets.</li>
+<li><code>ABI &lt; 2</code>: Did not allow renaming/linking across directories.</li>
+<li><code>ABI &lt; 3</code>: File truncation could not be restricted.</li>
+<li><code>ABI &lt; 4</code>: No network restriction support.</li>
+<li><code>ABI &lt; 5</code>: Could not restrict <code>ioctl(2)</code> on devices.</li>
+<li><code>ABI &lt; 6</code>: No scope restrictions for signals or abstract Unix sockets.</li>
 </ul>
 <p>It&rsquo;s recommended to detect Landlock ABI version to maintain compatibility across different kernel versions as stated in the kernel manual:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">abi</span><span style="color:#000;font-weight:bold">;</span>
@@ -1827,18 +1832,18 @@ Once a ruleset is created and populated, a thread (with <code>no_new_privs</code
     
 	<h1 id="pg-b7d361a59848674b28ddf805a6cadf60">5 - Tetragon</h1>
     <div class="lead">CNCF project using eBPF to monitor and enforce runtime security policies.</div>
-	<p>Tetragon is an open-source tool that uses eBPF to monitor and control Linux systems. It tracks events like process execution, network connections, and file access in real time. You can write custom rules to filter these events, and it runs with very little performance impact. Although it works great with Kubernetes and container setups, it can secure any Linux system that supports eBPF. Its kernel-level enforcement can, for example, kill a process if it violates a rule, adding a strong layer of security. Tetragon can be installed from their website <a href="https://tetragon.io/docs/installation/package/">https://tetragon.io/docs/installation/package/</a>, consider download it to follow this part.<br>
-Tetragon works by using policies called TracingPolicies. These policies let you define exactly what kernel events to monitor and what actions to take when those events happen. You write rules in a policy that attach probes to kernel functions, filter events based on criteria like arguments or process IDs, and then enforce actions (for example, killing a process) if a rule is matched. This approach gives you fine-grained control over system security in real time. Let&rsquo;s take a glimpse of what Tetragon can do.</p>
+	<p>Tetragon is an open-source tool that uses eBPF to monitor and control Linux systems. It tracks events like process execution, network connections, and file access in real time. You can write custom rules to filter these events, and it runs with very little performance impact. Although it works great with Kubernetes and container setups, it can secure any Linux system that supports eBPF. Its kernel-level enforcement can, for example, kill a process if it violates a rule, adding a strong layer of security. Tetragon can be installed from their <a href="https://tinyurl.com/eck5524z">website</a>, consider download it to follow this part.</p>
+<p>Tetragon works by using policies called TracingPolicies. These policies let you define exactly what kernel events to monitor and what actions to take when those events happen. You write rules in a policy that attach probes to kernel functions, filter events based on criteria like arguments or process IDs, and then enforce actions (for example, killing a process) if a rule is matched. This approach gives you fine-grained control over system security in real time. Let&rsquo;s take a glimpse of what Tetragon can do.</p>
 <h2 id="tracingpolicy">TracingPolicy<a class="td-heading-self-link" href="#tracingpolicy" aria-label="Heading self-link"></a></h2>
 <p>A TracingPolicy is a YAML document that follows Kubernetes’ API conventions. Even if you’re running Tetragon on a CLI (non-Kubernetes) installation, the policy structure remains similar. At its simplest, a tracing policy must include:</p>
-<p><strong>API Version and Kind:</strong> This tells Tetragon which version of the API you’re using and what type of object you’re creating. For tracing policies, you typically use:</p>
+<p><code>API Version and Kind</code>: This tells Tetragon which version of the API you’re using and what type of object you’re creating. For tracing policies, you typically use:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span><span style="color:#204a87;font-weight:bold">apiVersion</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">cilium.io/v1alpha1</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span><span style="color:#204a87;font-weight:bold">kind</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">TracingPolicy</span><span style="color:#f8f8f8;text-decoration:underline">
-</span></span></span></code></pre></div><p><strong>Metadata:</strong> Metadata includes a unique name for your policy.</p>
+</span></span></span></code></pre></div><p><code>Metadata</code>: Metadata includes a unique name for your policy.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span><span style="color:#204a87;font-weight:bold">metadata</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">      </span><span style="color:#204a87;font-weight:bold">name</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#4e9a06">&#34;example-policy&#34;</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span></code></pre></div><h3 id="spec-section">Spec Section<a class="td-heading-self-link" href="#spec-section" aria-label="Heading self-link"></a></h3>
-<p><strong>Spec:</strong> The spec contains all the configuration details about what you want to trace and how. It’s where you define:</p>
+<p><code>Spec</code>: The spec contains all the configuration details about what you want to trace and how. It’s where you define:</p>
 <ul>
 <li>The hook point (e.g., a kernel function to monitor)</li>
 <li>Which arguments you want to capture</li>
@@ -1862,7 +1867,7 @@ Tetragon works by using policies called TracingPolicies. These policies let you 
 <ul>
 <li>You are instructing Tetragon to insert a kprobe into <code>do_mkdirat</code> kernel function and it&rsquo;s not a syscall.</li>
 <li>The policy tells the eBPF code to extract three arguments: the integer value (the file descriptor number), the filename structure (which include the file path) and integer value as mode.
-In some cases, you want to capture the return value from a function. To do so, set the <code>return</code> flag to true, define a <code>returnArg</code>, and specify its type.  This is useful when you want to track how a function completes.</li>
+In some cases, you want to capture the return value from a function. To do so, set the <code>return</code> flag to true, define a <code>returnArg</code>, and specify its type. This is useful when you want to track how a function completes.</li>
 </ul>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">spec</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">  </span><span style="color:#204a87;font-weight:bold">kprobes</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
@@ -1880,7 +1885,7 @@ In some cases, you want to capture the return value from a function. To do so, s
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">	  </span><span style="color:#204a87;font-weight:bold">index</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">	  </span><span style="color:#204a87;font-weight:bold">type</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#4e9a06">&#34;int&#34;</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span></code></pre></div><h3 id="selectors">Selectors<a class="td-heading-self-link" href="#selectors" aria-label="Heading self-link"></a></h3>
-<p><strong>Selectors</strong> are the core of in-kernel filtering. They allow you to define conditions that must be met for the policy to apply and actions to be triggered. Within a selector, you can include one or more filters.</p>
+<p><code>Selectors</code> are the core of in-kernel filtering. They allow you to define conditions that must be met for the policy to apply and actions to be triggered. Within a selector, you can include one or more filters.</p>
 <h3 id="filter-types">Filter Types<a class="td-heading-self-link" href="#filter-types" aria-label="Heading self-link"></a></h3>
 <p>Each probe can contain up to 5 selectors and each selector can contain one or more filter. Below is a table summarizing the available filters, their definitions, and the operators they support:</p>
 <table>
@@ -1893,65 +1898,65 @@ In some cases, you want to capture the return value from a function. To do so, s
 </thead>
 <tbody>
 <tr>
-<td><strong>matchArgs</strong></td>
+<td>matchArgs</td>
 <td>Filters on the value of function arguments.</td>
 <td>Equal, NotEqual, Prefix, Postfix, Mask, GreaterThan (GT), LessThan (LT), SPort, NotSPort, SPortPriv, NotSPortPriv, DPort, NotDPort, DPortPriv, NotDPortPriv, SAddr, NotSAddr, DAddr, NotDAddr, Protocol, Family, State</td>
 </tr>
 <tr>
-<td><strong>matchReturnArgs</strong></td>
+<td>matchReturnArgs</td>
 <td>Filters based on the function’s return value.</td>
 <td>Equal, NotEqual, Prefix, Postfix</td>
 </tr>
 <tr>
-<td><strong>matchPIDs</strong></td>
+<td>matchPIDs</td>
 <td>Filters on the host PID of the process.</td>
 <td>In, NotIn</td>
 </tr>
 <tr>
-<td><strong>matchBinaries</strong></td>
+<td>matchBinaries</td>
 <td>Filters on the binary path (or name) of the process invoking the event.</td>
 <td>In, NotIn, Prefix, NotPrefix, Postfix, NotPostfix</td>
 </tr>
 <tr>
-<td><strong>matchNamespaces</strong></td>
+<td>matchNamespaces</td>
 <td>Filters based on Linux namespace values.</td>
 <td>In, NotIn</td>
 </tr>
 <tr>
-<td><strong>matchCapabilities</strong></td>
+<td>matchCapabilities</td>
 <td>Filters based on Linux capabilities in the specified set (Effective, Inheritable, or Permitted).</td>
 <td>In, NotIn</td>
 </tr>
 <tr>
-<td><strong>matchNamespaceChanges</strong></td>
+<td>matchNamespaceChanges</td>
 <td>Filters based on changes in Linux namespaces (e.g., when a process changes its namespace).</td>
 <td>In</td>
 </tr>
 <tr>
-<td><strong>matchCapabilityChanges</strong></td>
+<td>matchCapabilityChanges</td>
 <td>Filters based on changes in Linux capabilities (e.g., when a process’s capabilities are altered).</td>
 <td>In</td>
 </tr>
 <tr>
-<td><strong>matchActions</strong></td>
+<td>matchActions</td>
 <td>Applies an action when the selector matches (executed directly in kernel BPF code or in userspace for some actions).</td>
 <td>Not a traditional filter; supports action types such as: Sigkill, Signal, Override, FollowFD, UnfollowFD, CopyFD, GetUrl, DnsLookup, Post, NoPost, TrackSock, UntrackSock, NotifyEnforcer.</td>
 </tr>
 <tr>
-<td><strong>matchReturnActions</strong></td>
+<td>matchReturnActions</td>
 <td>Applies an action based on the return value matching the selector.</td>
-<td>Similar to <strong>matchActions</strong>; supports action types (as above) that are executed on return events.</td>
+<td>Similar to matchActions; supports action types (as above) that are executed on return events.</td>
 </tr>
 </tbody>
 </table>
-<p><strong>matchArgs:</strong> Filter on a specific argument’s value (if filename = /etc/passwd)</p>
+<p><code>matchArgs</code>: Filter on a specific argument’s value (if filename = /etc/passwd)</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span><span style="color:#204a87;font-weight:bold">selectors</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span>- <span style="color:#204a87;font-weight:bold">matchArgs</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">      </span>- <span style="color:#204a87;font-weight:bold">index</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span><span style="color:#204a87;font-weight:bold">operator</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#4e9a06">&#34;Equal&#34;</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span><span style="color:#204a87;font-weight:bold">values</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span>- <span style="color:#4e9a06">&#34;/etc/shadow&#34;</span><span style="color:#f8f8f8;text-decoration:underline">
-</span></span></span></code></pre></div><p><strong>matchBinaries:</strong>  Filters based on the binary path or name of the process invoking the function.</p>
+</span></span></span></code></pre></div><p><code>matchBinaries</code>: Filters based on the binary path or name of the process invoking the function.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span>- <span style="color:#204a87;font-weight:bold">matchBinaries</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">      </span>- <span style="color:#204a87;font-weight:bold">operator</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#4e9a06">&#34;In&#34;</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span><span style="color:#204a87;font-weight:bold">values</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
@@ -1987,16 +1992,16 @@ In some cases, you want to capture the return value from a function. To do so, s
 </div>
 
 <h3 id="actions">Actions<a class="td-heading-self-link" href="#actions" aria-label="Heading self-link"></a></h3>
-<p><strong>matchActions / matchReturnActions:</strong>  These attach actions to be executed when the selector matches. They also allow you to filter based on the value of return arguments (if needed).<br>
+<p><code>matchActions</code> and <code>matchReturnActions</code>: These attach actions to be executed when the selector matches. They also allow you to filter based on the value of return arguments (if needed).<br>
 Actions are what your policy does when a selector matches. They allow you to enforce decisions right in the kernel. Some common actions include:<br>
-<strong>Sigkill / Signal:</strong>  immediately terminates the offending process.</p>
+<code>Sigkill</code> and <code>Signal</code>: immediately terminates the offending process.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span><span style="color:#204a87;font-weight:bold">matchActions</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> 
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span>- <span style="color:#204a87;font-weight:bold">action</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">Sigkill</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span></code></pre></div><p>To send a specific signal (e.g., SIGKILL which is signal 9)</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span><span style="color:#204a87;font-weight:bold">matchActions</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> 
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span>- <span style="color:#204a87;font-weight:bold">action</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">Signal</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">      </span><span style="color:#204a87;font-weight:bold">argSig</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> 
-</span></span></span></code></pre></div><p><strong>Override:</strong>  Modifies the return value of a function, which can cause the caller to receive an error code. This action uses the error injection framework.</p>
+</span></span></span></code></pre></div><p><code>Override</code>:  Modifies the return value of a function, which can cause the caller to receive an error code. This action uses the error injection framework.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span>- <span style="color:#204a87;font-weight:bold">matchActions</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">      </span>- <span style="color:#204a87;font-weight:bold">action</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">Override</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span><span style="color:#204a87;font-weight:bold">argError</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span>-<span style="color:#0000cf;font-weight:bold">1</span><span style="color:#f8f8f8;text-decoration:underline">
@@ -2009,7 +2014,7 @@ Actions are what your policy does when a selector matches. They allow you to enf
 
 </div>
 
-<p><strong>FollowFD / UnfollowFD / CopyFD:</strong>  These actions help track file descriptor usage. For example, you can map a file descriptor to a file name during an open call, so that later calls (e.g., sys_write) that only have an FD can be correlated to a file path. The best example to explain FollowFD / UnfollowFD is from Tetragon documentation. This example is how to prevent write to a specific files for example <code>/etc/passwd</code>. <code>sys_write</code> only takes a file descriptor not a name and location. First we hook to <code>fd_install</code> kernel function.<br>
+<p><code>FollowFD</code>, <code>UnfollowFD</code> and <code>CopyFD</code>:  These actions help track file descriptor usage. For example, you can map a file descriptor to a file name during an open call, so that later calls (e.g., sys_write) that only have an FD can be correlated to a file path. The best example to explain FollowFD / UnfollowFD is from Tetragon documentation. This example is how to prevent write to a specific files for example <code>/etc/passwd</code>. <code>sys_write</code> only takes a file descriptor not a name and location. First we hook to <code>fd_install</code> kernel function.<br>
 <code>fd_install</code> is a kernel function that&rsquo;s called when a file descriptor is being added to a process&rsquo;s file descriptor table. In simpler terms, when a process opens a file (or performs a similar operation that creates a file descriptor), <code>fd_install</code> is invoked to associate the new file descriptor (an integer) with the corresponding file object. <code>fd_install</code> has the following prototype:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#000">fd_install</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">unsigned</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">fd</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">file</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">file</span><span style="color:#000;font-weight:bold">);</span>
 </span></span></code></pre></div>
@@ -2070,7 +2075,7 @@ Actions are what your policy does when a selector matches. They allow you to enf
 </span></span></span></code></pre></div><p>In the previous example, the second argument is defined as <code>file</code> type as the name of the kernel data structure <code>struct file</code>:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">  </span>- <span style="color:#204a87;font-weight:bold">index</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span><span style="color:#204a87;font-weight:bold">type</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#4e9a06">&#34;file&#34;</span><span style="color:#f8f8f8;text-decoration:underline">
-</span></span></span></code></pre></div><p><strong>Post:</strong> Sends an event up to user space. You can also ask for kernel and user stack traces to be included, and even limit how often these events fire.</p>
+</span></span></span></code></pre></div><p><code>Post</code>: Sends an event up to user space. You can also ask for kernel and user stack traces to be included, and even limit how often these events fire.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span><span style="color:#204a87;font-weight:bold">selectors</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">    </span>- <span style="color:#204a87;font-weight:bold">matchArgs</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">      </span>- <span style="color:#204a87;font-weight:bold">index</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#0000cf;font-weight:bold">1</span><span style="color:#f8f8f8;text-decoration:underline">
@@ -2082,7 +2087,7 @@ Actions are what your policy does when a selector matches. They allow you to enf
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span><span style="color:#204a87;font-weight:bold">rateLimit</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">5m</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span><span style="color:#204a87;font-weight:bold">kernelStackTrace</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#204a87;font-weight:bold">true</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span><span style="color:#204a87;font-weight:bold">userStackTrace</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#204a87;font-weight:bold">true</span><span style="color:#f8f8f8;text-decoration:underline">
-</span></span></span></code></pre></div><p><strong>GetUrl / DnsLookup:</strong> The GetUrl action triggers an HTTP GET request to a specified URL<code>argUrl</code>.  The DnsLookup action initiates a DNS lookup for a specified fully qualified domain name (FQDN) <code>argFqdn</code>.
+</span></span></span></code></pre></div><p><code>GetUrl</code> and <code>DnsLookup</code>: The GetUrl action triggers an HTTP GET request to a specified URL<code>argUrl</code>. The <code>DnsLookup</code> action initiates a DNS lookup for a specified fully qualified domain name (FQDN) <code>argFqdn</code>.
 Both actions are used to notify external systems when a specific event occurs in the kernel such as (Thinkst canaries or webhooks).</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">matchActions</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline"></span>- <span style="color:#204a87;font-weight:bold">action</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#000">GetUrl</span><span style="color:#f8f8f8;text-decoration:underline">
@@ -2204,7 +2209,7 @@ Both actions are used to notify external systems when a specific event occurs in
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span><span style="color:#204a87;font-weight:bold">operator</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline"> </span><span style="color:#4e9a06">&#34;Equal&#34;</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span><span style="color:#204a87;font-weight:bold">values</span><span style="color:#000;font-weight:bold">:</span><span style="color:#f8f8f8;text-decoration:underline">
 </span></span></span><span style="display:flex;"><span><span style="color:#f8f8f8;text-decoration:underline">        </span>- <span style="color:#4e9a06">&#34;0&#34;</span><span style="color:#f8f8f8;text-decoration:underline">
-</span></span></span></code></pre></div><p>Tetragon can be configured to send metrics to Prometheus to monitor activities observed by Tetragon <a href="https://tetragon.io/docs/installation/metrics/">https://tetragon.io/docs/installation/metrics/</a> it has also Elastic integration <a href="https://www.elastic.co/guide/en/integrations/current/cilium_tetragon.html">https://www.elastic.co/guide/en/integrations/current/cilium_tetragon.html</a>. Tetragon has policy library and many useful use cases in their documentation. It&rsquo;s a powerful tool and even fun to try it <a href="https://tetragon.io/docs/">https://tetragon.io/docs/</a></p>
+</span></span></span></code></pre></div><p>Tetragon can be configured to send <a href="https://tinyurl.com/3p7nkrs4">metrics</a> to Prometheus to monitor activities observed by Tetragon. It has also <a href="https://tinyurl.com/4wafr2cb">Elastic integration</a>. Tetragon has policy library and many useful use cases in their <a href="https://tinyurl.com/mpurdj5z">documentation</a>. It&rsquo;s a powerful tool and even fun to try it.</p>
 
 </div>
 
@@ -2222,9 +2227,9 @@ Both actions are used to notify external systems when a specific event occurs in
     
 	<h1 id="pg-9cde3793eee8ef4ff18d29f255e8e250">6 - Bpfilter</h1>
     <div class="lead">A work-in-progress kernel module that translates iptables and nftables rules into eBPF bytecode so the firewall runs through the BPF verifier instead of legacy netfilter tables.</div>
-	<p>bpfilter is a eBPF-based packet filtering currently maintained by meta, designed to replace or complement traditional packet filtering systems such as netfilter/iptables. It leverages the power of eBPF programs to implement filtering directly in the kernel. bpfilter is part of a broader shift towards eBPF-driven networking, moving away from older, monolithic approaches with minimal overhead.<br>
-bpfilter consists of two parts: daemon and front-ends. Font-end such as <code>bfcli</code> which receives firewall rules from administrators and send them to the daemon (<code>bpfilter</code>). <code>bpfilter</code> daemon parses the ruleset whether provided directly as a string or loaded from a file and then translates these high-level rules into eBPF bytecode that can be executed in the kernel.<br>
-bpfilter attaches the generated eBPF programs to specific kernel hooks such as XDP, TC (Traffic Control), or netfilter hooks (like NF_PRE_ROUTING, NF_LOCAL_IN, etc.). Each hook corresponds to a different stage in the packet processing pipeline, allowing bpfilter to intercept packets as early or as late as necessary.</p>
+	<p>bpfilter is a eBPF-based packet filtering currently maintained by meta, designed to replace or complement traditional packet filtering systems such as netfilter/iptables. It leverages the power of eBPF programs to implement filtering directly in the kernel. bpfilter is part of a broader shift towards eBPF-driven networking, moving away from older, monolithic approaches with minimal overhead.</p>
+<p>bpfilter consists of two parts: daemon and front-ends. Font-end such as <code>bfcli</code> which receives firewall rules from administrators and send them to the daemon (<code>bpfilter</code>). <code>bpfilter</code> daemon parses the ruleset whether provided directly as a string or loaded from a file and then translates these high-level rules into eBPF bytecode that can be executed in the kernel.</p>
+<p>bpfilter attaches the generated eBPF programs to specific kernel hooks such as XDP, TC (Traffic Control), or netfilter hooks (like NF_PRE_ROUTING, NF_LOCAL_IN, etc.). Each hook corresponds to a different stage in the packet processing pipeline, allowing bpfilter to intercept packets as early or as late as necessary.</p>
 <p style="text-align: center;">
   <img src="/images/docs/chapter5/bpfilter-Architecture.png" alt="Centered image" />
 </p>
@@ -2276,13 +2281,13 @@ BF_HOOK_NF_LOCAL_OUT: similar to nftables and iptables output hook.
 BF_HOOK_NF_POST_ROUTING: similar to nftables and iptables postrouting hook.
 BF_HOOK_TC_EGRESS: egress TC hook.
 </code></pre><p><strong>$POLICY:</strong> The default action (typically ACCEPT or DROP) applied to packets that do not match any rule in the chain.<br>
-<strong>Rule</strong>: Each rule under the chain consists of one or more <strong>matchers</strong> followed by a <strong>verdict</strong>.<br>
+<strong>Rule</strong>: Each rule under the chain consists of one or more <code>matchers</code> followed by a <code>verdict</code>.<br>
 <strong>$MATCHER:</strong> A condition (or multiple conditions) that compares parts of the packet. For example, checking the protocol or matching an IP address.<br>
 <strong>$VERDICT:</strong> The action to take if the matchers are true. Common verdicts are:</p>
 <ul>
-<li><strong>ACCEPT:</strong> Let the packet continue through the network stack.</li>
-<li><strong>DROP:</strong> Discard the packet.</li>
-<li><strong>CONTINUE:</strong> Continue to the next rule (often used in conjunction with packet counting).</li>
+<li><code>ACCEPT</code>: Let the packet continue through the network stack.</li>
+<li><code>DROP</code>: Discard the packet.</li>
+<li><code>CONTINUE</code>: Continue to the next rule (often used in conjunction with packet counting).</li>
 </ul>
 <p>The following tables are from the bpfilter documentation and they contain detailed information about the various matchers used in bpfilter for filtering network traffic. Each table lists the matcher name (the field of the packet), its corresponding type in bpfilter (for example, <code>udp.sport</code> or <code>tcp.sport</code>), the operator used for comparison (such as <code>eq</code>, <code>not</code>, or <code>range</code>), the payload (the value or range to compare against), and additional notes that explain usage constraints or default behaviors.</p>
 <h3 id="meta-matchers">Meta matchers<a class="td-heading-self-link" href="#meta-matchers" aria-label="Heading self-link"></a></h3>

@@ -31,7 +31,7 @@ One of eBPF’s standout features is its ability to update functionality dynamic
 
 eBPF provides powerful tools for real-time observability. By attaching eBPF programs to various kernel and user-space events, organizations can gain detailed insights into system behavior, identify bottlenecks, and troubleshoot issues quickly.
 
-  6. **Portability**
+6. **Portability**
 
 While eBPF programs are highly portable across different Linux distributions, their portability can be affected by variations in kernel versions, architectures, and the available helper functions. The eBPF subsystem in the kernel provides a consistent foundation, but certain kernel updates or changes in architecture may introduce new features or limitations that require modifications to the eBPF programs. Despite these potential variations, eBPF still offers a relatively high degree of portability for cloud-based applications and large-scale environments, allowing organizations to deploy solutions across diverse systems with minimal overhead, provided that compatibility is taken into account.
 

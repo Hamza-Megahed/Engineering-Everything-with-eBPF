@@ -53,9 +53,9 @@ The following diagram shows the basic XDP workflow:
 
 One common use case of XDP is DDoS mitigation, where it quickly identifies and drops malicious traffic with minimal processing overhead. XDP is also heavily used for advanced packet forwarding and load balancing, enabling quick header modifications and packet routing decisions directly at the driver level.
 Network analytics and sampling are other powerful XDP applications, where packet data can be efficiently captured and transmitted to user-space applications through memory-mapped ring buffers.
-Custom protocol handling, such as encapsulation or decapsulation, is easily achievable with XDP, facilitating efficient interactions with upper-layer network functions such as the GRO engine. Real-world deployments by companies like Facebook (Katran) and Cloudflare have demonstrated substantial performance improvements by integrating XDP for load balancing, firewalling, and DDoS mitigation. For more details please visit https://docs.cilium.io/en/latest/reference-guides/bpf/progtypes/#xdp.
+Custom protocol handling, such as encapsulation or decapsulation, is easily achievable with XDP, facilitating efficient interactions with upper-layer network functions such as the GRO engine. Real-world deployments by companies like Facebook (Katran) and Cloudflare have demonstrated substantial performance improvements by integrating XDP for load balancing, firewalling, and DDoS mitigation. For more details please visit [Cilium's documentation](https://tinyurl.com/4f7xbbs9).
 
-The next example is explained previously. The following code performs a chain of checks to drop port 8080 on ingress traffic using `XDP_DROP`. The code uses `xdp_md` as context instead of `sk_buff`  as previously explained.
+The next example is explained previously. The following code performs a chain of checks to drop port 8080 on ingress traffic using `XDP_DROP`. The code uses `xdp_md` as context instead of `sk_buff` as previously explained.
 
 ```c
 #include <linux/bpf.h>
@@ -104,7 +104,8 @@ int drop_ingress_port_8080(struct xdp_md *ctx) {
 
 Compile the code using LLVM then load it with: `sudo ip link set dev enp1s0 xdp obj xdp_drop_8080.o sec xdp`. 
 
-{{< alert title="Note" >}}`xdp obj xdp_drop_8080.o` This command loads an XDP program from the ELF object file named `xdp_drop_8080.o`. By default, the system attempts to use native driver mode if available, falling back to generic mode otherwise. You can also force a specific mode by using one of these options: **xdpgeneric:** Enforce generic XDP mode.  **xdpdrv:** Enforce native driver XDP mode. **xdpoffload:** Enforce offloaded XDP mode for supported hardware. For example,`sudo ip link set dev enp1s0 xdpgeneric obj x.o sec xdp` will enforce generic XDP mode. To unload the XDP program, run: `sudo ip link set dev enp1s0 xdp off`.{{< /alert >}}
+{{< alert title="Note" >}}`xdp obj xdp_drop_8080.o` This command loads an XDP program from the ELF object file named `xdp_drop_8080.o`. By default, the system attempts to use native driver mode if available, falling back to generic mode otherwise. You can also force a specific mode by using one of these options: **xdpgeneric:** Enforce generic XDP mode.
+**xdpdrv:** Enforce native driver XDP mode. **xdpoffload:** Enforce offloaded XDP mode for supported hardware. For example,`sudo ip link set dev enp1s0 xdpgeneric obj x.o sec xdp` will enforce generic XDP mode. To unload the XDP program, run: `sudo ip link set dev enp1s0 xdp off`.{{< /alert >}}
 
 As we mentioned earlier, XDP can operate as an efficient load balancer. In the following example, we have an ICMP load balancer implemented using a round-robin approach connected to two backend servers. When load balancer receives ICMP echo request will dispatch it to the servers in order. The idea behind this load balancer is that it routes by re-writing the destination IP, delivering each request to the backend servers in sequential.
 
@@ -220,7 +221,7 @@ int icmp_lb(struct xdp_md *ctx)
 }
 ```
 
-First, structure was define for backends' IPs unsigned 32-bit integer and MAC addresses with `ETH_ALEN` of length which is 6 as defined in `include/linux/if_ether.h`. Second,  define a map of type `BPF_MAP_TYPE_ARRAY` to track the state of our round-robin load balancer with only one entry and key 0 should be initialized to 0. Third, define a map of type `BPF_MAP_TYPE_ARRAY` to store backends' IPs and MAC addresses and key 0 should be initialized to 0.
+First, structure was define for backends' IPs unsigned 32-bit integer and MAC addresses with `ETH_ALEN` of length which is 6 as defined in `include/linux/if_ether.h`. Second, define a map of type `BPF_MAP_TYPE_ARRAY` to track the state of our round-robin load balancer with only one entry and key 0 should be initialized to 0. Third, define a map of type `BPF_MAP_TYPE_ARRAY` to store backends' IPs and MAC addresses and key 0 should be initialized to 0.
 ```c
 struct backend {
     __u32 ip;

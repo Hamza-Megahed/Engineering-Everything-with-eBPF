@@ -110,29 +110,30 @@ command:/usr/bin/cat
 
 The following table is from the bpftrace manual, listing special variables along with their corresponding helper functions and descriptions.
 
-| Variable                  | Type        | Kernel     | BPF Helper                       | Description                                                                                                                                                                                                           |
-| ------------------------- | ----------- | ---------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `$1`, `$2`, `...$n`       | int64       | n/a        | n/a                              | The nth positional parameter passed to the bpftrace program. If less than n parameters are passed this evaluates to `0`. For string arguments use the `str()` call to retrieve the value.                             |
-| `$#`                      | int64       | n/a        | n/a                              | Total amount of positional parameters passed.                                                                                                                                                                         |
-| `arg0`, `arg1`, `...argn` | int64       | n/a        | n/a                              | nth argument passed to the function being traced. These are extracted from the CPU registers. The amount of args passed in registers depends on the CPU architecture. (kprobes, uprobes, usdt).                       |
-| `args`                    | struct args | n/a        | n/a                              | The struct of all arguments of the traced function. Available in `tracepoint`, `fentry`, `fexit`, and `uprobe` (with DWARF) probes. Use `args.x` to access argument `x` or `args` to get a record with all arguments. |
-| `cgroup`                  | uint64      | 4.18       | get_current_cgroup_id            | ID of the cgroup the current process belongs to. Only works with cgroupv2.                                                                                                                                            |
-| `comm`                    | string[16]  | 4.2        | get_current_comm                 | Name of the current thread.                                                                                                                                                                                           |
-| `cpid`                    | uint32      | n/a        | n/a                              | Child process ID, if bpftrace is invoked with `-c`.                                                                                                                                                                   |
-| `cpu`                     | uint32      | 4.1        | raw_smp_processor_id             | ID of the processor executing the BPF program.                                                                                                                                                                        |
-| `curtask`                 | uint64      | 4.8        | get_current_task                 | Pointer to `struct task_struct` of the current task.                                                                                                                                                                  |
-| `elapsed`                 | uint64      | (see nsec) | ktime_get_ns / ktime_get_boot_ns | Nanoseconds elapsed since bpftrace initialization, based on `nsecs`.                                                                                                                                                  |
-| `func`                    | string      | n/a        | n/a                              | Name of the current function being traced (kprobes, uprobes).                                                                                                                                                         |
-| `gid`                     | uint64      | 4.2        | get_current_uid_gid              | Group ID of the current thread, as seen from the init namespace.                                                                                                                                                      |
-| `jiffies`                 | uint64      | 5.9        | get_jiffies_64                   | Jiffies of the kernel. In 32-bit systems, using this builtin might be slower.                                                                                                                                         |
-| `numaid`                  | uint32      | 5.8        | numa_node_id                     | ID of the NUMA node executing the BPF program.                                                                                                                                                                        |
-| `pid`                     | uint32      | 4.2        | get_current_pid_tgid             | Process ID of the current thread (aka thread group ID), as seen from the init namespace.                                                                                                                              |
-| `probe`                   | string      | n/na       | n/a                              | Name of the current probe.                                                                                                                                                                                            |
-| `rand`                    | uint32      | 4.1        | get_prandom_u32                  | Random number.                                                                                                                                                                                                        |
-| `return`                  | n/a         | n/a        | n/a                              | The return keyword is used to exit the current probe. This differs from exit() in that it doesn't exit bpftrace.                                                                                                      |
-| `retval`                  | uint64      | n/a        | n/a                              | Value returned by the function being traced (kretprobe, uretprobe, fexit). For kretprobe and uretprobe, its type is `uint64`, but for fexit it depends. You can look up the type using `bpftrace -lv`.                |
-| `tid`                     | uint32      | 4.2        | get_current_pid_tgid             | Thread ID of the current thread, as seen from the init namespace.                                                                                                                                                     |
-| `uid`                     | uint64      | 4.2        | get_current_uid_gid              | User ID of the current thread, as seen from the init namespace.                                                                                                                                                       |
+| Variable                  | BPF Helper                       | Description                                                                                                                                                                                                           |
+| ------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `$1`, `$2`, `...$n`       | n/a                              | The nth positional parameter passed to the bpftrace program. If less than n parameters are passed this evaluates to `0`. For string arguments use the `str()` call to retrieve the value.                             |
+| `$#`                      | n/a                              | Total amount of positional parameters passed.                                                                                                                                                                         |
+| `arg0`, `arg1`, `...argn` | n/a                              | nth argument passed to the function being traced. These are extracted from the CPU registers. The amount of args passed in registers depends on the CPU architecture. (kprobes, uprobes, usdt).                       |
+| `args`                    | n/a                              | The struct of all arguments of the traced function. Available in `tracepoint`, `fentry`, `fexit`, and `uprobe` (with DWARF) probes. Use `args.x` to access argument `x` or `args` to get a record with all arguments. |
+| `cgroup`                  | get_current_cgroup_id            | ID of the cgroup the current process belongs to. Only works with cgroupv2.                                                                                                                                            |
+| `comm`                    | get_current_comm                 | Name of the current thread.                                                                                                                                                                                           |
+| `cpid`                    | n/a                              | Child process ID, if bpftrace is invoked with `-c`.                                                                                                                                                                   |
+| `cpu`                     | raw_smp_processor_id             | ID of the processor executing the BPF program.                                                                                                                                                                        |
+| `curtask`                 | get_current_task                 | Pointer to `struct task_struct` of the current task.                                                                                                                                                                  |
+| `elapsed`                 | ktime_get_ns / ktime_get_boot_ns | Nanoseconds elapsed since bpftrace initialization, based on `nsecs`.                                                                                                                                                  |
+| `func`                    | n/a                              | Name of the current function being traced (kprobes, uprobes).                                                                                                                                                         |
+| `gid`                     | get_current_uid_gid              | Group ID of the current thread, as seen from the init namespace.                                                                                                                                                      |
+| `jiffies`                 | get_jiffies_64                   | Jiffies of the kernel. In 32-bit systems, using this builtin might be slower.                                                                                                                                         |
+| `numaid`                  | numa_node_id                     | ID of the NUMA node executing the BPF program.                                                                                                                                                                        |
+| `pid`                     | get_current_pid_tgid             | Process ID of the current thread (aka thread group ID), as seen from the init namespace.                                                                                                                              |
+| `probe`                   | n/a                              | Name of the current probe.                                                                                                                                                                                            |
+| `rand`                    | get_prandom_u32                  | Random number.                                                                                                                                                                                                        |
+| `return`                  | n/a                              | The return keyword is used to exit the current probe. This differs from exit() in that it doesn't exit bpftrace.                                                                                                      |
+| `retval`                  | n/a                              | Value returned by the function being traced (kretprobe, uretprobe, fexit). For kretprobe and uretprobe, its type is `uint64`, but for fexit it depends. You can look up the type using `bpftrace -lv`.                |
+| `tid`                     | get_current_pid_tgid             | Thread ID of the current thread, as seen from the init namespace.                                                                                                                                                     |
+| `uid`                     | get_current_uid_gid              | User ID of the current thread, as seen from the init namespace.                                                                                                                                                       |
+
 
 The following table is from the bpftrace manual, listing bpftrace functions along with their corresponding descriptions.
 
@@ -411,17 +412,17 @@ tracepoint:syscalls:sys_enter_execve
 }
 ```
 
-Define a map with name `forks` and add current`pid` as key and `1` as value if `sys_enter_setuid` tracepoint is triggered.
+Define a map named `forks`, and when the `sys_enter_setuid` tracepoint is triggered, insert the current `pid` as the key with a value of `1`.
 ```c
 @forks[pid] = 1;
 ```
 
-Define a map with name `setuid` and add current `pid` as key and `1` as value if `sys_enter_fork` tracepoint is triggered and UID is zero.
+Define a map named `setuid`, and when the `sys_enter_fork` tracepoint is triggered with a UID of zero, insert the current `pid` as the key and `1` as the value.
 ```c
 @setuid[pid] = 1;
 ```
 
-If `sys_enter_execve` is triggered, hen it will check if the current `pid` triggered by `sys_enter_setuid` and ``sys_enter_fork``
+If `sys_enter_execve` is triggered, then it will check if the current `pid` triggered by `sys_enter_setuid` and ``sys_enter_fork``
 ```c
 if (@forks[pid] == 1 && @setuid[pid] == 1)
 ```

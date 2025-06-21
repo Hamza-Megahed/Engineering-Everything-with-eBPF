@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="Tracepoints">
   <meta itemprop="description" content="Stable versioned hooks inserted by kernel developers for common events.">
-  <meta itemprop="wordCount" content="1124">
+  <meta itemprop="wordCount" content="1116">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Tracepoints">
   <meta name="twitter:description" content="Stable versioned hooks inserted by kernel developers for common events.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -278,10 +278,10 @@
   <img src="/images/docs/chapter3/tracepoint-after.png" alt="Centered image" />
 </p>
 <p>To list all available tracepoints in a Linux system, you can use either <code>sudo bpftrace -l 'tracepoint:*'</code> or <code>sudo ls /sys/kernel/debug/tracing/events/</code> directory or <code>/sys/kernel/tracing/available_events</code> file which contains a list of all available tracepoints on the system. The SEC name usually follows the format <code>tracepoint__&lt;category&gt;__&lt;name&gt;</code>, for example, <code>SEC(&quot;tracepoint/syscalls/sys_enter_unlinkat&quot;)</code>. Similarly, the context structure for tracepoints typically follows the naming convention <code>trace_event_raw_&lt;name&gt; </code>(e.g., <code>trace_event_raw_sys_enter</code> and <code>trace_event_raw_sys_exit</code>).</p>
-<p>However, there are exceptions. For instance, in the libbpf-bootstrap example (<a href="https://github.com/libbpf/libbpf-bootstrap/blob/master/examples/c/bootstrap.bpf.c)">https://github.com/libbpf/libbpf-bootstrap/blob/master/examples/c/bootstrap.bpf.c)</a>, you’ll find:</p>
+<p>However, there are exceptions. For instance, in the <a href="https://tinyurl.com/mw5fkjd3">libbpf-bootstrap example</a>, you’ll find:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">SEC</span><span style="color:#000;font-weight:bold">(</span><span style="color:#4e9a06">&#34;tp/sched/sched_process_exit&#34;</span><span style="color:#000;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">handle_exit</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">trace_event_raw_sched_process_template</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">ctx</span><span style="color:#000;font-weight:bold">)</span>
-</span></span></code></pre></div><p>Here, based on the naming convention explained previously, the context name should be trace_event_raw_sched_process_exit rather than trace_event_raw_sched_process_template. You can verify the correct context by checking the <code>vmlinux.h</code> file.</p>
+</span></span></code></pre></div><p>Here, the context name should be <code>trace_event_raw_sched_process_exit</code> rather than <code>trace_event_raw_sched_process_template</code>. You can verify the correct context by checking the <code>vmlinux.h</code> file.</p>
 <p>Let&rsquo;s explore one of the defined tracepoints from the kernel source code <code>include/trace/events/net.h</code>:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">DECLARE_EVENT_CLASS</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">net_dev_template</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">TP_PROTO</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">sk_buff</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">skb</span><span style="color:#000;font-weight:bold">),</span>
@@ -335,7 +335,7 @@
 </span></span><span style="display:flex;"><span>		<span style="color:#000">rcu_read_unlock</span><span style="color:#000;font-weight:bold">();</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000;font-weight:bold">[...]</span>
-</span></span></code></pre></div><p>You can see <code>trace_netif_rx(skb);</code>. This call triggers the tracepoint event for packet reception which logs the event if tracing is enabled.<br>
+</span></span></code></pre></div><p>You can see <code>trace_netif_rx(skb);</code>. This call triggers the tracepoint event for packet reception which logs the event if tracing is enabled.
 Then by running <code>gdb /usr/lib/debug/boot/vmlinux-$(uname -r)</code></p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">(</span>gdb<span style="color:#ce5c00;font-weight:bold">)</span> disassemble netif_rx_internal
 </span></span><span style="display:flex;"><span>Dump of assembler code <span style="color:#204a87;font-weight:bold">for</span> <span style="color:#204a87;font-weight:bold">function</span> netif_rx_internal:
@@ -354,15 +354,15 @@ Then by running <code>gdb /usr/lib/debug/boot/vmlinux-$(uname -r)</code></p>
 </span></span><span style="display:flex;"><span>   0xffffffff81a23da3 &lt;+51&gt;:	call   0xffffffff81a239e0 &lt;enqueue_to_backlog&gt;
 </span></span><span style="display:flex;"><span>   0xffffffff81a23da8 &lt;+56&gt;:	mov    %eax,%ebx
 </span></span><span style="display:flex;"><span><span style="color:#ce5c00;font-weight:bold">[</span>...<span style="color:#ce5c00;font-weight:bold">]</span>
-</span></span></code></pre></div><p>The disassembly confirms that at address &lt;+29&gt; you see a reserved 5-byte NOP (shown as <code>nopl 0x0(%rax,%rax,1)</code>). This placeholder is exactly what the kernel uses for its dynamic patching mechanism—when the tracepoint (or static call) is enabled, that NOP will be patched into a jump to the corresponding trampoline (and ultimately to the tracepoint handler).<br>
-In the next example, we will examine <code>unlinkat</code> syscall entry point (which removes a directory entry relative to a directory file descriptor) with context <code>trace_event_raw_sys_enter</code> , but what exactly is the content of <code>struct trace_event_raw_sys_enter</code>. We can get the content by searching the <code>vmlinux.h</code></p>
+</span></span></code></pre></div><p>The disassembly confirms that at address &lt;+29&gt; you see a reserved 5-byte NOP (shown as <code>nopl 0x0(%rax,%rax,1)</code>). This placeholder is exactly what the kernel uses for its dynamic patching mechanism—when the tracepoint (or static call) is enabled, that NOP will be patched into a jump to the corresponding trampoline (and ultimately to the tracepoint handler).</p>
+<p>In the next example, we will examine <code>unlinkat</code> syscall entry point (which removes a directory entry relative to a directory file descriptor) with context <code>trace_event_raw_sys_enter</code> , but what exactly is the content of <code>struct trace_event_raw_sys_enter</code>. We can get the content by searching the <code>vmlinux.h</code></p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">trace_event_raw_sys_enter</span> <span style="color:#000;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">trace_entry</span> <span style="color:#000">ent</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">long</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">id</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">long</span> <span style="color:#204a87;font-weight:bold">unsigned</span> <span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">6</span><span style="color:#000;font-weight:bold">];</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">char</span> <span style="color:#000">__data</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">];</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
-</span></span></code></pre></div><p>Using <code>trace_event_raw_sys_enter</code> as context supports BTF. You can also define the context by using the old approach by defining a structure matching the same parameters defined in the <code>format</code> file. For example, for the <code>unlinkat</code> syscall, this file is located at  <code>/sys/kernel/debug/tracing/events/syscalls/sys_enter_unlinkat/format</code> which has the following content</p>
+</span></span></code></pre></div><p>Using <code>trace_event_raw_sys_enter</code> as context supports BTF. You can also define the context by using the old approach by defining a structure matching the same parameters defined in the <code>format</code> file. For example, for the <code>unlinkat</code> syscall, this file is located at <code>/sys/kernel/debug/tracing/events/syscalls/sys_enter_unlinkat/format</code> which has the following content</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>name: sys_enter_unlinkat
 </span></span><span style="display:flex;"><span>ID: <span style="color:#0000cf;font-weight:bold">849</span>
 </span></span><span style="display:flex;"><span>format:
@@ -383,7 +383,7 @@ In the next example, we will examine <code>unlinkat</code> syscall entry point (
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">long</span> <span style="color:#000">pathname_ptr</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">long</span> <span style="color:#000">flag</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
-</span></span></code></pre></div><p>Then the program can use a pointer of type of that structure as context as in <code>int trace_unlinkat(struct trace_event_raw_sys_enter_unlinkat* ctx)</code> However,  this approach is not ideal at all for portability.</p>
+</span></span></code></pre></div><p>Then the program can use a pointer of type of that structure as context as in <code>int trace_unlinkat(struct trace_event_raw_sys_enter_unlinkat* ctx)</code> However, this approach is not ideal at all for portability.</p>
 <p>If we look at the prototype <code>int unlinkat(int dirfd, const char *pathname, int flags);</code> which takes the following parameters:
 <strong>dirfd:</strong> This is a directory file descriptor. When the pathname provided is relative, it’s interpreted relative to this directory.
 <strong>pathname:</strong> This is the path of the file or directory to remove. If the pathname is absolute (starts with a <code>/</code>), the <code>dirfd</code> parameter is ignored.

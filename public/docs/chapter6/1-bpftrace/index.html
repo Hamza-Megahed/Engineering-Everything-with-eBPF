@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="bpftrace">
   <meta itemprop="description" content="DTrace style one liners for quick ad hoc tracing of kernel and user processes.">
-  <meta itemprop="wordCount" content="2571">
+  <meta itemprop="wordCount" content="2533">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="bpftrace">
   <meta name="twitter:description" content="DTrace style one liners for quick ad hoc tracing of kernel and user processes.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -337,8 +337,6 @@
 <thead>
 <tr>
 <th>Variable</th>
-<th>Type</th>
-<th>Kernel</th>
 <th>BPF Helper</th>
 <th>Description</th>
 </tr>
@@ -346,148 +344,106 @@
 <tbody>
 <tr>
 <td><code>$1</code>, <code>$2</code>, <code>...$n</code></td>
-<td>int64</td>
-<td>n/a</td>
 <td>n/a</td>
 <td>The nth positional parameter passed to the bpftrace program. If less than n parameters are passed this evaluates to <code>0</code>. For string arguments use the <code>str()</code> call to retrieve the value.</td>
 </tr>
 <tr>
 <td><code>$#</code></td>
-<td>int64</td>
-<td>n/a</td>
 <td>n/a</td>
 <td>Total amount of positional parameters passed.</td>
 </tr>
 <tr>
 <td><code>arg0</code>, <code>arg1</code>, <code>...argn</code></td>
-<td>int64</td>
-<td>n/a</td>
 <td>n/a</td>
 <td>nth argument passed to the function being traced. These are extracted from the CPU registers. The amount of args passed in registers depends on the CPU architecture. (kprobes, uprobes, usdt).</td>
 </tr>
 <tr>
 <td><code>args</code></td>
-<td>struct args</td>
-<td>n/a</td>
 <td>n/a</td>
 <td>The struct of all arguments of the traced function. Available in <code>tracepoint</code>, <code>fentry</code>, <code>fexit</code>, and <code>uprobe</code> (with DWARF) probes. Use <code>args.x</code> to access argument <code>x</code> or <code>args</code> to get a record with all arguments.</td>
 </tr>
 <tr>
 <td><code>cgroup</code></td>
-<td>uint64</td>
-<td>4.18</td>
 <td>get_current_cgroup_id</td>
 <td>ID of the cgroup the current process belongs to. Only works with cgroupv2.</td>
 </tr>
 <tr>
 <td><code>comm</code></td>
-<td>string[16]</td>
-<td>4.2</td>
 <td>get_current_comm</td>
 <td>Name of the current thread.</td>
 </tr>
 <tr>
 <td><code>cpid</code></td>
-<td>uint32</td>
-<td>n/a</td>
 <td>n/a</td>
 <td>Child process ID, if bpftrace is invoked with <code>-c</code>.</td>
 </tr>
 <tr>
 <td><code>cpu</code></td>
-<td>uint32</td>
-<td>4.1</td>
 <td>raw_smp_processor_id</td>
 <td>ID of the processor executing the BPF program.</td>
 </tr>
 <tr>
 <td><code>curtask</code></td>
-<td>uint64</td>
-<td>4.8</td>
 <td>get_current_task</td>
 <td>Pointer to <code>struct task_struct</code> of the current task.</td>
 </tr>
 <tr>
 <td><code>elapsed</code></td>
-<td>uint64</td>
-<td>(see nsec)</td>
 <td>ktime_get_ns / ktime_get_boot_ns</td>
 <td>Nanoseconds elapsed since bpftrace initialization, based on <code>nsecs</code>.</td>
 </tr>
 <tr>
 <td><code>func</code></td>
-<td>string</td>
-<td>n/a</td>
 <td>n/a</td>
 <td>Name of the current function being traced (kprobes, uprobes).</td>
 </tr>
 <tr>
 <td><code>gid</code></td>
-<td>uint64</td>
-<td>4.2</td>
 <td>get_current_uid_gid</td>
 <td>Group ID of the current thread, as seen from the init namespace.</td>
 </tr>
 <tr>
 <td><code>jiffies</code></td>
-<td>uint64</td>
-<td>5.9</td>
 <td>get_jiffies_64</td>
 <td>Jiffies of the kernel. In 32-bit systems, using this builtin might be slower.</td>
 </tr>
 <tr>
 <td><code>numaid</code></td>
-<td>uint32</td>
-<td>5.8</td>
 <td>numa_node_id</td>
 <td>ID of the NUMA node executing the BPF program.</td>
 </tr>
 <tr>
 <td><code>pid</code></td>
-<td>uint32</td>
-<td>4.2</td>
 <td>get_current_pid_tgid</td>
 <td>Process ID of the current thread (aka thread group ID), as seen from the init namespace.</td>
 </tr>
 <tr>
 <td><code>probe</code></td>
-<td>string</td>
-<td>n/na</td>
 <td>n/a</td>
 <td>Name of the current probe.</td>
 </tr>
 <tr>
 <td><code>rand</code></td>
-<td>uint32</td>
-<td>4.1</td>
 <td>get_prandom_u32</td>
 <td>Random number.</td>
 </tr>
 <tr>
 <td><code>return</code></td>
 <td>n/a</td>
-<td>n/a</td>
-<td>n/a</td>
 <td>The return keyword is used to exit the current probe. This differs from exit() in that it doesn&rsquo;t exit bpftrace.</td>
 </tr>
 <tr>
 <td><code>retval</code></td>
-<td>uint64</td>
-<td>n/a</td>
 <td>n/a</td>
 <td>Value returned by the function being traced (kretprobe, uretprobe, fexit). For kretprobe and uretprobe, its type is <code>uint64</code>, but for fexit it depends. You can look up the type using <code>bpftrace -lv</code>.</td>
 </tr>
 <tr>
 <td><code>tid</code></td>
-<td>uint32</td>
-<td>4.2</td>
 <td>get_current_pid_tgid</td>
 <td>Thread ID of the current thread, as seen from the init namespace.</td>
 </tr>
 <tr>
 <td><code>uid</code></td>
-<td>uint64</td>
-<td>4.2</td>
 <td>get_current_uid_gid</td>
 <td>User ID of the current thread, as seen from the init namespace.</td>
 </tr>
@@ -978,11 +934,11 @@
 </span></span><span style="display:flex;"><span>        <span style="color:#000">signal</span><span style="color:#000;font-weight:bold">(</span><span style="color:#0000cf;font-weight:bold">9</span><span style="color:#000;font-weight:bold">)</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span></code></pre></div><p>Define a map with name <code>forks</code> and add current<code>pid</code> as key and <code>1</code> as value if <code>sys_enter_setuid</code> tracepoint is triggered.</p>
+</span></span></code></pre></div><p>Define a map named <code>forks</code>, and when the <code>sys_enter_setuid</code> tracepoint is triggered, insert the current <code>pid</code> as the key with a value of <code>1</code>.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#a40000">@</span><span style="color:#000">forks</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">]</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
-</span></span></code></pre></div><p>Define a map with name <code>setuid</code> and add current <code>pid</code> as key and <code>1</code> as value if <code>sys_enter_fork</code> tracepoint is triggered and UID is zero.</p>
+</span></span></code></pre></div><p>Define a map named <code>setuid</code>, and when the <code>sys_enter_fork</code> tracepoint is triggered with a UID of zero, insert the current <code>pid</code> as the key and <code>1</code> as the value.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#a40000">@</span><span style="color:#000">setuid</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">]</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">;</span>
-</span></span></code></pre></div><p>If <code>sys_enter_execve</code> is triggered, hen it will check if the current <code>pid</code> triggered by <code>sys_enter_setuid</code> and <code>sys_enter_fork</code></p>
+</span></span></code></pre></div><p>If <code>sys_enter_execve</code> is triggered, then it will check if the current <code>pid</code> triggered by <code>sys_enter_setuid</code> and <code>sys_enter_fork</code></p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#a40000">@</span><span style="color:#000">forks</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">]</span> <span style="color:#ce5c00;font-weight:bold">==</span> <span style="color:#0000cf;font-weight:bold">1</span> <span style="color:#ce5c00;font-weight:bold">&amp;&amp;</span> <span style="color:#a40000">@</span><span style="color:#000">setuid</span><span style="color:#000;font-weight:bold">[</span><span style="color:#000">pid</span><span style="color:#000;font-weight:bold">]</span> <span style="color:#ce5c00;font-weight:bold">==</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000;font-weight:bold">)</span>
 </span></span></code></pre></div><p><code>signal</code> function is equivalent to <code>bpf_send_signal</code> helper function to terminate the process.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">signal</span><span style="color:#000;font-weight:bold">(</span><span style="color:#0000cf;font-weight:bold">9</span><span style="color:#000;font-weight:bold">)</span>

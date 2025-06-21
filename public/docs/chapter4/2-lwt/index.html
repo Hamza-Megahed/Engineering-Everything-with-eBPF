@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -278,7 +278,8 @@
 </span></span><span style="display:flex;"><span>	<span style="color:#000;font-weight:bold">}</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#204a87;font-weight:bold">return</span> <span style="color:#204a87">NULL</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span></code></pre></div><p>There are four types of programs in eBPF to handle Lightweight Tunnels. Among them, <code>BPF_PROG_TYPE_LWT_IN</code> and <code>BPF_PROG_TYPE_LWT_OUT</code> are the most important. BPF_PROG_TYPE_LWT_IN can be attached to incoming path of Lightweight Tunnel  and uses &ldquo;lwt_in&rdquo; as section definition while <code>BPF_PROG_TYPE_LWT_OUT</code> can be attached the outgoing path of Lightweight Tunnel and used &ldquo;lwt_out&rdquo; as section definition. Both applications can add more control to the route by allowing or dropping of traffic and also inspect the traffic on a specific route but they are not allowed to modify. Information on the full capabilities of these LWT eBPF program types is limited, making them hard to fully explore.
+</span></span></code></pre></div><p>There are four types of programs in eBPF to handle Lightweight Tunnels. Among them, <code>BPF_PROG_TYPE_LWT_IN</code> and <code>BPF_PROG_TYPE_LWT_OUT</code> are the most important.
+<code>BPF_PROG_TYPE_LWT_IN</code> can be attached to incoming path of Lightweight Tunnel and uses <code>lwt_in</code> as section definition while <code>BPF_PROG_TYPE_LWT_OUT</code> can be attached the outgoing path of Lightweight Tunnel and used <code>lwt_out</code> as section definition. Both applications can add more control to the route by allowing or dropping of traffic and also inspect the traffic on a specific route but they are not allowed to modify. Information on the full capabilities of these LWT eBPF program types is limited, making them hard to fully explore.</p>
 
 
 <div class="alert alert-primary" role="alert">
@@ -287,7 +288,7 @@
     Both LWT &ldquo;in&rdquo; and &ldquo;out&rdquo; programs run at a stage where the packet data has already been processed by the routing stack and the kernel has already stripped the Layer 2 (Ethernet) header. This means that the packet data passed to your eBPF program starts directly with the IP header.
 
 </div>
-</p>
+
 <p>We can build a simple <code>BPF_PROG_TYPE_LWT_OUT</code> program for testing without the need to make Lightweight Tunnel. The idea of this program is to block outgoing 8080 connection from 10.0.0.2 to 10.0.0.3.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/bpf.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;linux/ip.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -444,7 +445,7 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#000">BPF_OK</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span></code></pre></div><p>Compile it then attach it using <code>sudo ip route replace table local local 10.0.0.2/32 encap bpf headroom 14 in obj drop_ingress_8080.o section lwt_in dev tun0</code>. Start a web server on eBPF machine , then from the other machine with IP address 10.0.0.3 run <code>curl http://10.0.0.2:8080</code>  and you should notice that the connection is dropped and messages in <code>/sys/kernel/debug/tracing/trace_pipe</code></p>
+</span></span></code></pre></div><p>Compile it then attach it using <code>sudo ip route replace table local local 10.0.0.2/32 encap bpf headroom 14 in obj drop_ingress_8080.o section lwt_in dev tun0</code>. Start a web server on eBPF machine , then from the other machine with IP address 10.0.0.3 run <code>curl http://10.0.0.2:8080</code> and you should notice that the connection is dropped and messages in <code>/sys/kernel/debug/tracing/trace_pipe</code></p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">[</span>000<span style="color:#ce5c00;font-weight:bold">]</span> b.s21    81.669152: bpf_trace_printk: Dropping ingress packet to port <span style="color:#0000cf;font-weight:bold">8080</span> <span style="color:#204a87;font-weight:bold">for</span> IP 10.0.0.3
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">[</span>000<span style="color:#ce5c00;font-weight:bold">]</span> b.s21    82.694440: bpf_trace_printk: Dropping ingress packet to port <span style="color:#0000cf;font-weight:bold">8080</span> <span style="color:#204a87;font-weight:bold">for</span> IP 10.0.0.3
 </span></span><span style="display:flex;"><span>    <span style="color:#ce5c00;font-weight:bold">[</span>000<span style="color:#ce5c00;font-weight:bold">]</span> b.s21    84.741651: bpf_trace_printk: Dropping ingress packet to port <span style="color:#0000cf;font-weight:bold">8080</span> <span style="color:#204a87;font-weight:bold">for</span> IP 10.0.0.3

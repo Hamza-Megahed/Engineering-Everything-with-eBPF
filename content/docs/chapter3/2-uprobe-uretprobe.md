@@ -4,7 +4,8 @@ description: Entry and return probes for user-space functions so you can trace a
 weight: 3
 ---
 
-Uprobes and uretprobes enable instrumentation of user-space applications in a manner similar to how kprobes and kretprobes instrument kernel functions. Instead of tracing kernel-level routines, uprobes and uretprobes attach to functions (or instructions) within user-space executables and shared libraries. This allows system-wide dynamic instrumentation of user applications, including libraries that are shared among many processes.  
+Uprobes and uretprobes enable instrumentation of user-space applications in a manner similar to how kprobes and kretprobes instrument kernel functions. Instead of tracing kernel-level routines, uprobes and uretprobes attach to functions (or instructions) within user-space executables and shared libraries. This allows system-wide dynamic instrumentation of user applications, including libraries that are shared among many processes.
+
 Unlike the kprobe interface—where the kernel knows the symbol addresses of kernel functions—uprobes require the user to specify the file path and offset of the instruction(s) or function(s) to probe. The offset is calculated from the start of the executable or library file. Once attached, any process using that binary (including those that start in the future) is instrumented.
 
 ### Uprobes
@@ -46,7 +47,7 @@ We can get list of all symbols from object or binary files using `nm` or `objdum
 0000000000032110 T shell_is_restricted
 [...]
 ```
-D or data symbols which represent initialized variable, while B or BSS symbols represent uninitialized global variables and T or text symbols represent code which we are interested in. Let's attach uprobe to entry point of `shell_execve` function. `shell_execve` has a prototype of `int shell_execve(char *filename, char **argv, char **envp);`  which is similar to `execve` syscall `man 2 execve` which has this prototype 
+D or data symbols which represent initialized variable, while B or BSS symbols represent uninitialized global variables and T or text symbols represent code which we are interested in. Let's attach uprobe to entry point of `shell_execve` function. `shell_execve` has a prototype of `int shell_execve(char *filename, char **argv, char **envp);` which is similar to `execve` syscall `man 2 execve` which has this prototype 
 ```c
 int execve(const char *pathname, char *const _Nullable argv[],
                   char *const _Nullable envp[]);
@@ -315,7 +316,7 @@ A uretprobe triggers when a user-space function returns. Just like kretprobes, u
   <img src="/images/docs/chapter3/uretprobe-after.png" alt="Centered image" />
 </p>
 
-The `readline` function in `bash` reads the user's input from the terminal and returns a pointer to the string containing the text of the line read. Its prototype is:  
+The `readline` function in `bash` reads the user's input from the terminal and returns a pointer to the string containing the text of the line read. Its prototype is:
 `char *readline (const char *prompt);`. You can use eBPF to capture or record the user input in `bash` by hooking into the return of the `readline` function.
 
 ```c
@@ -360,13 +361,15 @@ Process ID: 1859, Command: cat /etc/issue.net
 Process ID: 1859, Command: ls -l 
 ```
 
-{{< alert title="Note" >}}Uprobes can add overhead, especially when targeting high-frequency user-space functions (like `malloc()`). The overhead can compound significantly if millions of events occur per second, potentially causing a noticeable slowdown in the application.
+{{< alert title="Note" >}}Uprobes can add overhead, especially when targeting high-frequency user-space functions (like malloc()). The overhead can compound significantly if millions of events occur per second, potentially causing a noticeable slowdown in the application.
 Consider carefully which user-space functions to instrument and apply uprobes selectively, possibly in a test environment or only when diagnosing severe issues.
 {{< /alert >}}
 
 
-Let's walk through some advanced examples: we will demonstrate how to capture the password entered in PAM and how to observe decrypted traffic without needing CA certificates, all using uprobes.  
-PAM (Pluggable Authentication Modules) is a framework that offers a modular approach to authentication, making it easier to manage and secure the login process. During authentication, the `pam_get_user` function is responsible for obtaining the username from the session, while `pam_get_authtok` retrieves the corresponding password or token, ensuring that each step is handled securely and flexibly.  
+Let's walk through some advanced examples: we will demonstrate how to capture the password entered in PAM and how to observe decrypted traffic without needing CA certificates, all using uprobes.
+
+PAM (Pluggable Authentication Modules) is a framework that offers a modular approach to authentication, making it easier to manage and secure the login process. During authentication, the `pam_get_user` function is responsible for obtaining the username from the session, while `pam_get_authtok` retrieves the corresponding password or token, ensuring that each step is handled securely and flexibly.
+
 The function prototype for pam_get_authtok is:
 
 ```c
@@ -384,7 +387,7 @@ The `pam_get_user` function returns the name of the user specified by the pam_st
 
 {{< alert title="Note" >}}Please note that both `**authtok` in `pam_get_authtok` and `**user` in `pam_get_user` are pointers to pointers.{{< /alert >}}
 
-To capture the password, we need to attach uprobe to libpam `/lib/x86_64-linux-gnu/libpam.so.0:pam_get_authtok` at the entry point and exit point, why entry point and exit point, short answer is that in `pam_get_authtok`  the password pointer (`**authtok`) isn’t fully assigned or valid at the start of the function. Instead, the function fills in that pointer somewhere inside (for example, prompting the user or retrieving from memory), so by the time the function returns, the pointer (and thus the password string) is set. Hence, a uretprobe (return probe) is the only reliable place to grab the final pointer to the password.  
+To capture the password, we need to attach uprobe to libpam `/lib/x86_64-linux-gnu/libpam.so.0:pam_get_authtok` at the entry point and exit point, why entry point and exit point, short answer is that in `pam_get_authtok` the password pointer (`**authtok`) isn’t fully assigned or valid at the start of the function. Instead, the function fills in that pointer somewhere inside (for example, prompting the user or retrieving from memory), so by the time the function returns, the pointer (and thus the password string) is set. Hence, a uretprobe (return probe) is the only reliable place to grab the final pointer to the password.
 The same goes for capturing the user, we need to attach uprobe to libpam `/lib/x86_64-linux-gnu/libpam.so.0:pam_get_user` at the entry point and exit point.
 
 <p style="text-align: center;">
@@ -611,8 +614,7 @@ PID: 2663, COMM: sshd-session, Password: admin
 
 
 
-Let's explore another example to show you the power of uprobe/uretprobe. Libssl is a core component of the OpenSSL library, providing implementations of the Secure Sockets Layer (SSL) and Transport Layer Security (TLS) protocols to enable secure communications over network by encrypting data. You can check the list of all functions by executing command like `nm` on `/lib/x86_64-linux-gnu/libssl.so.3` or whatever `libssl` version you have. Couple of its core functions are `SSL_read` and `SSL_write`. 
-`SSL_read` reads data from an SSL/TLS connection, decrypting it and storing the result in the buffer pointed to by `buf`. Here, `buf` is a pointer to user-space memory where the decrypted data is written. `SSL_read` has a prototype of:
+Let's explore another example to show you the power of uprobe/uretprobe. Libssl is a core component of the OpenSSL library, providing implementations of the Secure Sockets Layer (SSL) and Transport Layer Security (TLS) protocols to enable secure communications over network by encrypting data. You can check the list of all functions by executing command like `nm` on `/lib/x86_64-linux-gnu/libssl.so.3` or whatever `libssl` version you have. Couple of its core functions are `SSL_read` and `SSL_write`. `SSL_read` reads data from an SSL/TLS connection, decrypting it and storing the result in the buffer pointed to by `buf`. Here, `buf` is a pointer to user-space memory where the decrypted data is written. `SSL_read` has a prototype of:
 ```c
 int SSL_read(SSL *ssl, void *buf, int num);
 ```
@@ -622,7 +624,8 @@ int SSL_read(SSL *ssl, void *buf, int num);
 int SSL_write(SSL *ssl, const void *buf, int num);
 ```
 
-Uprobes let you intercept user-space function calls at runtime. By attaching them to libssl's SSL_read and SSL_write, you capture data after it's decrypted (or before it's encrypted) inside the process memory. This means you get the plaintext data directly, without needing to use a CA to decrypt network traffic.  
+Uprobes let you intercept user-space function calls at runtime. By attaching them to libssl's SSL_read and SSL_write, you capture data after it's decrypted (or before it's encrypted) inside the process memory. This means you get the plaintext data directly, without needing to use a CA to decrypt network traffic.
+
 To capture decrypted traffic for both ways (send and receive ), we need to attach uprobe at the entry point and the exit point for each function. You need to attach a probe at the entry point to capture the buffer pointer (the address of buf) as soon as the function is called, because that pointer is passed as an argument. Then, attaching a probe at the exit point lets you read the final data from that buffer after the function has processed it.
 
 <p style="text-align: center;">
@@ -890,7 +893,7 @@ curl 8.12.1 (x86_64-pc-linux-gnu) libcurl/8.12.1 GnuTLS/3.8.9 zlib/1.3.1 brotli/
 Release-Date: 2025-02-13, security patched: 8.12.1-2
 ```
 
-The location of  libgnutls linked to `curl` command can be obtained by running `ldd /usr/bin/curl` 
+The location of libgnutls linked to `curl` command can be obtained by running `ldd /usr/bin/curl` 
 ```sh
 libgnutls.so.30 => /lib/x86_64-linux-gnu/libgnutls.so.30 (0x00007f82da200000)
 ```

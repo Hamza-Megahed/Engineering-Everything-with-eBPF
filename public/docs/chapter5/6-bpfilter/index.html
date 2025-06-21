@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -268,9 +268,9 @@
 	<header class="article-meta">
 		
   </header>
-	<p>bpfilter is a eBPF-based packet filtering currently maintained by meta, designed to replace or complement traditional packet filtering systems such as netfilter/iptables. It leverages the power of eBPF programs to implement filtering directly in the kernel. bpfilter is part of a broader shift towards eBPF-driven networking, moving away from older, monolithic approaches with minimal overhead.<br>
-bpfilter consists of two parts: daemon and front-ends. Font-end such as <code>bfcli</code> which receives firewall rules from administrators and send them to the daemon (<code>bpfilter</code>). <code>bpfilter</code> daemon parses the ruleset whether provided directly as a string or loaded from a file and then translates these high-level rules into eBPF bytecode that can be executed in the kernel.<br>
-bpfilter attaches the generated eBPF programs to specific kernel hooks such as XDP, TC (Traffic Control), or netfilter hooks (like NF_PRE_ROUTING, NF_LOCAL_IN, etc.). Each hook corresponds to a different stage in the packet processing pipeline, allowing bpfilter to intercept packets as early or as late as necessary.</p>
+	<p>bpfilter is a eBPF-based packet filtering currently maintained by meta, designed to replace or complement traditional packet filtering systems such as netfilter/iptables. It leverages the power of eBPF programs to implement filtering directly in the kernel. bpfilter is part of a broader shift towards eBPF-driven networking, moving away from older, monolithic approaches with minimal overhead.</p>
+<p>bpfilter consists of two parts: daemon and front-ends. Font-end such as <code>bfcli</code> which receives firewall rules from administrators and send them to the daemon (<code>bpfilter</code>). <code>bpfilter</code> daemon parses the ruleset whether provided directly as a string or loaded from a file and then translates these high-level rules into eBPF bytecode that can be executed in the kernel.</p>
+<p>bpfilter attaches the generated eBPF programs to specific kernel hooks such as XDP, TC (Traffic Control), or netfilter hooks (like NF_PRE_ROUTING, NF_LOCAL_IN, etc.). Each hook corresponds to a different stage in the packet processing pipeline, allowing bpfilter to intercept packets as early or as late as necessary.</p>
 <p style="text-align: center;">
   <img src="/images/docs/chapter5/bpfilter-Architecture.png" alt="Centered image" />
 </p>
@@ -322,13 +322,13 @@ BF_HOOK_NF_LOCAL_OUT: similar to nftables and iptables output hook.
 BF_HOOK_NF_POST_ROUTING: similar to nftables and iptables postrouting hook.
 BF_HOOK_TC_EGRESS: egress TC hook.
 </code></pre><p><strong>$POLICY:</strong> The default action (typically ACCEPT or DROP) applied to packets that do not match any rule in the chain.<br>
-<strong>Rule</strong>: Each rule under the chain consists of one or more <strong>matchers</strong> followed by a <strong>verdict</strong>.<br>
+<strong>Rule</strong>: Each rule under the chain consists of one or more <code>matchers</code> followed by a <code>verdict</code>.<br>
 <strong>$MATCHER:</strong> A condition (or multiple conditions) that compares parts of the packet. For example, checking the protocol or matching an IP address.<br>
 <strong>$VERDICT:</strong> The action to take if the matchers are true. Common verdicts are:</p>
 <ul>
-<li><strong>ACCEPT:</strong> Let the packet continue through the network stack.</li>
-<li><strong>DROP:</strong> Discard the packet.</li>
-<li><strong>CONTINUE:</strong> Continue to the next rule (often used in conjunction with packet counting).</li>
+<li><code>ACCEPT</code>: Let the packet continue through the network stack.</li>
+<li><code>DROP</code>: Discard the packet.</li>
+<li><code>CONTINUE</code>: Continue to the next rule (often used in conjunction with packet counting).</li>
 </ul>
 <p>The following tables are from the bpfilter documentation and they contain detailed information about the various matchers used in bpfilter for filtering network traffic. Each table lists the matcher name (the field of the packet), its corresponding type in bpfilter (for example, <code>udp.sport</code> or <code>tcp.sport</code>), the operator used for comparison (such as <code>eq</code>, <code>not</code>, or <code>range</code>), the payload (the value or range to compare against), and additional notes that explain usage constraints or default behaviors.</p>
 <h3 id="meta-matchers">Meta matchers<a class="td-heading-self-link" href="#meta-matchers" aria-label="Heading self-link"></a></h3>

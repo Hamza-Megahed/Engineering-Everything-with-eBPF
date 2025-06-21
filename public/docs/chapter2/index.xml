@@ -12,7 +12,7 @@
       <link>https://ebpf.hamza-megahed.com/docs/chapter2/1-bpf_syscall/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://ebpf.hamza-megahed.com/docs/chapter2/1-bpf_syscall/</guid>
-      <description>Introduction to the bpf() System Call The bpf() system call serves as a central mechanism in the Linux kernel for working with the Extended Berkeley Packet Filter (eBPF) subsystem. Originally introduced as a tool to filter packets in the kernel’s networking stack, Berkeley Packet Filters (BPF) allowed user space to define small programs that run efficiently in kernel space. Over time, this concept has evolved significantly from “classic” BPF (cBPF) to “extended” BPF (eBPF), which unlocks a far richer set of capabilities.</description>
+      <description>Introduction to the bpf() System Call The bpf() system call serves as a central mechanism in the Linux kernel for working with the Extended Berkeley Packet Filter (eBPF) subsystem. Originally introduced as a tool to filter packets in the kernel’s networking stack, Berkeley Packet Filters (BPF) allowed user space to define small programs that run efficiently in kernel space. Over time, this concept has evolved significantly from classic BPF (cBPF) to extended BPF (eBPF), which unlocks a far richer set of capabilities.</description>
     </item>
     <item>
       <title>eBPF Maps</title>

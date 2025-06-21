@@ -273,8 +273,7 @@ Disassembly of section tracepoint/syscalls/sys_enter_getpid:
       11:	b7 00 00 00 00 00 00 00	r0 = 0x0
       12:	95 00 00 00 00 00 00 00	exit
 ```
-You can find a list of eBPF opcodes from kernel documentation  
-https://docs.kernel.org/bpf/standardization/instruction-set.html or RFC 9669 https://www.rfc-editor.org/rfc/rfc9669.html.
+You can find a list of eBPF opcodes from [kernel documentation](https://tinyurl.com/3zpewpp6) or [RFC 9669](https://tinyurl.com/nnmsd3y7).
 
 
 BPFTool can display the list of all maps using `sudo bpftool map`

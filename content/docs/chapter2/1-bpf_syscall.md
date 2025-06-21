@@ -6,10 +6,14 @@ weight: 2
 
 ### Introduction to the bpf() System Call
 
-The bpf() system call serves as a central mechanism in the Linux kernel for working with the Extended Berkeley Packet Filter (eBPF) subsystem. Originally introduced as a tool to filter packets in the kernel’s networking stack, Berkeley Packet Filters (BPF) allowed user space to define small programs that run efficiently in kernel space. Over time, this concept has evolved significantly from “classic” BPF (cBPF) to “extended” BPF (eBPF), which unlocks a far richer set of capabilities. The extended model supports versatile data structures, the ability to attach programs to a variety of kernel subsystems, and the invocation of helper functions that simplify complex operations.  
-The bpf() system call accepts a command argument determining the exact operation to be performed, and a corresponding attribute structure that passes parameters specific to that operation. Among these operations are commands to load eBPF programs into the kernel, create and manage eBPF maps, attach programs to hooks, and query or manipulate existing eBPF objects. This wide range of functionality makes bpf() a cornerstone of eBPF-based tooling in modern Linux systems.  
-The kernel ensures eBPF programs cannot crash or destabilize the system through rigorous static analysis at load time. As a result, the bpf() system call provides a secure yet flexible interface for extending kernel functionality.  
-In the **`/include/uapi/linux/bpf.h`** header file, you will find a list of all the commands used in the `bpf()` syscall. These commands define the actions that can be performed on eBPF objects, such as loading programs, creating maps, attaching programs to kernel events, and more. The commands are organized as part of the `enum bpf_cmd`, which is used as an argument to specify the desired operation when invoking the `bpf()` syscall.  
+The bpf() system call serves as a central mechanism in the Linux kernel for working with the Extended Berkeley Packet Filter (eBPF) subsystem. Originally introduced as a tool to filter packets in the kernel’s networking stack, Berkeley Packet Filters (BPF) allowed user space to define small programs that run efficiently in kernel space. Over time, this concept has evolved significantly from classic BPF (cBPF) to extended BPF (eBPF), which unlocks a far richer set of capabilities. The extended model supports versatile data structures, the ability to attach programs to a variety of kernel subsystems, and the invocation of helper functions that simplify complex operations.
+
+The bpf() system call accepts a command argument determining the exact operation to be performed, and a corresponding attribute structure that passes parameters specific to that operation. Among these operations are commands to load eBPF programs into the kernel, create and manage eBPF maps, attach programs to hooks, and query or manipulate existing eBPF objects. This wide range of functionality makes bpf() a cornerstone of eBPF-based tooling in modern Linux systems.
+
+The kernel ensures eBPF programs cannot crash or destabilize the system through rigorous static analysis at load time. As a result, the bpf() system call provides a secure yet flexible interface for extending kernel functionality.
+
+In the `/include/uapi/linux/bpf.h` header file, you will find a list of all the commands used in the `bpf()` syscall. These commands define the actions that can be performed on eBPF objects, such as loading programs, creating maps, attaching programs to kernel events, and more. The commands are organized as part of the `enum bpf_cmd`, which is used as an argument to specify the desired operation when invoking the `bpf()` syscall.
+
 Here’s an example of how the `enum bpf_cmd` is defined in the kernel source:
 
 ```c
@@ -58,7 +62,8 @@ enum bpf_cmd {
 
 
 
-We are not going through the full list but among these commands, one of the most important is `bpf_prog_load`. This command is used to load an eBPF program into the kernel. By invoking `bpf()` with the `BPF_PROG_LOAD` command, the kernel verifies the program’s safety, ensuring that it won’t cause any harm to the system. Upon success, the program is loaded into the kernel, and the system call returns a file descriptor associated with this eBPF program, allowing the program to be attached to various kernel events or subsystems, such as network interfaces, tracepoints, or XDP.  
+We are not going through the full list but among these commands, one of the most important is `bpf_prog_load`. This command is used to load an eBPF program into the kernel. By invoking `bpf()` with the `BPF_PROG_LOAD` command, the kernel verifies the program’s safety, ensuring that it won’t cause any harm to the system. Upon success, the program is loaded into the kernel, and the system call returns a file descriptor associated with this eBPF program, allowing the program to be attached to various kernel events or subsystems, such as network interfaces, tracepoints, or XDP.
+
 In the kernel’s BPF subsystem, specifically in `kernel/bpf/syscall.c`, a switch statement is used to dispatch commands defined by the enum bpf_cmd to their corresponding handler functions.
 ```c
 	switch (cmd) {
@@ -86,7 +91,7 @@ In the kernel’s BPF subsystem, specifically in `kernel/bpf/syscall.c`, a switc
 	[...]
 ```
 
-Now, let’s take a closer look at how `bpf_prog_load` works in practice and how  eBPF programs can be loaded into the kernel.
+Now, let’s take a closer look at how `bpf_prog_load` works in practice and how eBPF programs can be loaded into the kernel.
 
 ### bpf_prog_load
 
@@ -114,12 +119,12 @@ int bpf_prog_load(enum bpf_prog_type type,
 ```
 
  **Key Parameters:**
-- **prog_type**: Specifies the type of eBPF program (e.g., BPF_PROG_TYPE_XDP, BPF_PROG_TYPE_KPROBE).
-- **insns**: The array of eBPF instructions (bytecode) that the program consists of.
-- **insn_cnt**: The number of instructions in the insns array.
-- **license**: This attribute specifies the license under which the eBPF program is distributed. It is important for ensuring compatibility with kernel helper functions that are `GPL-only`. Some eBPF helpers are restricted to being used only in programs that have a GPL-compatible license. Examples of such licenses include "GPL", "GPL v2", or "Dual BSD/GPL". If the program’s license is not compatible with the GPL, it may not be allowed to invoke these specific helper functions.
-- **log_buf**: A buffer where the kernel stores the verification log if the program fails verification.
-- **log_size**: The size of the verification log buffer.
+- `prog_type`: Specifies the type of eBPF program (e.g., BPF_PROG_TYPE_XDP, BPF_PROG_TYPE_KPROBE).
+- `insns`: The array of eBPF instructions (bytecode) that the program consists of.
+- `insn_cnt`: The number of instructions in the insns array.
+- `license`: This attribute specifies the license under which the eBPF program is distributed. It is important for ensuring compatibility with kernel helper functions that are `GPL-only`. Some eBPF helpers are restricted to being used only in programs that have a GPL-compatible license. Examples of such licenses include "GPL", "GPL v2", or "Dual BSD/GPL". If the program’s license is not compatible with the GPL, it may not be allowed to invoke these specific helper functions.
+- `log_buf`: A buffer where the kernel stores the verification log if the program fails verification.
+- `log_size`: The size of the verification log buffer.
 
 When a user-space process issues a `BPF_PROG_LOAD` command, the kernel invokes the `bpf_prog_load(&attr, uattr, size)` function which is defined in `kernel/bpf/syscall.c` kernel source code:
 ```c
@@ -147,8 +152,9 @@ int bpf_prog_load(enum bpf_prog_type prog_type,
                   struct bpf_prog_load_opts *opts)
 ```
 
-This function simplifies the process of loading eBPF programs by wrapping around the `bpf()` syscall, handling retries, and providing additional configuration options.  
-**bpf_prog_load_opts** structure: This structure provides additional configuration options when loading an eBPF program, as seen below:
+This function simplifies the process of loading eBPF programs by wrapping around the `bpf()` syscall, handling retries, and providing additional configuration options.
+
+`bpf_prog_load_opts` structure: This structure provides additional configuration options when loading an eBPF program, as seen below:
 
 ```c
 struct bpf_prog_load_opts {
@@ -178,7 +184,7 @@ struct bpf_prog_load_opts {
 
 At the heart of eBPF lies the concept of eBPF maps. Maps are generic, dynamic, kernel-resident data structures accessible from both eBPF programs and user space applications. They allow you to share state and pass information between user space and eBPF code.
 The Linux man page (`man 2 bpf`) states:
-> "eBPF maps are a generic data structure for storage of different data types. Data types are generally treated as binary blobs. A user just specifies the size of the key and the size of the value at map-creation time."
+> eBPF maps are a generic data structure for storage of different data types. Data types are generally treated as binary blobs. A user just specifies the size of the key and the size of the value at map-creation time.
 
 Now, let’s dive into the world of eBPF maps and explore how these powerful data structures are created, accessed, and used within the kernel. By understanding how to interact with maps, you’ll unlock the ability to efficiently store and retrieve data across different eBPF programs.
 

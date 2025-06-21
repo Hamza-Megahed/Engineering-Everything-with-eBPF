@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="History of eBPF">
   <meta itemprop="description" content="Journey from classic BPF in the nineties to the modern 64-bit virtual machine.">
-  <meta itemprop="wordCount" content="2206">
+  <meta itemprop="wordCount" content="2205">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="History of eBPF">
   <meta name="twitter:description" content="Journey from classic BPF in the nineties to the modern 64-bit virtual machine.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -282,10 +282,9 @@
 <li>Lack of Extensibility: There was no straightforward way to extend the functionality of cBPF beyond packet filtering.</li>
 </ol>
 <h3 id="integration-of-bpf-into-the-linux-kernel">Integration of BPF into the Linux Kernel<a class="td-heading-self-link" href="#integration-of-bpf-into-the-linux-kernel" aria-label="Heading self-link"></a></h3>
-<p>BPF was first integrated into the Linux kernel in 1997, starting from version 2.1. This integration allowed kernel-level packet filtering for tools like <code>tcpdump</code> and <code>iptables</code>. Over time, the BPF VM became a reliable mechanism for filtering network traffic efficiently within the kernel space.</p>
-<p>However, as system and network performance demands grew, the limitations of classic BPF became more clear. The need for a more powerful, flexible, and extensible version of BPF led to the development of eBPF.</p>
+<p>BPF was first integrated into the Linux kernel in 1997, starting from version 2.1. This integration allowed kernel-level packet filtering for tools like <code>tcpdump</code> and <code>iptables</code>. Over time, the BPF VM became a reliable mechanism for filtering network traffic efficiently within the kernel space. However, as system and network performance demands grew, the limitations of classic BPF became more clear. The need for a more powerful, flexible, and extensible version of BPF led to the development of eBPF.</p>
 <h3 id="introduction-and-evolution-of-ebpf-2014-present">Introduction and Evolution of eBPF (2014-Present)<a class="td-heading-self-link" href="#introduction-and-evolution-of-ebpf-2014-present" aria-label="Heading self-link"></a></h3>
-<p>In 2014, the Linux kernel version 3.18 introduced &ldquo;extended BPF&rdquo; (eBPF). eBPF was a significant enhancement over classic BPF, providing a modern, flexible, and powerful framework for executing user-defined programs within the kernel. The key improvements introduced by eBPF include:</p>
+<p>In 2014, the Linux kernel version 3.18 introduced extended BPF (eBPF). eBPF was a significant enhancement over classic BPF, providing a modern, flexible, and powerful framework for executing user-defined programs within the kernel. The key improvements introduced by eBPF include:</p>
 <ol>
 <li>64-bit Registers: eBPF uses a 64-bit architecture, which improves performance and data-handling capabilities.</li>
 <li>General-Purpose: eBPF is no longer limited to packet filtering; it can be used for various tasks, including tracing, performance monitoring, security enforcement, and more.</li>
@@ -296,8 +295,8 @@
 <p>Since its introduction, eBPF has evolved rapidly, with continuous enhancements to its feature set and performance. Projects like <code>bcc</code> (BPF Compiler Collection), <code>bpftool</code>, and <code>libbpf</code> have made writing and deploying eBPF programs more accessible. eBPF is now used extensively for networking, observability, and security tasks in major projects like Cilium, Falco, and the Kubernetes ecosystem.</p>
 <h3 id="naming-confusion">Naming Confusion<a class="td-heading-self-link" href="#naming-confusion" aria-label="Heading self-link"></a></h3>
 <p>The terminology surrounding BPF and eBPF often leads to confusion due to the historical evolution of the technology. Originally, BPF referred exclusively to the Berkeley Packet Filter designed for packet capture. However, with the introduction of eBPF in 2014, the technology evolved far beyond its initial purpose, supporting tasks like tracing, performance monitoring, and security.</p>
-<p>Despite these advancements, many tools and kernel APIs continue to use the term &ldquo;BPF&rdquo; even when referring to eBPF functionality. For example, commands like <code>bpftool</code> and the <code>bpf()</code> system call refer to eBPF features while retaining the older name. This overlap in terminology can cause misunderstandings, especially for newcomers who may not be aware of the differences between classic BPF and modern eBPF.</p>
-<p>To avoid confusion, it&rsquo;s helpful to use &ldquo;BPF&rdquo; when referring to the original packet-filtering technology and &ldquo;eBPF&rdquo; when discussing the extended capabilities introduced in the modern framework. This distinction clarifies communication and ensures a better understanding of the technology&rsquo;s capabilities in the Linux ecosystem.</p>
+<p>Despite these advancements, many tools and kernel APIs continue to use the term BPF even when referring to eBPF functionality. For example, commands like <code>bpftool</code> and the <code>bpf()</code> system call refer to eBPF features while retaining the older name. This overlap in terminology can cause misunderstandings, especially for newcomers who may not be aware of the differences between classic BPF and modern eBPF.</p>
+<p>To avoid confusion, it&rsquo;s helpful to use BPF when referring to the original packet-filtering technology and eBPF when discussing the extended capabilities introduced in the modern framework. This distinction clarifies communication and ensures a better understanding of the technology&rsquo;s capabilities in the Linux ecosystem.</p>
 <h3 id="example-using-tcpdump">Example Using tcpdump<a class="td-heading-self-link" href="#example-using-tcpdump" aria-label="Heading self-link"></a></h3>
 <p>To illustrate classic BPF in action, consider a simple <code>tcpdump</code> command that captures only TCP traffic on port 80 (HTTP):</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tcpdump -i eth0 <span style="color:#4e9a06">&#39;ip and tcp port 80&#39;</span>
@@ -380,7 +379,7 @@
 <p>Let’s explore the differences between classic BPF and eBPF to better understand the enhanced capabilities of eBPF.</p>
 <h3 id="classic-bpf-vs-ebpf">Classic BPF vs. eBPF<a class="td-heading-self-link" href="#classic-bpf-vs-ebpf" aria-label="Heading self-link"></a></h3>
 <p>As mentioned, Berkeley Packet Filter (BPF) was originally developed to filter network packets efficiently. It enabled in-kernel filtering of packets based on simple criteria. However, as the need for more versatile and performant filtering and monitoring grew, extended BPF (eBPF) emerged as a powerful evolution. eBPF transforms BPF into a general-purpose execution engine within the kernel, providing significantly more flexibility and efficiency.</p>
-<p>The following 6 points explores the key differences between eBPF and classic BPF, based on Kernel Documentation <a href="https://docs.kernel.org/bpf/classic_vs_extended.html">https://docs.kernel.org/bpf/classic_vs_extended.html</a>.</p>
+<p>The following 6 points explores the key differences between eBPF and classic BPF, based on <a href="https://tinyurl.com/yp95hf9d">Kernel Documentation</a>.</p>
 <h4 id="use-cases">Use Cases<a class="td-heading-self-link" href="#use-cases" aria-label="Heading self-link"></a></h4>
 <p><strong>Classic BPF</strong> is primarily used for packet filtering. Its primary use case is in network monitoring tools like <code>tcpdump</code>, where it allows users to specify packet filtering rules directly within the kernel.</p>
 <p>eBPF, however, has vastly expanded use cases. eBPF is used in:</p>

@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -264,11 +264,11 @@
 <ul>
 <li>When a function is compiled with tracing support CONFIG_FUNCTION_TRACER, the compiler inserts a call to <code>__fentry__</code> at the beginning of the function which contains several <code>NOP</code> instructions <code>0x90</code>.</li>
 <li>When an fentry eBPF program is attached, the kernel patches the NOPs dynamically—replacing it with a jump to a BPF trampoline.</li>
-<li>The trampoline then efficiently invokes fentry handler (without the overhead of breakpoints or interrupts) and, after executing, returns control to the original function so that normal execution continues.
-Fentry-based and fexit-based eBPF programs are classified under the program type <code>BPF_PROG_TYPE_TRACING</code>.
-By looking at the entry is a kernel function such as <code>do_set_acl</code>. First we need to download debug symbols for the kernel, on debian just <code>sudo apt-get install linux-image-$(uname -r)-dbg</code> and the debug symbols will be at <code>/usr/lib/debug/boot/vmlinux-$(uname -r)</code>.
-Getting the entry point of <code>do_set_acl</code> using <code>objdump -d vmlinux-$(uname -r) | grep -A 10 &quot;&lt;do_set_acl&gt;:&quot;</code></li>
+<li>The trampoline then efficiently invokes fentry handler (without the overhead of breakpoints or interrupts) and, after executing, returns control to the original function so that normal execution continues.</li>
 </ul>
+<p>Fentry-based and fexit-based eBPF programs are classified under the program type <code>BPF_PROG_TYPE_TRACING</code>.
+By looking at the entry is a kernel function such as <code>do_set_acl</code>. First we need to download debug symbols for the kernel, on debian just <code>sudo apt-get install linux-image-$(uname -r)-dbg</code> and the debug symbols will be at <code>/usr/lib/debug/boot/vmlinux-$(uname -r)</code>.</p>
+<p>Getting the entry point of <code>do_set_acl</code> using <code>objdump -d vmlinux-$(uname -r) | grep -A 10 &quot;&lt;do_set_acl&gt;:&quot;</code></p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">ffffffff814d7d20</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">do_set_acl</span><span style="color:#ce5c00;font-weight:bold">&gt;:</span>
 </span></span><span style="display:flex;"><span><span style="color:#f57900">ffffffff814d7d20</span><span style="color:#000;font-weight:bold">:</span>	<span style="color:#000">f3</span> <span style="color:#0000cf;font-weight:bold">0f</span> <span style="color:#0000cf;font-weight:bold">1</span><span style="color:#000">e</span> <span style="color:#000">fa</span>          	<span style="color:#000">endbr64</span>
 </span></span><span style="display:flex;"><span><span style="color:#f57900">ffffffff814d7d24</span><span style="color:#000;font-weight:bold">:</span>	<span style="color:#000">e8</span> <span style="color:#0000cf;font-weight:bold">37</span> <span style="color:#0000cf;font-weight:bold">56</span> <span style="color:#000">bb</span> <span style="color:#000">ff</span>       	<span style="color:#000">call</span>   <span style="color:#000">ffffffff8108d360</span> <span style="color:#ce5c00;font-weight:bold">&lt;</span><span style="color:#000">__fentry__</span><span style="color:#ce5c00;font-weight:bold">&gt;</span>

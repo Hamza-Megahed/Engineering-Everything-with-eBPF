@@ -4,20 +4,19 @@ description: Ingress and egress shaping and filtering in the TC layer with cls b
 weight: 4
 ---
 
-Traffic Control subsystem is designed to schedule packets using a queuing system which controls the traffic direction and filtering. Traffic control can be used to filter traffic by applying rules and traffic shaping among other functions.
-The core of traffic control is built around qdiscs which stands for queuing disciplines, qdiscs define the rules for how packets are handled by a queuing system. There are two types of qdiscs, classful and classless. classful qdiscs enable the creation of hierarchical queuing structures to facilitates the implementation of complex traffic management policies. 
+Traffic Control subsystem is designed to schedule packets using a queuing system which controls the traffic direction and filtering. Traffic control can be used to filter traffic by applying rules and traffic shaping among other functions. The core of traffic control is built around qdiscs which stands for queuing disciplines, qdiscs define the rules for how packets are handled by a queuing system.  
+
+There are two types of qdiscs, classful and classless. classful qdiscs enable the creation of hierarchical queuing structures to facilitates the implementation of complex traffic management policies. 
 Classful qdiscs consist of two parts, filters and classes. The best definition is in the man page which says the following:
 
-```html
-Queueing Discipline:
-qdisc is short for 'queueing discipline' and it is elementary to understanding traffic control. Whenever the Kernel needs to send a packet to an interface, it is enqueued to the qdisc configured for that interface. Immediately afterwards, the Kernel tries to get as many packets as possible from the qdisc, for giving them to the network adaptor driver.
-
-Classes:
-Some qdiscs can contain classes, which contain further qdiscs,traffic may then be enqueued in any of the inner qdiscs, which are within the classes.  When the kernel tries to dequeue a packet from such a classful qdisc it can come from any of the classes. A qdisc may for example prioritize certain kinds of traffic by trying to dequeue from certain classes before others.
-
-Filters:
-A filter is used by a classful qdisc to determine in which class a packet will be enqueued. Whenever traffic arrives at a class with subclasses, it needs to be classified. Various methods may be employed to do so, one of these are the filters. All filters attached to the class are called, until one of them returns with a verdict. If no verdict was made, other criteria may be available. This differs per qdisc.
-```
+>Queueing Discipline:
+>qdisc is short for 'queueing discipline' and it is elementary to understanding traffic control. Whenever the Kernel needs to send a packet to an interface, it is enqueued to the qdisc >configured for that interface. Immediately afterwards, the Kernel tries to get as many packets as possible from the qdisc, for giving them to the network adaptor driver.
+>
+>Classes:
+>Some qdiscs can contain classes, which contain further qdiscs,traffic may then be enqueued in any of the inner qdiscs, which are within the classes. When the kernel tries to dequeue a >packet from such a classful qdisc it can come from any of the classes. A qdisc may for example prioritize certain kinds of traffic by trying to dequeue from certain classes before others.
+>
+>Filters:
+>A filter is used by a classful qdisc to determine in which class a packet will be enqueued. Whenever traffic arrives at a class with subclasses, it needs to be classified. Various methods >may be employed to do so, one of these are the filters. All filters attached to the class are called, until one of them returns with a verdict. If no verdict was made, other crit
 
 In essence: classful qdiscs have filters which are used to classify traffic and determine which class a packet should be placed in.
 <p style="text-align: center;">
@@ -39,7 +38,8 @@ qdisc fq_codel 0: dev enp1s0 root refcnt 2 limit 10240p flows 1024 quantum 1514 
 Traffic Control has two major components: classifiers and actions. Classifiers are used to inspect packets and decide if they match certain criteria, such as IP addresses, ports or protocols. They essentially sort packets into groups based on rules so that further processing can be applied to the appropriate packets.
 Actions define what happens to a packet after it has been classified. Once a packet matches a rule, an action is executed on it—such as dropping the packet, changing its priority or redirecting it to another interface. 
 
-Traffic control eBPF programs are classified either as `BPF_PROG_TYPE_SCHED_CLS ` with `SEC("tc") `or  `BPF_PROG_TYPE_SCHED_ACT` with `SEC("action/")`. `BPF_PROG_TYPE_SCHED_CLS` is often preferred, as it can function as both a classifier and an action executor when used with the direct-action flag. One key advantage is that these eBPF programs can be attached to both egress (outgoing) and ingress (incoming) traffic. This ability allows administrators to inspect, modify and filter packets in both directions.
+Traffic control eBPF programs are classified either as `BPF_PROG_TYPE_SCHED_CLS ` with `SEC("tc") `or `BPF_PROG_TYPE_SCHED_ACT` with `SEC("action/")`. 
+`BPF_PROG_TYPE_SCHED_CLS` is often preferred, as it can function as both a classifier and an action executor when used with the direct-action flag. One key advantage is that these eBPF programs can be attached to both egress (outgoing) and ingress (incoming) traffic. This ability allows administrators to inspect, modify and filter packets in both directions.
 {{< alert title="Note" >}}A single eBPF program instance can only be attached to either egress or ingress on a given interface, but separate instances can be deployed for each direction if needed.{{< /alert >}}
 
 <p style="text-align: center;">
@@ -60,8 +60,7 @@ Actions and their corresponding values are defined in `include/uapi/linux/pkt_cl
 #define TC_ACT_TRAP		      8
 ```
 
-Actions and direct-action are defined in  
-https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_SCHED_CLS/#direct-action which stated as the following:
+Actions and direct-action are defined in this [URL](https://tinyurl.com/4hch32vh) which states as the following:
 ```html
 Direct action
 
@@ -143,7 +142,7 @@ curl-1636    [003] b..1.  1735.290483: bpf_trace_printk: Dropping egress packet 
 ```
 The attachment can be stopped by deleting the qdisc using `sudo tc qdisc del dev enp1s0 clsact`. I hope that Traffic Control is much clearer at this point.
 
-If we want to set up a sensor to analyze traffic from a specific service or port, all we need to do is redirect that traffic using the `bpf_clone_redirect` helper function to a predefined interface for tapping. The cloning will allow us to monitor traffic with actively interfering or impacting performance. The redirected traffic can then be forwarded to traffic analysis tools such as Security Onion, Suricata, Snort, zeek, ...etc. The `bpf_clone_redirect` helper function clones the packet and then redirects the clone to another interface, while the `bpf_redirect` helper function redirects the packet without cloning it. Both helper functions require the target interface's ifindex, which represents the interface ID.  `bpf_clone_redirect` helper function has a prototype as the following:
+If we want to set up a sensor to analyze traffic from a specific service or port, all we need to do is redirect that traffic using the `bpf_clone_redirect` helper function to a predefined interface for tapping. The cloning will allow us to monitor traffic with actively interfering or impacting performance. The redirected traffic can then be forwarded to traffic analysis tools such as Security Onion, Suricata, Snort, zeek, ...etc. The `bpf_clone_redirect` helper function clones the packet and then redirects the clone to another interface, while the `bpf_redirect` helper function redirects the packet without cloning it. Both helper functions require the target interface's ifindex, which represents the interface ID. `bpf_clone_redirect` helper function has a prototype as the following:
 ```c
 static long (* const bpf_clone_redirect)(struct __sk_buff *skb, __u32 ifindex, __u64 flags) = (void *) 13;
 ```
@@ -231,7 +230,7 @@ The steps are as follows:
 2. Calculate the TCP header length to determine the exact offset of the payload.
 3. Read the first 4 bytes of the payload.
 4. Replace these 4 bytes with 'XXXX' using the `bpf_skb_store_bytes` helper function.
-5. Recalculate the checksum using the `bpf_l4_csum_replace` helper function.  
+5. Recalculate the checksum using the `bpf_l4_csum_replace` helper function.
 
 `bpf_skb_store_bytes` helper function has the following prototype:
 ```c

@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="Socket Filter">
   <meta itemprop="description" content="Classic filtering on a socket before data reaches user space.">
-  <meta itemprop="wordCount" content="2551">
+  <meta itemprop="wordCount" content="2549">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Socket Filter">
   <meta name="twitter:description" content="Classic filtering on a socket before data reaches user space.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -308,7 +308,7 @@
 </span></span><span style="display:flex;"><span>	<span style="color:#f57900">__u32</span> <span style="color:#000;font-weight:bold">:</span><span style="color:#0000cf;font-weight:bold">24</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">__u64</span> <span style="color:#000">hwtstamp</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
-</span></span></code></pre></div><p>Therefore, to detect an ICMP echo request packet (as in the following example), you need to perform the following checks: first, verify that it&rsquo;s an IPv4 packet. If it is, then confirm that the protocol is ICMP. Finally, check if the ICMP type is an echo request or an echo reply all of that is just by reading <code>__sk_buff</code> using <code>bpf_skb_load_bytes</code> . <code>bpf_skb_load_bytes</code>  is a helper function which can be used to load <code>data</code> from a packet and it has the following prototype:</p>
+</span></span></code></pre></div><p>Therefore, to detect an ICMP echo request packet (as in the following example), you need to perform the following checks: first, verify that it&rsquo;s an IPv4 packet. If it is, then confirm that the protocol is ICMP. Finally, check if the ICMP type is an echo request or an echo reply all of that is just by reading <code>__sk_buff</code> using <code>bpf_skb_load_bytes</code> . <code>bpf_skb_load_bytes</code> is a helper function which can be used to load <code>data</code> from a packet and it has the following prototype:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#a40000">`</span><span style="color:#204a87;font-weight:bold">static</span> <span style="color:#204a87;font-weight:bold">long</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#ce5c00;font-weight:bold">*</span> <span style="color:#204a87;font-weight:bold">const</span> <span style="color:#000">bpf_skb_load_bytes</span><span style="color:#000;font-weight:bold">)(</span><span style="color:#204a87;font-weight:bold">const</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">skb</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u32</span> <span style="color:#000">offset</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">to</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">__u32</span> <span style="color:#000">len</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#ce5c00;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">void</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000;font-weight:bold">)</span> <span style="color:#0000cf;font-weight:bold">26</span><span style="color:#000;font-weight:bold">;</span><span style="color:#a40000">`</span>
 </span></span></code></pre></div><p><code>bpf_skb_load_bytes</code> takes a pointer to <code>sk_buff</code> , offset which means which part of the packet you want to load or extract, a pointer to a location where you want to store the loaded or extracted data and finally, the length you want to extract.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&#34;vmlinux.h&#34;</span><span style="color:#8f5902;font-style:italic">
@@ -419,7 +419,7 @@ Then we used <code>bpf_ntohs</code> macro which used to convert multi-byte value
 <p style="text-align: center;">
   <img src="/images/docs/chapter4/socket-example1-4.png" alt="Centered image" />
 </p>
-<p>Then the last part is moving to the first byte of ICMP header and check if the packet is echo request or drop the packet from the socket.  and final like <code>return skb-&gt;len</code> indicated that the packet should be accepted and passed along to user space or to further processing. Let&rsquo;s move to the user-space code.</p>
+<p>Then the last part is moving to the first byte of ICMP header and check if the packet is echo request or drop the packet from the socket. Finally, <code>return skb-&gt;len</code> indicated that the packet should be accepted and passed along to user space or to further processing. Let&rsquo;s move to the user-space code.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;arpa/inet.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;errno.h&gt;</span><span style="color:#8f5902;font-style:italic">
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">#include</span> <span style="color:#8f5902;font-style:italic">&lt;stdio.h&gt;</span><span style="color:#8f5902;font-style:italic">
@@ -718,7 +718,7 @@ Then we used <code>bpf_ntohs</code> macro which used to convert multi-byte value
 </span></span><span style="display:flex;"><span>    <span style="color:#000">bpf_object__close</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">obj</span><span style="color:#000;font-weight:bold">);</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#204a87;font-weight:bold">return</span> <span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">;</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">}</span>
-</span></span></code></pre></div><p>The first 4 bits of <code>Offset/Flags</code> field in TCP header contains the size of the TCP header <code> tcp_hdr_len &gt;&gt;= 4</code> then multiplies the value by 4 to convert the header length from 32-bit words to bytes. Compile and start the program then start HTTP server on your machine on port 8080 or change  <code>HTTP_PORT</code> from the code, you can use python</p>
+</span></span></code></pre></div><p>The first 4 bits of <code>Offset/Flags</code> field in TCP header contains the size of the TCP header <code> tcp_hdr_len &gt;&gt;= 4</code> then multiplies the value by 4 to convert the header length from 32-bit words to bytes. Compile and start the program then start HTTP server on your machine on port 8080 or change <code>HTTP_PORT</code> from the code, you can use python</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>python3 -m http.server <span style="color:#0000cf;font-weight:bold">8080</span>
 </span></span></code></pre></div><p>Then curl from another box</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>curl http://192.168.1.2:8080/index.html?id<span style="color:#ce5c00;font-weight:bold">=</span>l33t

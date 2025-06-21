@@ -29,7 +29,7 @@
 
   <meta itemprop="name" content="Raw Tracepoints">
   <meta itemprop="description" content="Lower level access when you need every byte of the event payload.">
-  <meta itemprop="wordCount" content="1432">
+  <meta itemprop="wordCount" content="1434">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Raw Tracepoints">
   <meta name="twitter:description" content="Lower level access when you need every byte of the event payload.">
@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -274,7 +274,7 @@
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">bpf_raw_tracepoint_args</span> <span style="color:#000;font-weight:bold">{</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">__u64</span> <span style="color:#000">args</span><span style="color:#000;font-weight:bold">[</span><span style="color:#0000cf;font-weight:bold">0</span><span style="color:#000;font-weight:bold">];</span>
 </span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">};</span>
-</span></span></code></pre></div><p>To get what args points to in case of <code>sys_enter</code> is by examining include/trace/events/syscalls.h</p>
+</span></span></code></pre></div><p>To understand what the arguments point to in the case of <code>sys_enter</code>, you should examine <code>include/trace/events/syscalls.h</code>.</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">TRACE_EVENT_SYSCALL</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">sys_enter</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">TP_PROTO</span><span style="color:#000;font-weight:bold">(</span><span style="color:#204a87;font-weight:bold">struct</span> <span style="color:#000">pt_regs</span> <span style="color:#ce5c00;font-weight:bold">*</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#204a87;font-weight:bold">long</span> <span style="color:#000">id</span><span style="color:#000;font-weight:bold">),</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#000">TP_ARGS</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">regs</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#000">id</span><span style="color:#000;font-weight:bold">),</span>
@@ -427,7 +427,7 @@
 </span></span></code></pre></div><p>The output:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>PID: 3440, COMM: rm, FILENAME: test1
 </span></span><span style="display:flex;"><span>PID: 3442, COMM: rm, FILENAME: test2
-</span></span></code></pre></div><p>Let&rsquo;s explore another example other than <code>sys_enter</code>. The following is raw tracepoint  <code>task_rename</code> which is triggered when a process change its command name. Detecting such activity is crucial in security field such as malware try to hide its true identity or mimic a trusted process such as using <code>prctl(PR_SET_NAME)</code> to change the name of comm.
+</span></span></code></pre></div><p>Let&rsquo;s explore another example other than <code>sys_enter</code>. The following is raw tracepoint <code>task_rename</code> which is triggered when a process change its command name. Detecting such activity is crucial in security field such as malware try to hide its true identity or mimic a trusted process such as using <code>prctl(PR_SET_NAME)</code> to change the name of comm.
 By examining task_rename tracing event source code located in <code>include/trace/events/task.h</code>,we can see how the tracing mechanism is implemented:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#000">TRACE_EVENT</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000">task_rename</span><span style="color:#000;font-weight:bold">,</span>
 </span></span><span style="display:flex;"><span>

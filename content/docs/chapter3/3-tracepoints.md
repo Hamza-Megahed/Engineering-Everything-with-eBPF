@@ -25,12 +25,12 @@ Tracepoints are static instrumentation points compiled into the kernel at code l
 
 To list all available tracepoints in a Linux system, you can use either `sudo bpftrace -l 'tracepoint:*'` or `sudo ls /sys/kernel/debug/tracing/events/` directory or `/sys/kernel/tracing/available_events` file which contains a list of all available tracepoints on the system. The SEC name usually follows the format `tracepoint__<category>__<name>`, for example, `SEC("tracepoint/syscalls/sys_enter_unlinkat")`. Similarly, the context structure for tracepoints typically follows the naming convention `trace_event_raw_<name> `(e.g., `trace_event_raw_sys_enter` and `trace_event_raw_sys_exit`). 
 
-However, there are exceptions. For instance, in the libbpf-bootstrap example (https://github.com/libbpf/libbpf-bootstrap/blob/master/examples/c/bootstrap.bpf.c), you’ll find:
+However, there are exceptions. For instance, in the [libbpf-bootstrap example](https://tinyurl.com/mw5fkjd3), you’ll find:
 ```c
 SEC("tp/sched/sched_process_exit")
 int handle_exit(struct trace_event_raw_sched_process_template *ctx)
 ```
-Here, based on the naming convention explained previously, the context name should be trace_event_raw_sched_process_exit rather than trace_event_raw_sched_process_template. You can verify the correct context by checking the `vmlinux.h` file.
+Here, the context name should be `trace_event_raw_sched_process_exit` rather than `trace_event_raw_sched_process_template`. You can verify the correct context by checking the `vmlinux.h` file.
 
 Let's explore one of the defined tracepoints from the kernel source code `include/trace/events/net.h`:
 ```c
@@ -93,7 +93,7 @@ static int netif_rx_internal(struct sk_buff *skb)
 
 	[...]
 ```
-You can see `trace_netif_rx(skb);`. This call triggers the tracepoint event for packet reception which logs the event if tracing is enabled.  
+You can see `trace_netif_rx(skb);`. This call triggers the tracepoint event for packet reception which logs the event if tracing is enabled.
 Then by running `gdb /usr/lib/debug/boot/vmlinux-$(uname -r)`
 ```sh
 (gdb) disassemble netif_rx_internal
@@ -115,7 +115,8 @@ Dump of assembler code for function netif_rx_internal:
 [...]
 ```
 
-The disassembly confirms that at address <+29> you see a reserved 5-byte NOP (shown as `nopl 0x0(%rax,%rax,1)`). This placeholder is exactly what the kernel uses for its dynamic patching mechanism—when the tracepoint (or static call) is enabled, that NOP will be patched into a jump to the corresponding trampoline (and ultimately to the tracepoint handler).  
+The disassembly confirms that at address <+29> you see a reserved 5-byte NOP (shown as `nopl 0x0(%rax,%rax,1)`). This placeholder is exactly what the kernel uses for its dynamic patching mechanism—when the tracepoint (or static call) is enabled, that NOP will be patched into a jump to the corresponding trampoline (and ultimately to the tracepoint handler).
+
 In the next example, we will examine `unlinkat` syscall entry point (which removes a directory entry relative to a directory file descriptor) with context `trace_event_raw_sys_enter` , but what exactly is the content of `struct trace_event_raw_sys_enter`. We can get the content by searching the `vmlinux.h` 
 ```c
 struct trace_event_raw_sys_enter {
@@ -126,7 +127,7 @@ struct trace_event_raw_sys_enter {
 };
 ```
 
-Using `trace_event_raw_sys_enter` as context supports BTF. You can also define the context by using the old approach by defining a structure matching the same parameters defined in the `format` file. For example, for the `unlinkat` syscall, this file is located at  `/sys/kernel/debug/tracing/events/syscalls/sys_enter_unlinkat/format` which has the following content 
+Using `trace_event_raw_sys_enter` as context supports BTF. You can also define the context by using the old approach by defining a structure matching the same parameters defined in the `format` file. For example, for the `unlinkat` syscall, this file is located at `/sys/kernel/debug/tracing/events/syscalls/sys_enter_unlinkat/format` which has the following content 
 ```sh
 name: sys_enter_unlinkat
 ID: 849
@@ -152,7 +153,7 @@ struct trace_event_raw_sys_enter_unlinkat {
     long flag;
 };
 ```
-Then the program can use a pointer of type of that structure as context as in `int trace_unlinkat(struct trace_event_raw_sys_enter_unlinkat* ctx)` However,  this approach is not ideal at all for portability.
+Then the program can use a pointer of type of that structure as context as in `int trace_unlinkat(struct trace_event_raw_sys_enter_unlinkat* ctx)` However, this approach is not ideal at all for portability.
 
 If we look at the prototype `int unlinkat(int dirfd, const char *pathname, int flags);` which takes the following parameters:
 **dirfd:** This is a directory file descriptor. When the pathname provided is relative, it’s interpreted relative to this directory.

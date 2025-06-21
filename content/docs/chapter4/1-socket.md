@@ -17,6 +17,7 @@ These four pointers provide the framework for managing the packet data within a 
 2. Data: The actual packet contents (headers and payload).
 3. Tailroom: Space after the packet data for appending headers or trailers.
 4. skb_shared_info: Metadata structure for reference counting, fragments, and other shared data.
+
 <p style="text-align: center;">
   <img src="/images/docs/chapter4/socket-sk_buff.png" alt="Centered image" />
 </p>
@@ -64,7 +65,7 @@ struct __sk_buff {
 };
 ```
 
-Therefore, to detect an ICMP echo request packet (as in the following example), you need to perform the following checks: first, verify that it's an IPv4 packet. If it is, then confirm that the protocol is ICMP. Finally, check if the ICMP type is an echo request or an echo reply all of that is just by reading `__sk_buff` using `bpf_skb_load_bytes` . `bpf_skb_load_bytes`  is a helper function which can be used to load `data` from a packet and it has the following prototype:
+Therefore, to detect an ICMP echo request packet (as in the following example), you need to perform the following checks: first, verify that it's an IPv4 packet. If it is, then confirm that the protocol is ICMP. Finally, check if the ICMP type is an echo request or an echo reply all of that is just by reading `__sk_buff` using `bpf_skb_load_bytes` . `bpf_skb_load_bytes` is a helper function which can be used to load `data` from a packet and it has the following prototype:
 ```c
 `static long (* const bpf_skb_load_bytes)(const void *skb, __u32 offset, void *to, __u32 len) = (void *) 26;`
 ```
@@ -184,7 +185,7 @@ We need to extract the first 1 byte (`__u8`) of the IP header. The top nibble (t
   <img src="/images/docs/chapter4/socket-example1-4.png" alt="Centered image" />
 </p>
 
-Then the last part is moving to the first byte of ICMP header and check if the packet is echo request or drop the packet from the socket.  and final like `return skb->len` indicated that the packet should be accepted and passed along to user space or to further processing. Let's move to the user-space code.
+Then the last part is moving to the first byte of ICMP header and check if the packet is echo request or drop the packet from the socket. Finally, `return skb->len` indicated that the packet should be accepted and passed along to user space or to further processing. Let's move to the user-space code.
 
 ```c
 #include <arpa/inet.h>
@@ -505,7 +506,7 @@ int main(void)
 }
 ```
 
-The first 4 bits of `Offset/Flags` field in TCP header contains the size of the TCP header ` tcp_hdr_len >>= 4` then multiplies the value by 4 to convert the header length from 32-bit words to bytes. Compile and start the program then start HTTP server on your machine on port 8080 or change  `HTTP_PORT` from the code, you can use python 
+The first 4 bits of `Offset/Flags` field in TCP header contains the size of the TCP header ` tcp_hdr_len >>= 4` then multiplies the value by 4 to convert the header length from 32-bit words to bytes. Compile and start the program then start HTTP server on your machine on port 8080 or change `HTTP_PORT` from the code, you can use python 
 ```sh
 python3 -m http.server 8080
 ```

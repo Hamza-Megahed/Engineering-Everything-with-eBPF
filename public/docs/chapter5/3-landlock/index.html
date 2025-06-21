@@ -67,7 +67,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -91,7 +91,7 @@
     aria-label="Search this site…"
     autocomplete="off"
     
-    data-offline-search-index-json-src="/offline-search-index.3c5aebc1447634a6b24181e7c36ac494.json"
+    data-offline-search-index-json-src="/offline-search-index.d321c7c75caef9d9e13951f6e9298449.json"
     data-offline-search-base-href="/"
     data-offline-search-max-results="10"
   >
@@ -373,7 +373,7 @@ Define access rights since the defaults actions is deny. Define access rights ca
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * @port: Network port in host endianness.
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 *
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * It should be noted that port 0 passed to :manpage:`bind(2)` will bind
-</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * to an available port from the ephemeral port range.  This can be
+</span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * to an available port from the ephemeral port range. This can be
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * configured with the ``/proc/sys/net/ipv4/ip_local_port_range`` sysctl
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 * (also used for IPv6).
 </span></span></span><span style="display:flex;"><span><span style="color:#8f5902;font-style:italic">	 *
@@ -386,7 +386,7 @@ Define access rights since the defaults actions is deny. Define access rights ca
 </span></span></code></pre></div><p>Adding rules can be done using <code>landlock_add_rule()</code> syscall.</p>
 <ol start="3">
 <li><strong>Restricting Self:</strong><br>
-Once a ruleset is created and populated, a thread (with <code>no_new_privs</code> set, or with <code>CAP_SYS_ADMIN</code> in its namespace) can call <code>landlock_restrict_self()</code>  syscall to enforce it on itself and all child processes. After enforcement, the process can still add more restrictions later, but cannot remove existing ones.</li>
+Once a ruleset is created and populated, a thread (with <code>no_new_privs</code> set, or with <code>CAP_SYS_ADMIN</code> in its namespace) can call <code>landlock_restrict_self()</code> syscall to enforce it on itself and all child processes. After enforcement, the process can still add more restrictions later, but cannot remove existing ones.</li>
 </ol>
 
 
@@ -400,11 +400,11 @@ Once a ruleset is created and populated, a thread (with <code>no_new_privs</code
 <h3 id="abi-versions-and-compatibility">ABI Versions and Compatibility<a class="td-heading-self-link" href="#abi-versions-and-compatibility" aria-label="Heading self-link"></a></h3>
 <p>When you call <code>landlock_create_ruleset()</code> with <code>attr = NULL</code> and <code>size = 0</code>, it returns the highest supported ABI. A recommended practice is to do a best-effort approach: detect the system’s ABI, then disable features that are not supported, so your program runs consistently on different kernels.</p>
 <ul>
-<li><strong>ABI &lt; 2</strong>: Did not allow renaming/linking across directories.</li>
-<li><strong>ABI &lt; 3</strong>: File truncation could not be restricted.</li>
-<li><strong>ABI &lt; 4</strong>: No network restriction support.</li>
-<li><strong>ABI &lt; 5</strong>: Could not restrict <code>ioctl(2)</code> on devices.</li>
-<li><strong>ABI &lt; 6</strong>: No scope restrictions for signals or abstract Unix sockets.</li>
+<li><code>ABI &lt; 2</code>: Did not allow renaming/linking across directories.</li>
+<li><code>ABI &lt; 3</code>: File truncation could not be restricted.</li>
+<li><code>ABI &lt; 4</code>: No network restriction support.</li>
+<li><code>ABI &lt; 5</code>: Could not restrict <code>ioctl(2)</code> on devices.</li>
+<li><code>ABI &lt; 6</code>: No scope restrictions for signals or abstract Unix sockets.</li>
 </ul>
 <p>It&rsquo;s recommended to detect Landlock ABI version to maintain compatibility across different kernel versions as stated in the kernel manual:</p>
 <div class="highlight"><pre tabindex="0" style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#204a87;font-weight:bold">int</span> <span style="color:#000">abi</span><span style="color:#000;font-weight:bold">;</span>

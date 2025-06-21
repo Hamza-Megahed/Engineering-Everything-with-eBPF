@@ -25,7 +25,7 @@ struct bpf_raw_tracepoint_args {
 };
 ```
 
-To get what args points to in case of `sys_enter` is by examining include/trace/events/syscalls.h
+To understand what the arguments point to in the case of `sys_enter`, you should examine `include/trace/events/syscalls.h`.
 ```c
 TRACE_EVENT_SYSCALL(sys_enter,
 	TP_PROTO(struct pt_regs *regs, long id),
@@ -193,7 +193,7 @@ PID: 3442, COMM: rm, FILENAME: test2
 ```
 
 
-Let's explore another example other than `sys_enter`. The following is raw tracepoint  `task_rename` which is triggered when a process change its command name. Detecting such activity is crucial in security field such as malware try to hide its true identity or mimic a trusted process such as using `prctl(PR_SET_NAME)` to change the name of comm.
+Let's explore another example other than `sys_enter`. The following is raw tracepoint `task_rename` which is triggered when a process change its command name. Detecting such activity is crucial in security field such as malware try to hide its true identity or mimic a trusted process such as using `prctl(PR_SET_NAME)` to change the name of comm.
 By examining task_rename tracing event source code located in `include/trace/events/task.h`,we can see how the tracing mechanism is implemented:
 ```c
 TRACE_EVENT(task_rename,

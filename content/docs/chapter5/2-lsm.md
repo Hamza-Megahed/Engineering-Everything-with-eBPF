@@ -15,7 +15,9 @@ Traditionally, LSM hooks require the security policy to be built into the kernel
 - **Flexibility and Experimentation:** Administrators and security professionals can quickly test and deploy new security policies, fine-tune behavior, or respond to emerging threats without lengthy kernel recompilations.
 - **Runtime Enforcement:** eBPF programs attached to LSM hooks (using the BPF_PROG_TYPE_LSM) can inspect the kernel context and actively enforce security decisions (such as logging events or rejecting operations).
 
-In short, while traditional LSM modules (such as SELinux) enforce security policies statically at build time, LSM with eBPF hooks introduces dynamic, runtime adaptability to kernel security. This hybrid approach leverages the robustness of the LSM framework and the operational agility of eBPF. The LSM interface triggers immediately before the kernel acts on a data structure, and at each hook point, a callback function determines whether to permit the action.  Let's explore together LSM with eBPF. First, we need to check if `BPF LSM` is supported by the kernel:
+In short, while traditional LSM modules (such as SELinux) enforce security policies statically at build time, LSM with eBPF hooks introduces dynamic, runtime adaptability to kernel security. This hybrid approach leverages the robustness of the LSM framework and the operational agility of eBPF. The LSM interface triggers immediately before the kernel acts on a data structure, and at each hook point, a callback function determines whether to permit the action.
+
+Let's explore together LSM with eBPF. First, we need to check if `BPF LSM` is supported by the kernel:
 ```sh
 cat /boot/config-$(uname -r) | grep BPF_LSM
 ```
@@ -30,8 +32,7 @@ if the output contains `bpf` then the module is enabled like the following:
 lockdown,capability,landlock,yama,apparmor,tomoyo,bpf,ipe,ima,evm
 ```
 
-If the output is similar to `ndlock,lockdown,yama,integrity,apparmor` with `bpf`. Then, add 
-`GRUB_CMDLINE_LINUX="lsm=ndlock,lockdown,yama,integrity,apparmor,bpf"` to `/etc/default/grub` followed by updating the grub using `sudo update-grub2` and reboot.
+If the output includes `ndlock`, `lockdown`, `yama`, `integrity`, and `apparmor` along with `bpf`, add `GRUB_CMDLINE_LINUX="lsm=ndlock,lockdown,yama,integrity,apparmor,bpf"` to the `/etc/default/grub` file, update GRUB using `sudo update-grub2`, and reboot.
 
 The list of all LSM hooks are defined in `include/linux/lsm_hook_defs.h`, the following is just an example of it:
 ```c
@@ -40,11 +41,8 @@ LSM_HOOK(int, 0, path_chown, const struct path *path, kuid_t uid, kgid_t gid)
 LSM_HOOK(int, 0, path_chroot, const struct path *path)
 ```
 
-LSM hooks documentation is located at
-```html
-https://github.com/torvalds/linux/blob/457391b0380335d5e9a5babdec90ac53928b23b4/include/linux/lsm_hooks.h 
-```
-which has descriptive documentation for most of LSM hooks such as:
+[LSM hooks documentation](https://tinyurl.com/48ajwu7v) which has descriptive documentation for most of LSM hooks such as:
+
 ```html
  * @path_chmod:
  *	  Check for permission to change a mode of the file @path. The new
@@ -149,7 +147,7 @@ struct dentry {
 };
 ```
 
-`struct dentry` data structure has a member `struct qstr` data structure that contains information about the name  (a pointer to the actual character array containing the name) defined in `include/linux/dcache.h` as the following:
+`struct dentry` data structure has a member `struct qstr` data structure that contains information about the name (a pointer to the actual character array containing the name) defined in `include/linux/dcache.h` as the following:
 ```c
 struct qstr {
 	union {
@@ -167,7 +165,7 @@ That's how you extract the filename: by reading the `dentry` data structure, the
 const char *dname = (const char *)BPF_CORE_READ(dentry, d_name.name);
 ```
 
-`bpf_path_d_path` Kernel function i used to extract the path name for the supplied path data structure defined in `fs/bpf_fs_kfuncs.c` in the kernel source code as  the following:
+`bpf_path_d_path` Kernel function i used to extract the path name for the supplied path data structure defined in `fs/bpf_fs_kfuncs.c` in the kernel source code as the following:
 ```c
 __bpf_kfunc int bpf_path_d_path(struct path *path, char *buf, size_t buf__sz)
 {
@@ -461,7 +459,7 @@ int BPF_PROG(socket_create, int family, int type, int protocol, int kern)
 }
 ```
 
-When a process running as UID 1000 (for example, when a user attempts to run ping or ssh) tries to create a new socket, the LSM hook for socket creation is triggered.The eBPF program intercepts this call and retrieves the current UID using `bpf_get_current_uid_gid()`. If the UID is 1000, the program returns `-EPERM` (which means "Operation not permitted"). This return value causes the socket creation to fail.
+When a process running as UID 1000 (for example, when a user attempts to run ping or ssh) tries to create a new socket, the LSM hook for socket creation is triggered. The eBPF program intercepts the system call and uses `bpf_get_current_uid_gid()` to obtain the current UID. If the UID is 1000, the program returns `-EPERM` (which means "Operation not permitted"). This return value causes the socket creation to fail.
 ```sh
 ping-2197 [...] Blocking socket_create for uid 1000, family 2, type 2, protocol 1
 ssh-2198 [...] Blocking socket_create for uid 1000, family 2, type 1, protocol 6

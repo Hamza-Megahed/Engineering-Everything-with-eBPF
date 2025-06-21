@@ -12,7 +12,7 @@
       <link>https://ebpf.hamza-megahed.com/docs/chapter3/1-kprobe-kretprobe/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://ebpf.hamza-megahed.com/docs/chapter3/1-kprobe-kretprobe/</guid>
-      <description>Writing eBPF Code When writing eBPF code, you typically need to write two separate parts: one for kernel-space and the other for user-space.&#xA;Kernel Space Code:&#xA;The kernel-space code is responsible for performing specific tasks, such as tracing, monitoring network packets, filtering system calls, or attaching to kprobes, tracepoints, etc. This code interacts directly with the kernel and can access kernel data structures or events. The kernel space is highly sensitive, so the code running there must be safe and efficient.</description>
+      <description>Writing eBPF Code When writing eBPF code, you typically need to write two separate parts: one for kernel-space and the other for user-space. Kernel Space Code: The kernel-space code is responsible for performing specific tasks, such as tracing, monitoring network packets, filtering system calls, or attaching to kprobes, tracepoints, etc. This code interacts directly with the kernel and can access kernel data structures or events. The kernel space is highly sensitive, so the code running there must be safe and efficient.</description>
     </item>
     <item>
       <title>Uprobes and Uretprobes</title>

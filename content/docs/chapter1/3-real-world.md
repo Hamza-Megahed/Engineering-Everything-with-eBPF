@@ -17,19 +17,19 @@ Moreover, eBPF’s low overhead makes it suitable for use in high-traffic produc
 
 ### Facebook (Meta): Load Balancing with Katran
 
-Facebook (now Meta) handles billions of user interactions daily, requiring robust and efficient load-balancing mechanisms. To achieve this, Facebook developed Katran, a high-performance, eBPF-based layer 4 load balancer. Katran powers the edge network for Facebook’s backend services, providing scalable and reliable traffic distribution.
+Facebook (now Meta) handles billions of user interactions daily, requiring robust and efficient load-balancing mechanisms. To achieve this, Facebook developed [Katran](https://tinyurl.com/mxuc6b56), a high-performance, eBPF-based layer 4 load balancer. Katran powers the edge network for Facebook’s backend services, providing scalable and reliable traffic distribution.
 
 Katran uses XDP eBPF to offload load-balancing tasks to the Linux kernel, bypassing some of the traditional limitations of user-space load balancers. By running directly in the kernel, eBPF ensures that packet processing is both fast and efficient, reducing the need for context switches and avoiding bottlenecks.
 
-A key feature of Katran is its ability to dynamically adapt to changes in traffic patterns. eBPF programs enable the load balancer to update its forwarding rules on the fly without requiring restarts. This dynamic updating capability ensures minimal disruption and allows Facebook to handle sudden traffic surges smoothly https://engineering.fb.com/2018/05/22/open-source/open-sourcing-katran-a-scalable-network-load-balancer/.
+A key feature of Katran is its ability to dynamically adapt to changes in traffic patterns. eBPF programs enable the load balancer to update its forwarding rules on the fly without requiring restarts. This dynamic updating capability ensures minimal disruption and allows Facebook to handle sudden traffic surges smoothly.
 
 
 ### Cloudflare: DDoS Mitigation
 
-Cloudflare provides security and performance services to millions of websites worldwide, making it a prime target for Distributed Denial of Service (DDoS) attacks. To protect against these attacks, Cloudflare uses XDP eBPF to enhance its DDoS mitigation capabilities.
+Cloudflare provides security and performance services to millions of websites worldwide, making it a prime target for Distributed Denial of Service (DDoS) attacks. To protect against these attacks, [Cloudflare uses XDP eBPF](https://tinyurl.com/muxzh9v8) to enhance its DDoS mitigation capabilities.
 
 eBPF enables Cloudflare to monitor network traffic in real time, identifying and filtering out malicious packets before they reach the application layer. By deploying eBPF programs directly in the kernel, Cloudflare can analyze packet headers, track connection states, and enforce filtering rules with minimal latency.
 
-One advantage of using eBPF for DDoS mitigation is its flexibility. eBPF allows Cloudflare to update filtering logic dynamically, adapting to new attack vectors without requiring system downtime or restarts. For example, when a new type of DDoS attack is identified, Cloudflare can deploy an updated eBPF filter to block the attack within seconds https://blog.cloudflare.com/l4drop-xdp-ebpf-based-ddos-mitigations/.
+One advantage of using eBPF for DDoS mitigation is its flexibility. eBPF allows Cloudflare to update filtering logic dynamically, adapting to new attack vectors without requiring system downtime or restarts. For example, when a new type of DDoS attack is identified, Cloudflare can deploy an updated eBPF filter to block the attack within seconds.
 
 Moreover, eBPF’s performance efficiency ensures that mitigation measures do not degrade legitimate traffic. Cloudflare can maintain high throughput and low latency even when under attack, providing a seamless experience for end users.
