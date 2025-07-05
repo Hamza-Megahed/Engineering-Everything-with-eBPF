@@ -40,7 +40,7 @@ Before an eBPF program runs, it must pass through a static verifier that analyze
 
 The verifier ensures that once a program is accepted, it cannot violate kernel integrity.
 
-#### JIT Compilation and Performanc
+#### JIT Compilation and Performance
 
 Once verified, eBPF bytecode can be interpreted by an in-kernel virtual machine, or just-in-time compiled into native machine instructions. The JIT compiler:
 
